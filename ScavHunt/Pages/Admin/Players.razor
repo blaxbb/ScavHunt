@@ -1,0 +1,95 @@
+﻿@page "/admin/players"
+@using ScavHunt.Data.Models
+@inject PlayerAdminService players;
+@attribute [Authorize]
+
+<div class="container">
+    <h3>Players</h3>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Badge))">Badge Number @GetDirectionIndicator(SortMode.Badge)</td>
+                <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Created))">Created @GetDirectionIndicator(SortMode.Created)</td>
+                <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Points))">Points @GetDirectionIndicator(SortMode.Points)</td>
+                <td></td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @if (All != null)
+            {
+                @foreach (var player in (Direction == SortDirection.Ascending ? All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))))
+                {
+                    <tr>
+                        <td>@player.BadgeNumber</td>
+                        <td>@player.Created</td>
+                        <td>@player.Points</td>
+                        <td><button type="button" class="btn btn-primary">Details</button></td>
+                        <td><button type="button" class="btn btn-primary">Edit</button></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    List<Player> All { get; set; }
+
+    SortMode Mode { get; set; }
+    SortDirection Direction { get; set; }
+
+    enum SortMode
+    {
+        Badge,
+        Created,
+        Points
+    };
+
+    enum SortDirection
+    {
+        Ascending,
+        Descending
+    };
+
+    protected override void OnInitialized()
+    {
+        All = players.AllPlayers();
+    }
+
+    string GetDirectionIndicator(SortMode mode)
+    {
+        //this should be done in css
+        if(mode == Mode)
+        {
+            return Direction == SortDirection.Ascending ? "▲" : "▼";
+        }
+
+        return " ";
+    }
+
+    void SetSort(SortMode mode)
+    {
+        if(Mode == mode)
+        {
+            Direction = Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+        }
+        else
+        {
+            Mode = mode;
+            Direction = SortDirection.Descending;
+        }
+    }
+
+    object PlayerSort(Player p)
+    {
+        return Mode switch
+        {
+            SortMode.Badge => p.BadgeNumber,
+            SortMode.Created => p.Created,
+            SortMode.Points => p.Points,
+            _ => ""
+        };
+    }
+}

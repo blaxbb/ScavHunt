@@ -4,7 +4,7 @@ namespace ScavHunt.Data.Services
 {
     public class PlayerService
     {
-        ApplicationDbContext db;
+        protected ApplicationDbContext db;
 
         public PlayerService(ApplicationDbContext ctx)
         {

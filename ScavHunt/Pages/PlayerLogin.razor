@@ -102,7 +102,7 @@ else if(State == LoginState.Info && player != null)
             return;
         }
 
-        await InvokeAsync(() => State = LoginState.Loading);
+        await InvokeAsync(() => { State = LoginState.Loading; StateHasChanged(); });
 
         var p = await players.CreateOrExisting(badgeNumber);
 
