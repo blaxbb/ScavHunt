@@ -1,0 +1,126 @@
+﻿@page "/player"
+@using System.Text.RegularExpressions
+@using ScavHunt.Data.Models
+@inject PlayerService players
+@inject JSInterop js;
+
+@if(State == LoginState.Loading)
+{
+    <div class="container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if(State == LoginState.Register)
+{
+    <div class="container">
+        <h3>Register to play</h3>
+        <div class="form">
+            <input class="form-control" type="text" @oninput="@((e)=> InputBadgeNumber = e.Value?.ToString() ?? "")" placeholder="Enter or scan your badge number" />
+
+        </div>
+    </div>
+}
+else if(State == LoginState.Info && player != null)
+{
+    <div class="container">
+        <div class="row">
+            <h3>Player Info</h3>
+        </div>
+        <EditForm Model="@player" OnValidSubmit="@(async() => await PlayerEditSubmit())">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">BadgeNumber
+                    <InputText class="form-control" id="badgeNumber" disabled="true" @bind-Value="player.BadgeNumber" />
+                </label>
+            </div>
+            <button class="btn btn-primary" type="button" @onclick="Logout">Logout</button>
+        </EditForm>
+    </div>
+}
+
+
+@code {
+    enum LoginState
+    {
+        Loading,
+        Register,
+        Info
+    }
+    LoginState State { get; set; }
+
+    string? inputBadgeNumber;
+    string? InputBadgeNumber { get => inputBadgeNumber; set { inputBadgeNumber = value; BadgeNumberUpdated(); } }
+
+    Player player;
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            var existingBadge = await js.GetStorage("badgeNumber");
+            if (!string.IsNullOrWhiteSpace(existingBadge))
+            {
+                var existingPlayer = players.GetFromBadge(existingBadge);
+                if(existingPlayer != null)
+                {
+                    player = existingPlayer;
+                    State = LoginState.Info;
+                    StateHasChanged();
+                    return;
+                }
+            }
+
+            State = LoginState.Register;
+
+            StateHasChanged();
+        }
+    }
+
+    void BadgeNumberUpdated()
+    {
+        if (Player.BadgeFormat.IsMatch(InputBadgeNumber ?? ""))
+        {
+            Task.Run(async () => await CreateOrSetPlayer(InputBadgeNumber));
+        }
+    }
+
+    async Task Logout()
+    {
+        await js.ClearStorage();
+        State = LoginState.Register;
+    }
+
+
+    async Task CreateOrSetPlayer(string? badgeNumber)
+    {
+        if (string.IsNullOrWhiteSpace(badgeNumber) || !Player.BadgeFormat.IsMatch(badgeNumber ?? ""))
+        {
+            return;
+        }
+
+        await InvokeAsync(() => State = LoginState.Loading);
+
+        var p = await players.CreateOrExisting(badgeNumber);
+
+        if (p != default)
+        {
+            await js.SetStorage("badgeNumber", p.BadgeNumber);
+            player = p;
+            await InvokeAsync(() => { State = LoginState.Info; StateHasChanged(); });
+        }
+        else
+        {
+            State = LoginState.Register;
+        }
+    }
+
+    async Task PlayerEditSubmit()
+    {
+        
+    }
+
+}

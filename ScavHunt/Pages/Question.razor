@@ -39,7 +39,7 @@
             </div>
         </div>
     }
-    @if(State == QuestionState.Success)
+    @if(State == QuestionState.Success && Choices != null)
     {
         var question = Choices.FirstOrDefault();
         var points = Points();
