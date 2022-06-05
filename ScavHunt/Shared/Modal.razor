@@ -1,0 +1,49 @@
+﻿<div class="modal fade" id="@Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@CloseText"></button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+            @if (CloseText != null || ConfirmText != null)
+            {
+                <div class="modal-footer">
+                    @if (CloseText != null)
+                    {
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@CloseText</button>
+                    }
+                    @if (ConfirmText != null)
+                    {
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="OnConfirmed">@ConfirmText</button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public string? CloseText { get; set; }
+    [Parameter]
+    public string? ConfirmText { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback Confirmed { get; set; }
+
+    async Task OnConfirmed()
+    {
+        await Confirmed.InvokeAsync();
+    }
+}

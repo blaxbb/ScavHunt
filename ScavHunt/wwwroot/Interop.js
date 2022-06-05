@@ -9,3 +9,13 @@ window.GetLocalStorage = (key) => {
 window.ClearLocalStorage = (key) => {
     localStorage.clear();
 }
+
+window.ShowModal = function (id) {
+    var modal = new bootstrap.Modal(document.getElementById(id));
+    modal.show();
+}
+
+window.HideModal = function (id) {
+    var modal = document.getElementById(id)
+    bootstrap.Modal.getInstance(modal).hide();
+}

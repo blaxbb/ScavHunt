@@ -1,0 +1,7 @@
+﻿.modal-content {
+    max-height: 80vh;
+}
+
+.modal-body {
+    overflow-y: auto;
+}

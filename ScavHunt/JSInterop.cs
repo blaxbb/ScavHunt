@@ -51,5 +51,15 @@ namespace ScavHunt
         {
             await js.InvokeVoidAsync("ClearLocalStorage");
         }
+
+        public async Task ShowModal(string id)
+        {
+            await js.InvokeVoidAsync("ShowModal", id);
+        }
+
+        public async Task HideModal(string id)
+        {
+            await js.InvokeVoidAsync("HideModal", id);
+        }
     }
 }

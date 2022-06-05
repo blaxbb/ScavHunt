@@ -25,7 +25,12 @@ builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddScoped<PlayerAdminService>();
+
+builder.Services.AddScoped<QuestionAdminService>();
+
 builder.Services.AddScoped<JSInterop>();
+
+
 
 var app = builder.Build();
 
