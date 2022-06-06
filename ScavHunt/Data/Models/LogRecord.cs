@@ -10,6 +10,7 @@
             Completed = 1,
             Player = 2,
             IncorrectAnswer = 3,
+            PointTransaction = 4,
         }
         public RecordType Type { get; set; }
 

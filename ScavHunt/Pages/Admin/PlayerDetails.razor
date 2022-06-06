@@ -1,0 +1,75 @@
+﻿@page "/admin/players/{BadgeNumber}"
+@attribute [Authorize]
+
+@using ScavHunt.Data.Models
+@inject PlayerAdminService players
+@inject NavigationManager nav;
+
+@if(player == default)
+{
+    <div class="container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row card p-3">
+            <dl class="row">
+                <dt class="col-lg-3">Badge Number</dt>
+                <dd class="col-lg-9">@player.BadgeNumber</dd>
+                <dt class="col-lg-3">Points</dt>
+                <dd class="col-lg-9">@player.PointTransactions.Sum(p => p.Value)</dd>
+            </dl>
+        </div>
+        <div class="row">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <td>Source</td>
+                        <td>Question</td>
+                        <td>Value</td>
+                        <td>Timestamp</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var transaction in player.PointTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.Source</td>
+                            <td>@(transaction.Question?.ShortCode ?? "")</td>
+                            <td>@transaction.Value</td>
+                            <td>@transaction.Timestamp</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    Player? player { get; set; }
+
+    [Parameter]
+    public string BadgeNumber { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(BadgeNumber))
+        {
+            nav.NavigateTo("404");
+            return;
+        }
+
+        player = players.GetFromBadge(BadgeNumber);
+
+        if (player == default)
+        {
+            nav.NavigateTo("404");
+            return;
+        }
+    }
+}

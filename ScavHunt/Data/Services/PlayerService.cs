@@ -1,20 +1,25 @@
-﻿using ScavHunt.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ScavHunt.Data.Models;
 
 namespace ScavHunt.Data.Services
 {
     public class PlayerService
     {
         protected ApplicationDbContext db;
+        protected JSInterop js;
 
-        public PlayerService(ApplicationDbContext ctx)
+        public PlayerService(ApplicationDbContext ctx, JSInterop jsInterop)
         {
             db = ctx;
+            js = jsInterop;
         }
 
         public Player? GetFromBadge(string badge)
         {
-            var player = db.Players.FirstOrDefault(p => p.BadgeNumber == badge);
-            return player;
+            return db.Players
+                .Include(p => p.PointTransactions)
+                .ThenInclude(t => t.Question)
+                .FirstOrDefault(p => p.BadgeNumber == badge);
         }
 
         public async Task<Player> CreateOrExisting(string badge)
@@ -35,6 +40,23 @@ namespace ScavHunt.Data.Services
             await db.SaveChangesAsync();
 
             return player;
+        }
+
+        public async Task<Player?> GetCurrent()
+        {
+            var existingBadge = await js.GetStorage("badgeNumber");
+            if (string.IsNullOrWhiteSpace(existingBadge))
+            {
+                return default;
+            }
+
+            var existingPlayer = GetFromBadge(existingBadge);
+            if (existingPlayer == default)
+            {
+                return default;
+            }
+
+            return existingPlayer;
         }
     }
 }

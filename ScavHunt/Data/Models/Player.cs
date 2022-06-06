@@ -8,10 +8,10 @@ namespace ScavHunt.Data.Models
 
         public string BadgeNumber { get; set; }
         public DateTime Created { get; set; }
-        public int Points { get; set; }
 
         public static Regex BadgeFormat = new Regex("^\\d{10}$");
 
         public List<LogRecord> Responses { get; set; }
+        public List<PointTransaction> PointTransactions { get; set; }
     }
 }

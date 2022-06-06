@@ -32,6 +32,8 @@ builder.Services.AddScoped<QuestionAdminService>();
 builder.Services.AddScoped<LogService>();
 builder.Services.AddScoped<LogAdminService>();
 
+builder.Services.AddScoped<PointService>();
+
 builder.Services.AddScoped<JSInterop>();
 
 

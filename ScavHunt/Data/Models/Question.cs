@@ -12,6 +12,7 @@
         public List<string> Answers { get; set; } = new List<string>();
 
         public List<LogRecord> Responses { get; set; }
+        public List<PointTransaction> PointTransactions { get; set; }
 
         // QuestionAdminService -> Update() must be updated for additional fields
         // Admin/Questions.razor -> EditQuestion() must be updated for additional fields

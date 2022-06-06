@@ -23,8 +23,8 @@
                     <tr>
                         <td>@player.BadgeNumber</td>
                         <td>@player.Created</td>
-                        <td>@player.Points</td>
-                        <td><button type="button" class="btn btn-primary">Details</button></td>
+                        <td>@player.PointTransactions.Sum(p => p.Value)</td>
+                        <td><NavLink class="btn btn-primary" href=@($"/admin/players/{player.BadgeNumber}")>Details</NavLink></td>
                         <td><button type="button" class="btn btn-primary">Edit</button></td>
                     </tr>
                 }
@@ -88,7 +88,7 @@
         {
             SortMode.Badge => p.BadgeNumber,
             SortMode.Created => p.Created,
-            SortMode.Points => p.Points,
+            SortMode.Points => p.PointTransactions.Sum(p => p.Value),
             _ => ""
         };
     }

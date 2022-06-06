@@ -10,13 +10,14 @@
                 <td>Type</td>
                 <td>User</td>
                 <td>Question</td>
+                <td>Message</td>
                 <td>Timestamp</td>
             </tr>
         </thead>
     @if(log != default)
     {
         <tbody>
-            @foreach(var entry in log)
+            @foreach(var entry in log.OrderByDescending(l => l.Timestamp))
             {
                 <tr>
                     <td>@entry.Type</td>

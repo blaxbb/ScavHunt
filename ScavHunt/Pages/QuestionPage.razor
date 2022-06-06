@@ -4,6 +4,7 @@
 @inject NavigationManager nav;
 @inject LogService log;
 @inject PlayerService players;
+@inject PointService points;
 @inject JSInterop js;
 
 @if(question == default)
@@ -106,21 +107,17 @@ else
             return;
         }
 
-        var existingBadge = await js.GetStorage("badgeNumber");
-        if (string.IsNullOrWhiteSpace(existingBadge))
-        {
-            nav.NavigateTo("/player");
-        }
+        player = await players.GetCurrent();
 
-        var existingPlayer = players.GetFromBadge(existingBadge);
-        if(existingPlayer == default)
+        if(player == default)
         {
-           nav.NavigateTo("/player");
+            nav.NavigateTo("player");
+            return;
         }
-
-        player = existingPlayer;
 
         question = await questions.GetFromShortCode(QuestionId);
+
+        StateHasChanged();
 
         if(question == default)
         {
@@ -171,6 +168,8 @@ else
         {
             State = QuestionState.Success;
             await log.Question(player, question, LogRecord.RecordType.Completed, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
+
+            await points.AddPoints(player, question, Points());
             StopTimer();
 
             return;
