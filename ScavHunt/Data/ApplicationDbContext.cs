@@ -9,6 +9,7 @@ namespace ScavHunt.Data
     {
         public DbSet<Player> Players { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<LogRecord> Log { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

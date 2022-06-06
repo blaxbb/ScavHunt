@@ -1,0 +1,20 @@
+﻿@page "/admin"
+@attribute [Authorize]
+
+<div class="container">
+    <div class="row mb-3">
+        <NavLink class="btn btn-outline-primary py-3" href="admin/questions">
+            <span class="oi oi-question-mark"></span> Questions
+        </NavLink>
+    </div>
+    <div class="row mb-3">
+        <NavLink class="btn btn-outline-primary py-3" href="admin/players">
+            <span class="oi oi-person"></span> Players
+        </NavLink>
+    </div>
+    <div class="row mb-3">
+        <NavLink class="btn btn-outline-primary py-3" href="admin/log">
+            <span class="oi oi-clipboard"></span> Log
+        </NavLink>
+    </div>
+</div>

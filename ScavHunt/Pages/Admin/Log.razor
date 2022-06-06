@@ -1,0 +1,41 @@
+﻿@page "/admin/log"
+@using ScavHunt.Data.Models
+@attribute [Authorize]
+@inject LogAdminService logs
+
+<div class="container">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <td>Type</td>
+                <td>User</td>
+                <td>Question</td>
+                <td>Timestamp</td>
+            </tr>
+        </thead>
+    @if(log != default)
+    {
+        <tbody>
+            @foreach(var entry in log)
+            {
+                <tr>
+                    <td>@entry.Type</td>
+                    <td>@(entry.Player?.BadgeNumber ?? "")</td>
+                    <td>@(entry.Question?.Id.ToString() ?? "")</td>
+                    <td>@entry.Message</td>
+                    <td>@entry.Timestamp</td>
+                </tr>
+            }
+        </tbody>
+
+    }
+    </table>
+</div>
+
+@code {
+    List<LogRecord> log { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        log = await logs.All();
+    }
+}

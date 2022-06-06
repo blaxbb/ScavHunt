@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScavHunt.Data;
 
@@ -11,9 +12,10 @@ using ScavHunt.Data;
 namespace ScavHunt.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220606022137_Add response record")]
+    partial class Addresponserecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,39 +226,6 @@ namespace ScavHunt.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ScavHunt.Data.Models.LogRecord", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("PlayerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("QuestionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlayerId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("Log");
-                });
-
             modelBuilder.Entity("ScavHunt.Data.Models.Player", b =>
                 {
                     b.Property<long>("Id")
@@ -312,6 +281,39 @@ namespace ScavHunt.Data.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("ScavHunt.Data.Models.ResponseRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("ResponseRecords");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -363,15 +365,19 @@ namespace ScavHunt.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ScavHunt.Data.Models.LogRecord", b =>
+            modelBuilder.Entity("ScavHunt.Data.Models.ResponseRecord", b =>
                 {
                     b.HasOne("ScavHunt.Data.Models.Player", "Player")
                         .WithMany("Responses")
-                        .HasForeignKey("PlayerId");
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ScavHunt.Data.Models.Question", "Question")
                         .WithMany("Responses")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Player");
 

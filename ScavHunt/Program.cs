@@ -29,6 +29,9 @@ builder.Services.AddScoped<PlayerAdminService>();
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuestionAdminService>();
 
+builder.Services.AddScoped<LogService>();
+builder.Services.AddScoped<LogAdminService>();
+
 builder.Services.AddScoped<JSInterop>();
 
 

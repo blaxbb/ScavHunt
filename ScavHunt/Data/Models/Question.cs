@@ -11,6 +11,8 @@
         public string Text { get; set; }
         public List<string> Answers { get; set; } = new List<string>();
 
+        public List<LogRecord> Responses { get; set; }
+
         // QuestionAdminService -> Update() must be updated for additional fields
         // Admin/Questions.razor -> EditQuestion() must be updated for additional fields
     }

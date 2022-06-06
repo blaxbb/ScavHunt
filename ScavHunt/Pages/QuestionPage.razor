@@ -2,6 +2,9 @@
 @using ScavHunt.Data.Models
 @inject QuestionService questions;
 @inject NavigationManager nav;
+@inject LogService log;
+@inject PlayerService players;
+@inject JSInterop js;
 
 @if(question == default)
 {
@@ -93,8 +96,30 @@ else
 
     Timer tickTimer;
 
-    protected override async Task OnInitializedAsync()
+    Player player;
+
+    protected override async Task OnAfterRenderAsync(bool first)
     {
+
+        if(!first)
+        {
+            return;
+        }
+
+        var existingBadge = await js.GetStorage("badgeNumber");
+        if (string.IsNullOrWhiteSpace(existingBadge))
+        {
+            nav.NavigateTo("/player");
+        }
+
+        var existingPlayer = players.GetFromBadge(existingBadge);
+        if(existingPlayer == default)
+        {
+           nav.NavigateTo("/player");
+        }
+
+        player = existingPlayer;
+
         question = await questions.GetFromShortCode(QuestionId);
 
         if(question == default)
@@ -112,6 +137,8 @@ else
 
             await Task.Delay(5000);
 
+            await log.Question(player, question, LogRecord.RecordType.Started, $"Started question {question.ShortCode}.");
+
             DisplayChoices = question.Answers.OrderBy(c => Random.Shared.Next()).ToList();
 
             State = QuestionState.Active;
@@ -125,7 +152,7 @@ else
         });
     }
 
-    void ChoiceSelected(int displayIndex)
+    async Task ChoiceSelected(int displayIndex)
     {
         if(State != QuestionState.Active)
         {
@@ -143,10 +170,13 @@ else
         if(index == 0)
         {
             State = QuestionState.Success;
+            await log.Question(player, question, LogRecord.RecordType.Completed, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
             StopTimer();
 
             return;
         }
+
+        await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.");
 
         if(index > 0 && index < Attempted.Count)
         {

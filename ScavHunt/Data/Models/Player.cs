@@ -11,5 +11,7 @@ namespace ScavHunt.Data.Models
         public int Points { get; set; }
 
         public static Regex BadgeFormat = new Regex("^\\d{10}$");
+
+        public List<LogRecord> Responses { get; set; }
     }
 }
