@@ -79,7 +79,7 @@
                     <tr>
                         <td>@question.ShortCode</td>
                         <td>@question.Vendor</td>
-                        <td>@(question.Text.Length > 16 ? question.Text.Substring(0,16) : question.Text)</td>
+                        <td>@(question.Text.Length > 64 ? question.Text.Substring(0,64) : question.Text)</td>
                         <td>@(question.Answers?.Count ?? 0)</td>
                         <td><button type="button" class="btn btn-primary">Details</button></td>
                         <td><button type="button" class="btn btn-primary" @onclick="(() => EditQuestion(question))">Edit</button></td>

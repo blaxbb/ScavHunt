@@ -3,28 +3,17 @@ using ScavHunt.Data.Models;
 
 namespace ScavHunt.Data.Services
 {
-    public class QuestionAdminService
+    public class QuestionAdminService : QuestionService
     {
-        ApplicationDbContext db;
-
         public QuestionAdminService(ApplicationDbContext db)
+            : base(db)
         {
-            this.db = db;
+            
         }
 
         public async Task<List<Question>> All()
         {
             return await db.Questions.ToListAsync();
-        }
-
-        public async Task<Question?> Get(long id)
-        {
-            return await db.Questions.FindAsync(id);
-        }
-
-        public async Task<Question?> GetFromShortCode(string code)
-        {
-            return await db.Questions.Where(q => q.ShortCode == code).FirstOrDefaultAsync();
         }
 
         public async Task<Question?> Add(Question question)

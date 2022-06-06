@@ -1,59 +1,72 @@
 ﻿@page "/q/{QuestionId}"
+@using ScavHunt.Data.Models
+@inject QuestionService questions;
+@inject NavigationManager nav;
 
-<div class="container">
-    <div class="row">
-        <h5 class="text-center">How cool is [COMPANY NAME HERE]'s new product [PRODUCT NAME HERE]!</h5>
+@if(question == default)
+{
+    <div class="container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
-    @if(State == QuestionState.LeadIn)
-    {
-        @for(int i = 0; i < 4; i++)
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <h5 class="text-center">@question.Text</h5>
+        </div>
+        @if(State == QuestionState.LeadIn)
         {
+            @for(int i = 0; i < 4; i++)
+            {
+                <div class="row">
+                    <button class="btn btn-outline-primary w-100 mb-3" type="button" disabled>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                </div>
+            }
+        }
+        @if (State == QuestionState.Active)
+        {
+            @for(int i = 0; i < DisplayChoices.Count; i++)
+            {
+                var index = i; // required for invoking ChoiceSelected properly
+
+                var choice = DisplayChoices[index];
+                var attempted = Attempted[index];
+
+                <div class="row">
+                    <button class="btn @(attempted ? "btn-danger" : "btn-outline-primary") w-100 mb-3" type="button" disabled="@(attempted)" @onclick="@(() => ChoiceSelected(index))">@choice</button>
+                </div>
+            }
+
+            var displayedProgress = Math.Max(ProgressPercent(), 20);
+
             <div class="row">
-                <button class="btn btn-outline-primary w-100 mb-3" type="button" disabled>
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </button>
+                <div class="progress p-0" style="height: 2rem;">
+                    <div class="progress-bar @ProgressClass()" role="progressbar" style="width: @displayedProgress%;" aria-valuenow="@displayedProgress" aria-valuemin="0" aria-valuemax="100">@(Points()) Points</div>
+                </div>
             </div>
         }
-    }
-    @if (State == QuestionState.Active && Choices != null && Choices.Count > 0)
-    {
-        @for(int i = 0; i < DisplayChoices.Count; i++)
+        @if(State == QuestionState.Success)
         {
-            var index = i; // required for invoking ChoiceSelected properly
-
-            var choice = DisplayChoices[index];
-            var attempted = Attempted[index];
-
+            var answer = question.Answers.FirstOrDefault();
+            var points = Points();
             <div class="row">
-                <button class="btn @(attempted ? "btn-danger" : "btn-outline-primary") w-100 mb-3" type="button" disabled="@(attempted)" @onclick="@(() => ChoiceSelected(index))">@choice</button>
+                <button class="btn btn-success w-100 mb-3" type="button" disabled>@answer</button>
+            </div>
+            <div class="row">
+                <h5 class="text-center">
+                    You have earned @points points!
+                </h5>
             </div>
         }
-
-        var displayedProgress = Math.Max(ProgressPercent(), 20);
-
-        <div class="row">
-            <div class="progress p-0" style="height: 2rem;">
-                <div class="progress-bar @ProgressClass()" role="progressbar" style="width: @displayedProgress%;" aria-valuenow="@displayedProgress" aria-valuemin="0" aria-valuemax="100">@(Points()) Points</div>
-            </div>
-        </div>
-    }
-    @if(State == QuestionState.Success && Choices != null)
-    {
-        var question = Choices.FirstOrDefault();
-        var points = Points();
-        <div class="row">
-            <button class="btn btn-success w-100 mb-3" type="button" disabled>@question</button>
-        </div>
-        <div class="row">
-            <h5 class="text-center">
-                You have earned @points points!
-            </h5>
-        </div>
-    }
-</div>
-
+    </div>
+}
 
 @code {
     const int DeltaTime = 100;
@@ -70,7 +83,7 @@
     [Parameter]
     public string QuestionId { get; set; }
 
-    List<string> Choices { get; set; }
+    Question question{ get; set; }
     List<string> DisplayChoices { get; set; }
     List<bool> Attempted { get; set; }
 
@@ -80,25 +93,26 @@
 
     Timer tickTimer;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        question = await questions.GetFromShortCode(QuestionId);
+
+        if(question == default)
+        {
+            nav.NavigateTo("404");
+        }
+
         State = QuestionState.LeadIn;
+
 
         Task.Run(async () =>
         {
-            Choices = new List<string>()
-            {
-                "The best thing ever invented!",
-                "Meh.",
-                "👎",
-                "Reasonably good"
-            };
             Attempted = new List<bool>();
-            Attempted.AddRange(Enumerable.Repeat(false, Choices.Count));
+            Attempted.AddRange(Enumerable.Repeat(false, question.Answers.Count));
 
             await Task.Delay(5000);
 
-            DisplayChoices = Choices.OrderBy(c => Random.Shared.Next()).ToList();
+            DisplayChoices = question.Answers.OrderBy(c => Random.Shared.Next()).ToList();
 
             State = QuestionState.Active;
 
@@ -119,7 +133,7 @@
         }
 
         var choice = DisplayChoices[displayIndex];
-        var index = Choices.IndexOf(choice);
+        var index = question.Answers.IndexOf(choice);
         if(index == -1)
         {
             Console.WriteLine($"ERROR: Invalid choice selected on question {QuestionId} {choice}!");
