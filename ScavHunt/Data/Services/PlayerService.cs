@@ -17,6 +17,7 @@ namespace ScavHunt.Data.Services
         public Player? GetFromBadge(string badge)
         {
             return db.Players
+                .Include(p => p.Responses)
                 .Include(p => p.PointTransactions)
                 .ThenInclude(t => t.Question)
                 .FirstOrDefault(p => p.BadgeNumber == badge);
