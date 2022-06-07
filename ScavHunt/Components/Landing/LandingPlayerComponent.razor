@@ -1,5 +1,28 @@
 ﻿@using ScavHunt.Data.Models
+@using System.Text.RegularExpressions
+@inject NavigationManager nav
+@inject QuestionService questions;
+
 <div class="container">
+    <div class="card row mb-3" id="hintCard">
+        <div class="card-header">
+            Activate a Question
+        </div>
+        <div class="card-body">
+            <form class="row g-3" @onsubmit="async () => await SubmitQuestionCode(ManualQuestionCode)">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-lg btn-primary"><span class="oi oi-camera-slr"></span></button>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control form-control-lg" placeholder="Enter question code" @bind-value="@ManualQuestionCode"/>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-lg btn-primary"><span class="oi oi-media-play"></span></button>
+                </div>
+                <input type="submit" hidden />
+            </form>
+        </div>
+    </div>
     <div class="card row mb-3" id="hintCard">
         <div class="card-header">
             <h3 class="text-center">Active Now</h3>
@@ -27,18 +50,16 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <td>Source</td>
                         <td>Question</td>
                         <td>Value</td>
                         <td>Timestamp</td>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var transaction in player.PointTransactions)
+                    @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
                     {
                         <tr>
-                            <td>@transaction.Source</td>
-                            <td>@(transaction.Question?.ShortCode ?? "")</td>
+                            <td>@(transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.ShortCode ?? "") : transaction.Source)</td>
                             <td>@transaction.Value</td>
                             <td>@transaction.Timestamp</td>
                         </tr>
@@ -97,5 +118,25 @@
     [Parameter]
     public Player? player { get; set; }
 
+    string ManualQuestionCode { get; set; }
+
     public List<string> Hints { get; set; } = new() { "Hint 1", "Hint 2", "Hint 3", "Hint 4", "Hint 5" };
+
+    async Task SubmitQuestionCode(string code)
+    {
+        var digits = Question.SHORT_CODE_LENGTH;
+        var regex = $"^\\d{{{digits}}}$";
+        if(Regex.IsMatch(code, regex))
+        {
+            var question = await questions.GetFromShortCode(code);
+            if(question != default)
+            {
+                nav.NavigateTo($"/q/{code}");
+            }
+            else
+            {
+                
+            }
+        }
+    }
 }
