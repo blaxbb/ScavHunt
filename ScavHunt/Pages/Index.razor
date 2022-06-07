@@ -1,9 +1,55 @@
 ﻿@page "/"
+@using ScavHunt.Data.Models
+@inject PlayerService players;
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Scav Hunt</PageTitle>
 
-<h1>Hello, world!</h1>
+@if(Mode == LandingMode.Loading){
+    <Spinner CssClass="d-flex justify-content-center"/>
+}
 
-Welcome to your new app.
+@if(Mode == LandingMode.Register)
+{
+    <LandingRegisterComponent />
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if(Mode == LandingMode.Landing)
+{
+    <LandingPlayerComponent Player="@player" />
+}
+
+
+@code
+{
+    Player? player { get; set; }
+
+    LandingMode Mode { get; set; }
+    enum LandingMode
+    {
+        Loading,
+        Register,
+        Landing
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(!firstRender)
+        {
+            return;
+        }
+        
+        player = await players.GetCurrent();
+
+        if(player == default)
+        {
+            Mode = LandingMode.Register;
+        }
+
+        else
+        {
+            Mode = LandingMode.Landing;
+        }
+
+        StateHasChanged();
+    }
+}
