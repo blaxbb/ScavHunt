@@ -3,7 +3,27 @@
 
 @using ScavHunt.Data.Models
 @inject PlayerAdminService players
-@inject NavigationManager nav;
+@inject PointService points
+@inject NavigationManager nav
+@inject JSInterop js
+@inject AuthenticationStateProvider auth
+@inject LogService log
+
+<Modal Id="addPoints" Title="Add Points">
+    <form class="px-3" @onsubmit="(async() => SubmitManualPoints())">
+        <div class="mb-3 row">
+            <label class="col-form-label col-sm-3">Points</label>
+            <input class="form-input col-sm-9" type="number" step="1" @bind-value="manualPoints"/>
+        </div>
+        <div class="mb-3 row">
+            <label class="col-form-label col-sm-3">Message</label>
+            <input class="form-input col-sm-9" @bind-value="manualMessage"/>
+        </div>
+        <div class="mb-3 row">
+            <button class="btn btn-primary col" type="submit">Submit</button>
+        </div>
+    </form>
+</Modal>
 
 @if(player == default)
 {
@@ -16,36 +36,51 @@
 else
 {
     <div class="container">
-        <div class="row card p-3">
-            <dl class="row">
-                <dt class="col-lg-3">Badge Number</dt>
-                <dd class="col-lg-9">@player.BadgeNumber</dd>
-                <dt class="col-lg-3">Points</dt>
-                <dd class="col-lg-9">@player.PointTransactions.Sum(p => p.Value)</dd>
-            </dl>
+        <div class="row card mb-3">
+            <div class="card-header">
+                <h3 class="text-center my-1">Info</h3>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-lg-3">Badge Number</dt>
+                    <dd class="col-lg-9">@player.BadgeNumber</dd>
+                    <dt class="col-lg-3">Points</dt>
+                    <dd class="col-lg-9">@player.PointTransactions.Sum(p => p.Value)</dd>
+                </dl>
+            </div>
         </div>
-        <div class="row">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <td>Source</td>
-                        <td>Question</td>
-                        <td>Value</td>
-                        <td>Timestamp</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach(var transaction in player.PointTransactions)
-                    {
+        <div class="row card mb-3">
+            <div class="card-header row m-0">
+                <div class="col">
+                    <h3 class="text-center my-1">Points</h3>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-primary" @onclick="@(async () => await js.ShowModal("addPoints"))">+</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
                         <tr>
-                            <td>@transaction.Source</td>
-                            <td>@(transaction.Question?.ShortCode ?? "")</td>
-                            <td>@transaction.Value</td>
-                            <td>@transaction.Timestamp</td>
+                            <td>Source</td>
+                            <td>Question</td>
+                            <td>Value</td>
+                            <td>Timestamp</td>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
+                        {
+                            <tr>
+                                <td>@transaction.Source</td>
+                                <td>@(transaction.Question?.ShortCode ?? "")</td>
+                                <td>@transaction.Value</td>
+                                <td>@transaction.Timestamp</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 }
@@ -55,6 +90,9 @@ else
 
     [Parameter]
     public string BadgeNumber { get; set; }
+
+    public string manualPoints { get; set; }
+    public string manualMessage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,5 +109,56 @@ else
             nav.NavigateTo("404");
             return;
         }
+    }
+
+    async Task SubmitManualPoints()
+    {
+        int p = 0;
+
+        if(!int.TryParse(manualPoints, out p))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(manualMessage))
+        {
+            return;
+        }
+
+        if(player == default)
+        {
+            return;
+        }
+
+        var account = await auth.GetAuthenticationStateAsync();
+        var adminName = account?.User?.Identity?.Name;
+        if(adminName == default)
+        {
+            return;
+        }
+
+        await points.AddPoints(new PointTransaction()
+        {
+            Player = player,
+            Source = PointTransaction.PointSource.Manual,
+            Timestamp = DateTime.Now,
+            Value = p
+        });
+
+        await log.Create(
+        new LogRecord()
+        {
+            Player = player,
+            Message = $"{adminName} -> {manualMessage}",
+            Timestamp = DateTime.Now,
+            Type = LogRecord.RecordType.PointTransaction
+        });
+
+        manualPoints = "";
+        manualMessage = "";
+
+        player = players.GetFromBadge(BadgeNumber);
+
+        await js.HideModal("addPoints");
     }
 }
