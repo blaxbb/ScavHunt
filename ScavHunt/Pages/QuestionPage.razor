@@ -19,7 +19,14 @@ else if(question != default)
 {
     <div class="container">
         <div class="row">
-            <h5 class="text-center">@question.Text</h5>
+            <div class="col-md-4 text-center my-auto">
+                <h3>
+                    @question.Title
+                </h3>
+            </div>
+            <div class="col-md">
+                <h5 class="">@question.Text</h5>
+            </div>
         </div>
         @if(State == QuestionState.LeadIn)
         {

@@ -21,5 +21,10 @@ namespace ScavHunt.Data.Services
         {
             return await db.Questions.Where(q => q.ShortCode == code).FirstOrDefaultAsync();
         }
+
+        public async Task<List<Question>> Active()
+        {
+            return await db.Questions.ToListAsync();
+        }
     }
 }

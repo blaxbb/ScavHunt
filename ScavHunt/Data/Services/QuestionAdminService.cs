@@ -49,6 +49,8 @@ namespace ScavHunt.Data.Services
                 existing.Text = question.Text;
                 existing.ShortCode = question.ShortCode;
                 existing.Answers = question.Answers;
+                existing.Title = question.Title;
+                existing.HintText = question.HintText;
 
                 db.Questions.Update(existing);
                 await db.SaveChangesAsync();

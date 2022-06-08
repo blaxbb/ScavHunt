@@ -14,5 +14,15 @@ namespace ScavHunt.Data.Services
         {
             return db.Players.Include(p => p.PointTransactions).ToList();
         }
+
+        public override Player? GetFromBadge(string badge)
+        {
+            return db.Players
+                .Include(p => p.Responses)
+                .ThenInclude(l => l.Question)
+                .Include(p => p.PointTransactions)
+                .ThenInclude(t => t.Question)
+                .FirstOrDefault(p => p.BadgeNumber == badge);
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace ScavHunt.Data.Services
             js = jsInterop;
         }
 
-        public Player? GetFromBadge(string badge)
+        public virtual Player? GetFromBadge(string badge)
         {
             return db.Players
                 .Include(p => p.Responses)

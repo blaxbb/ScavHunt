@@ -12,11 +12,19 @@
             <ValidationSummary />
 
             <div class="form-check mb-3">
+                <InputText class="form-control" id="title" @bind-Value="editQuestion.Title" placeholder="Title" />
+            </div>
+
+            <div class="form-check mb-3">
                 <InputText class="form-control" id="vendor" @bind-Value="editQuestion.Vendor" placeholder="Vendor" />
             </div>
 
             <div class="form-check mb-3">
-                <InputText class="form-control" id="text" @bind-Value="editQuestion.Text" placeholder="Question" />
+                <InputTextArea class="form-control" id="text" @bind-Value="editQuestion.Text" placeholder="Question" />
+            </div>
+
+            <div class="form-check mb-3">
+                <InputTextArea class="form-control" id="hint" @bind-Value="editQuestion.HintText" placeholder="Hint" />
             </div>
 
             <div class="card">
@@ -65,8 +73,8 @@
             <tr>
                 <td>Short Code</td>
                 <td>Vendor</td>
-                <td>Text</td>
-                <td>Answer Count</td>
+                <td>Title</td>
+                <td>Answers</td>
                 <td></td>
                 <td></td>
             </tr>
@@ -79,7 +87,7 @@
                     <tr>
                         <td>@question.ShortCode</td>
                         <td>@question.Vendor</td>
-                        <td>@(question.Text.Length > 64 ? question.Text.Substring(0,64) : question.Text)</td>
+                        <td>@question.Title</td>
                         <td>@(question.Answers?.Count ?? 0)</td>
                         <td><button type="button" class="btn btn-primary">Details</button></td>
                         <td><button type="button" class="btn btn-primary" @onclick="(() => EditQuestion(question))">Edit</button></td>
@@ -116,7 +124,9 @@
             ShortCode = question.ShortCode,
             Vendor = question.Vendor,
             Text = question.Text,
-            Answers = question.Answers.ToList()
+            Answers = question.Answers.ToList(),
+            Title = question.Title,
+            HintText = question.HintText
         };
 
         await js.ShowModal(EditId);

@@ -28,17 +28,22 @@
             <h3 class="text-center my-1">Active Now</h3>
         </div>
         <div class="card-body">
-            @for(int i = 0; i < Hints.Count; i++)
+            @if (ActiveQuestions != default)
             {
-                var hint = Hints[i];
-                <button type="button" class="alert alert-primary w-100" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
-                    <div>@hint <span class="ms-3 oi oi-plus"></span></div>
-                    <div class="collapse mt-3" id="collapseExample-@i">
-                        <div class="card card-body bg-transparent">
-                            This is where more specific hint text will go.  This is where more specific hint text will go.  This is where more specific hint text will go.  This is where more specific hint text will go.  This is where more specific hint text will go.  This is where more specific hint text will go.  
+                @for (int i = 0; i < ActiveQuestions.Count; i++)
+                {
+                    var question = ActiveQuestions[i];
+                    var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
+
+                    <button type="button" class="alert @(complete ? "alert-success" : "alert-primary") w-100" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
+                        <div>@question.Title <span class="ms-3 oi oi-plus"></span></div>
+                        <div class="collapse mt-3" id="collapseExample-@i">
+                            <div class="card card-body bg-transparent">
+                                @question.HintText
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
             }
         </div>
     </div>
@@ -118,9 +123,16 @@
     [Parameter]
     public Player? player { get; set; }
 
+    List<Question>? ActiveQuestions { get; set; }
+
     string ManualQuestionCode { get; set; }
 
     public List<string> Hints { get; set; } = new() { "Hint 1", "Hint 2", "Hint 3", "Hint 4", "Hint 5" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActiveQuestions = await questions.Active();
+    }
 
     async Task SubmitQuestionCode(string code)
     {
