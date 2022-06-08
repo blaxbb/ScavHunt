@@ -140,6 +140,7 @@ else
                             <td>Message</td>
                             <td>Question</td>
                             <td>Timestamp</td>
+                            <td></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,8 +149,18 @@ else
                             <tr>
                                 <td>@log.Type</td>
                                 <td>@log.Message</td>
-                                <td>@log.Question?.ShortCode</td>
+                                <td>@log.Question?.Title</td>
                                 <td>@log.Timestamp</td>
+                                @if(log.Type == LogRecord.RecordType.StartedQuestion && log.Question != default)
+                                {
+                                    <td>
+                                        <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(log.Question))"><span class="oi oi-trash"></span></button>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
                             </tr>
                         }
                     </tbody>
