@@ -6,8 +6,8 @@
 
         public enum RecordType
         {
-            Started = 0,
-            Completed = 1,
+            StartedQuestion = 0,
+            CompletedQuestion = 1,
             Player = 2,
             IncorrectAnswer = 3,
             PointTransaction = 4,

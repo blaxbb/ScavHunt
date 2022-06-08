@@ -3,24 +3,54 @@
 
 @using ScavHunt.Data.Models
 @inject PlayerAdminService players
-@inject PointService points
+@inject PointAdminService points
 @inject NavigationManager nav
 @inject JSInterop js
 @inject AuthenticationStateProvider auth
-@inject LogService log
+@inject LogAdminService log
 
 <Modal Id="addPoints" Title="Add Points">
-    <form class="px-3" @onsubmit="(async() => SubmitManualPoints())">
+    <form class="px-3" @onsubmit="(async() => await SubmitManualPoints())">
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Points</label>
             <input class="form-input col-sm-9" type="number" step="1" @bind-value="manualPoints"/>
         </div>
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-input col-sm-9" @bind-value="manualMessage"/>
+            <input class="form-input col-sm-9" @bind-value="manualPointsMessage"/>
         </div>
         <div class="mb-3 row">
             <button class="btn btn-primary col" type="submit">Submit</button>
+        </div>
+    </form>
+</Modal>
+
+<Modal Id="logMessage" Title="Log Message">
+    <form class="px-3" @onsubmit="(async() => await SumbitMessage())">
+        <div class="mb-3 row">
+            <label class="col-form-label col-sm-3">Message</label>
+            <input class="form-input col-sm-9" @bind-value="logMessage"/>
+        </div>
+        <div class="mb-3 row">
+            <button class="btn btn-primary col" type="submit">Submit</button>
+        </div>
+    </form>
+</Modal>
+
+<Modal Id="resetQuestion" Title="Reset Question">
+    <form class="px-3" @onsubmit="(async() => ConfirmResetQuestion())">
+        <div class="mb-3 row">
+            This will reset progress on question @resetQuestion?.ShortCode for player with badge number @player.BadgeNumber.
+        </div>
+        <div class="mb-3 row">
+            This should not be done unless deemed necessary due to game malfunction.
+        </div>
+        <div class="mb-3 row">
+            <label class="col-form-label col-sm-3">Message</label>
+            <input class="form-input col-sm-9" @bind-value="resetMessage"/>
+        </div>
+        <div class="mb-3 row">
+            <button class="btn btn-danger col" type="submit">Reset</button>
         </div>
     </form>
 </Modal>
@@ -66,6 +96,7 @@ else
                             <td>Question</td>
                             <td>Value</td>
                             <td>Timestamp</td>
+                            <td></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,6 +107,49 @@ else
                                 <td>@(transaction.Question?.ShortCode ?? "")</td>
                                 <td>@transaction.Value</td>
                                 <td>@transaction.Timestamp</td>
+                                <td>
+                                    @if(transaction.Source == PointTransaction.PointSource.Question && transaction.Question != default)
+                                    {
+                                        <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(transaction.Question))"><span class="oi oi-trash"></span></button>
+                                    }
+                                    else
+                                    {
+                                        
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row card mb-3">
+            <div class="card-header row m-0">
+                <div class="col">
+                    <h3 class="text-center my-1">Logs</h3>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-primary" @onclick="@(async () => await js.ShowModal("logMessage"))">+</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <td>Type</td>
+                            <td>Message</td>
+                            <td>Question</td>
+                            <td>Timestamp</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var log in player.Responses.OrderByDescending(l => l.Timestamp))
+                        {
+                            <tr>
+                                <td>@log.Type</td>
+                                <td>@log.Message</td>
+                                <td>@log.Question?.ShortCode</td>
+                                <td>@log.Timestamp</td>
                             </tr>
                         }
                     </tbody>
@@ -89,10 +163,15 @@ else
     Player? player { get; set; }
 
     [Parameter]
-    public string BadgeNumber { get; set; }
+    public string? BadgeNumber { get; set; }
 
-    public string manualPoints { get; set; }
-    public string manualMessage { get; set; }
+    string? manualPoints { get; set; }
+    string? manualPointsMessage { get; set; }
+
+    string? logMessage { get; set; }
+
+    Question? resetQuestion { get; set; }
+    string? resetMessage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,7 +199,7 @@ else
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(manualMessage))
+        if (string.IsNullOrWhiteSpace(manualPointsMessage))
         {
             return;
         }
@@ -149,16 +228,67 @@ else
         new LogRecord()
         {
             Player = player,
-            Message = $"{adminName} -> {manualMessage}",
+            Message = $"{adminName} -> {manualPointsMessage}",
             Timestamp = DateTime.Now,
             Type = LogRecord.RecordType.PointTransaction
         });
 
         manualPoints = "";
-        manualMessage = "";
+        manualPointsMessage = "";
 
         player = players.GetFromBadge(BadgeNumber);
 
         await js.HideModal("addPoints");
+    }
+
+    async Task SumbitMessage()
+    {
+        if (string.IsNullOrWhiteSpace(logMessage))
+        {
+            return;
+        }
+
+        await log.Create(new LogRecord()
+        {
+            Type = LogRecord.RecordType.Player,
+            Message = logMessage,
+            Player = player,
+            Timestamp = DateTime.Now
+        });
+
+        logMessage = default;
+
+        await js.HideModal("logMessage");
+    }
+
+    async Task ResetQuestion(Question question)
+    {
+        if(player == default || question == default)
+        {
+            return;
+        }
+        resetQuestion = question;
+        await js.ShowModal("resetQuestion");
+    }
+
+    async Task ConfirmResetQuestion()
+    {
+        if (string.IsNullOrWhiteSpace(resetMessage))
+        {
+            return;
+        }
+
+        if(resetQuestion == default || player == default)
+        {
+            return;
+        }
+
+        if(await points.Reset(player, resetQuestion))
+        {
+            resetQuestion = default;
+            player = players.GetFromBadge(BadgeNumber);
+            StateHasChanged();
+            await js.HideModal("resetQuestion");
+        }
     }
 }

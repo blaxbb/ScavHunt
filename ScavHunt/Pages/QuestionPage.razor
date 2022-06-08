@@ -131,7 +131,7 @@ else if(question != default)
             return;
         }
 
-        if(player.Responses.Any(r => r.Type == LogRecord.RecordType.Started && r.Question?.Id == question.Id))
+        if(player.Responses.Any(r => r.Type == LogRecord.RecordType.StartedQuestion && r.Question?.Id == question.Id))
         {
             ElapsedTime = TotalTime;
         }
@@ -149,7 +149,7 @@ else if(question != default)
                 await Task.Delay(5000);
             }
 
-            await log.Question(player, question, LogRecord.RecordType.Started, $"Started question {question.ShortCode}.");
+            await log.Question(player, question, LogRecord.RecordType.StartedQuestion, $"Started question {question.ShortCode}.");
 
             DisplayChoices = question.Answers.OrderBy(c => Random.Shared.Next()).ToList();
             State = QuestionState.Active;
@@ -181,7 +181,7 @@ else if(question != default)
         if(index == 0)
         {
             State = QuestionState.Success;
-            await log.Question(player, question, LogRecord.RecordType.Completed, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
 
             await points.AddPoints(player, question, Points());
             StopTimer();
