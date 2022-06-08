@@ -11,8 +11,11 @@ using ScavHunt.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var secrets = builder.Configuration.GetSection(Secrets.SecretsName).Get<Secrets>();
+
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = string.IsNullOrWhiteSpace(secrets?.DbPassword) ? builder.Configuration.GetConnectionString("DefaultConnection") :
+        $"Server=db;Database=master;User=sa;Password={secrets?.DbPassword};";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
