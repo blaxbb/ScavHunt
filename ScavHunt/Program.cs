@@ -38,6 +38,7 @@ builder.Services.AddScoped<PointService>();
 builder.Services.AddScoped<PointAdminService>();
 
 builder.Services.AddScoped<JSInterop>();
+builder.Services.AddSingleton<MarkdownService>();
 
 var app = builder.Build();
 

@@ -6,6 +6,7 @@
 @inject PlayerService players;
 @inject PointService points;
 @inject JSInterop js;
+@inject MarkdownService md;
 
 @if(State == QuestionState.Loading)
 {
@@ -25,7 +26,7 @@ else if(question != default)
                 </h3>
             </div>
             <div class="col-md">
-                <h5 class="">@question.Text</h5>
+                <h5 class="">@md.Render(question.Text)</h5>
             </div>
         </div>
         @if(State == QuestionState.LeadIn)
