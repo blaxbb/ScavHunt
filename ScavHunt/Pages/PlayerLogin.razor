@@ -3,6 +3,7 @@
 @using ScavHunt.Data.Models
 @inject PlayerService players
 @inject JSInterop js;
+@inject NavigationManager nav;
 
 @if(State == LoginState.Loading)
 {
@@ -36,7 +37,7 @@ else if(State == LoginState.Info && player != null)
                     <InputText class="form-control" id="badgeNumber" disabled="true" @bind-Value="player.BadgeNumber" />
                 </label>
             </div>
-            <button class="btn btn-primary" type="button" @onclick="Logout">Logout</button>
+            <NavLink class="btn btn-primary" type="button" href="/player/logout">Logout</NavLink>
         </EditForm>
     </div>
 }
@@ -87,13 +88,6 @@ else if(State == LoginState.Info && player != null)
         }
     }
 
-    async Task Logout()
-    {
-        await js.ClearStorage();
-        State = LoginState.Register;
-    }
-
-
     async Task CreateOrSetPlayer(string? badgeNumber)
     {
         if (string.IsNullOrWhiteSpace(badgeNumber) || !Player.BadgeFormat.IsMatch(badgeNumber ?? ""))
@@ -108,8 +102,7 @@ else if(State == LoginState.Info && player != null)
         if (p != default)
         {
             await js.SetStorage("badgeNumber", p.BadgeNumber);
-            player = p;
-            await InvokeAsync(() => { State = LoginState.Info; StateHasChanged(); });
+            nav.NavigateTo("/", true);
         }
         else
         {

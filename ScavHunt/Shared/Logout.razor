@@ -1,0 +1,12 @@
+﻿@page "/player/logout"
+
+@inject NavigationManager nav
+@inject JSInterop js
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await js.ClearStorage();
+        nav.NavigateTo("/", true);
+    }
+}

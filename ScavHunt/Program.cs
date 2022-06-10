@@ -39,8 +39,6 @@ builder.Services.AddScoped<PointAdminService>();
 
 builder.Services.AddScoped<JSInterop>();
 
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

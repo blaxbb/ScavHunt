@@ -1,0 +1,13 @@
+﻿@inject NavigationManager nav
+
+<h3>Redirecting to login</h3>
+
+@code {
+    protected override void OnAfterRender(bool first)
+    {
+        if (first)
+        {
+            nav.NavigateTo("/Identity/Account/Login", true);
+        }
+    }
+}
