@@ -25,20 +25,52 @@ else if(State == LoginState.Register)
 else if(State == LoginState.Info && player != null)
 {
     <div class="container">
-        <div class="row">
-            <h3>Player Info</h3>
-        </div>
-        <EditForm Model="@player" OnValidSubmit="@(async() => await PlayerEditSubmit())">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
 
-            <div class="mb-3">
-                <label class="form-label">BadgeNumber
-                    <InputText class="form-control" id="badgeNumber" disabled="true" @bind-Value="player.BadgeNumber" />
-                </label>
+        <div class="card row mb-3" id="pointsCard">
+            <div class="card-header">
+                <h3 class="text-center my-1">Profile</h3>
             </div>
-            <NavLink class="btn btn-primary" type="button" href="/player/logout">Logout</NavLink>
-        </EditForm>
+            <div class="card-body">
+                <EditForm Model="@player" OnValidSubmit="@(async() => await PlayerEditSubmit())">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">BadgeNumber
+                            <InputText class="form-control" id="badgeNumber" disabled="true" @bind-Value="player.BadgeNumber" />
+                        </label>
+                    </div>
+                    <NavLink class="btn btn-primary" type="button" href="/player/logout">Logout</NavLink>
+                </EditForm>            
+            </div>
+        </div>
+
+        <div class="card row mb-3" id="pointsCard">
+            <div class="card-header">
+                <h3 class="text-center my-1">You have @player.PointTransactions.Sum(p => p.Value) points</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <td>Question</td>
+                            <td>Value</td>
+                            <td>Timestamp</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
+                        {
+                            <tr>
+                                <td>@(transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.Title ?? "") : transaction.Source)</td>
+                                <td>@transaction.Value</td>
+                                <td>@transaction.Timestamp</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 }
 
@@ -55,26 +87,22 @@ else if(State == LoginState.Info && player != null)
     string? inputBadgeNumber;
     string? InputBadgeNumber { get => inputBadgeNumber; set { inputBadgeNumber = value; BadgeNumberUpdated(); } }
 
-    Player player;
+    Player? player;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
         if (first)
         {
-            var existingBadge = await js.GetStorage("badgeNumber");
-            if (!string.IsNullOrWhiteSpace(existingBadge))
+            player = await players.GetCurrent();
+            if(player == default)
             {
-                var existingPlayer = players.GetFromBadge(existingBadge);
-                if(existingPlayer != null)
-                {
-                    player = existingPlayer;
-                    State = LoginState.Info;
-                    StateHasChanged();
-                    return;
-                }
+                State = LoginState.Register;
+            }
+            else
+            {
+                State = LoginState.Info;
             }
 
-            State = LoginState.Register;
 
             StateHasChanged();
         }
