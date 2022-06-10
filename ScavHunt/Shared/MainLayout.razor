@@ -8,6 +8,17 @@
     </div>
 
     <main>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4 auth bg-warning justify-content-start">
+                    <div class="me-auto">Currently logged in as an administrator</div>
+                    <div class="top-row float-end bg-transparent">
+                        <LoginDisplay />
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
         <article class="content px-4">
             @Body
         </article>
