@@ -128,6 +128,7 @@ else if(question != default)
         if(question == default)
         {
             nav.NavigateTo("404");
+            return;
         }
 
         var succeededResponse = player.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);

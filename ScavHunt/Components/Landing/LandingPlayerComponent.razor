@@ -1,8 +1,11 @@
 ﻿@using ScavHunt.Data.Models
 @using System.Text.RegularExpressions
-@inject NavigationManager nav
+@inject NavigationManager nav;
 @inject QuestionService questions;
 @inject MarkdownService md;
+@inject JSInterop js;
+
+<ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" />
 
 <div class="container">
     <div class="card row mb-3" id="hintCard">
@@ -12,7 +15,7 @@
         <div class="card-body">
             <form class="row g-3" @onsubmit="async () => await SubmitQuestionCode(ManualQuestionCode)">
                 <div class="col-auto">
-                    <button type="button" class="btn btn-lg btn-primary"><span class="oi oi-camera-slr"></span></button>
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
                 </div>
                 <div class="col">
                     <input type="text" class="form-control form-control-lg" placeholder="Enter question code" @bind-value="@ManualQuestionCode"/>
@@ -97,6 +100,8 @@
 @code {
     [Parameter]
     public Player? player { get; set; }
+
+    ScannerModal scannerModal { get; set; }
 
     List<Question>? ActiveQuestions { get; set; }
 

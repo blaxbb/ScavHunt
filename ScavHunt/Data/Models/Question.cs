@@ -2,6 +2,11 @@
 {
     public class Question
     {
+        //
+        // If SHORT_CODE_LENGTH changed, regex in Interop.js must also be changed!
+        // function window.SetupScanner
+        //
+
         public const int SHORT_CODE_LENGTH = 5;
 
         public long Id { get; set; }

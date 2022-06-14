@@ -1,0 +1,47 @@
+﻿@using System.Text.RegularExpressions
+
+@inject JSInterop js;
+@inject NavigationManager nav;
+
+<Modal Id="@Id" Title="@Title" CloseText="@CloseText">
+    <div class="row">
+        <video id="scannerVideo">
+
+        </video>
+    </div>
+</Modal>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public string? CloseText { get; set; }
+
+    [Parameter]
+    public EventCallback Success { get; set; }
+
+    [JSInvokable]
+    public async Task QRResult(string result)
+    {
+
+        var santize = new Regex($"^\\d{{{Data.Models.Question.SHORT_CODE_LENGTH}}}$");
+        if (santize.IsMatch(result))
+        {
+            Console.WriteLine(result);
+            nav.NavigateTo($"/q/{result}");
+        }
+        else
+        {
+            Console.WriteLine("Invalid format");
+        }
+    }
+
+    public async Task Show()
+    {
+        var objRef = DotNetObjectReference.Create(this);
+
+        await js.SetupScanner(objRef, Id, "scannerVideo");
+    }
+}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.JSInterop;
 using Newtonsoft.Json;
+using ScavHunt.Components;
 
 namespace ScavHunt
 {
@@ -60,6 +61,11 @@ namespace ScavHunt
         public async Task HideModal(string id)
         {
             await js.InvokeVoidAsync("HideModal", id);
+        }
+
+        public async Task SetupScanner(DotNetObjectReference<ScannerModal> objRef, string modal, string id)
+        {
+            await js.InvokeVoidAsync("SetupScanner", objRef, modal, id);
         }
     }
 }

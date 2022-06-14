@@ -16,11 +16,13 @@ namespace ScavHunt.Data.Services
 
         public virtual Player? GetFromBadge(string badge)
         {
-            return db.Players
+            var player = db.Players
                 .Include(p => p.Responses)
                 .Include(p => p.PointTransactions)
                 .ThenInclude(t => t.Question)
                 .FirstOrDefault(p => p.BadgeNumber == badge);
+
+            return player;
         }
 
         public async Task<Player> CreateOrExisting(string badge)
