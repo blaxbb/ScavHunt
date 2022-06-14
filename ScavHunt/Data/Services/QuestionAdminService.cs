@@ -5,19 +5,22 @@ namespace ScavHunt.Data.Services
 {
     public class QuestionAdminService : QuestionService
     {
-        public QuestionAdminService(ApplicationDbContext db)
-            : base(db)
+        public QuestionAdminService(IDbContextFactory<ApplicationDbContext> factory)
+            : base(factory)
         {
             
         }
 
         public async Task<List<Question>> All()
         {
+            using var db = dbFactory.CreateDbContext();
             return await db.Questions.ToListAsync();
         }
 
         public async Task<Question?> Add(Question question)
         {
+            using var db = dbFactory.CreateDbContext();
+
             var shortCode = await NewShortCode();
             if(shortCode == default)
             {
@@ -28,6 +31,8 @@ namespace ScavHunt.Data.Services
 
             question.ShortCode = shortCode;
 
+            db.Attach(question);
+
             await db.Questions.AddAsync(question);
             await db.SaveChangesAsync();
 
@@ -36,6 +41,8 @@ namespace ScavHunt.Data.Services
 
         public async Task<Question?> Update(Question question)
         {
+            using var db = dbFactory.CreateDbContext();
+
             try
             {
                 var existing = db.Questions.Find(question.Id);
@@ -51,6 +58,8 @@ namespace ScavHunt.Data.Services
                 existing.Answers = question.Answers;
                 existing.Title = question.Title;
                 existing.HintText = question.HintText;
+
+                db.Attach(existing);
 
                 db.Questions.Update(existing);
                 await db.SaveChangesAsync();

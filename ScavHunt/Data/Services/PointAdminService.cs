@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
 using ScavHunt.Data.Models;
 
 namespace ScavHunt.Data.Services
@@ -8,13 +9,15 @@ namespace ScavHunt.Data.Services
     {
         AuthenticationStateProvider auth;
 
-        public PointAdminService(ApplicationDbContext context, LogService logService, AuthenticationStateProvider authProvider) : base(context, logService)
+        public PointAdminService(IDbContextFactory<ApplicationDbContext> factory, LogService logService, AuthenticationStateProvider authProvider) : base(factory, logService)
         {
             auth = authProvider;
         }
 
         public async Task<bool> Reset(Player player, Question question)
         {
+            using var db = dbFactory.CreateDbContext();
+
             var state = await auth.GetAuthenticationStateAsync();
             var adminName = state?.User?.Identity?.Name;
 

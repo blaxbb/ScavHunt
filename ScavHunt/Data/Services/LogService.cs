@@ -6,11 +6,11 @@ namespace ScavHunt.Data.Services
 {
     public class LogService
     {
-        protected ApplicationDbContext db;
+        protected IDbContextFactory<ApplicationDbContext> dbFactory;
 
-        public LogService(ApplicationDbContext context)
+        public LogService(IDbContextFactory<ApplicationDbContext> factory)
         {
-            db = context;
+            dbFactory = factory;
         }
 
         public async Task Question(Player player, Question question, RecordType type, string message)
@@ -27,7 +27,11 @@ namespace ScavHunt.Data.Services
 
         public async Task<LogRecord> Create(LogRecord record)
         {
-            await db.Log.AddAsync(record);
+            using var db = dbFactory.CreateDbContext();
+
+            db.Attach(record);
+
+            db.Log.Add(record);
             await db.SaveChangesAsync();
 
             return record;

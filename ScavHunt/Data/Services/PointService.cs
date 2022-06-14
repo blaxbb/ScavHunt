@@ -1,16 +1,17 @@
-﻿using ScavHunt.Data.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ScavHunt.Data.Models;
 using static ScavHunt.Data.Models.PointTransaction;
 
 namespace ScavHunt.Data.Services
 {
     public class PointService
     {
-        protected ApplicationDbContext db;
+        protected IDbContextFactory<ApplicationDbContext> dbFactory;
         protected LogService log;
 
-        public PointService(ApplicationDbContext context, LogService logService)
+        public PointService(IDbContextFactory<ApplicationDbContext> factory, LogService logService)
         {
-            db = context;
+            dbFactory = factory;
             log = logService;
         }
 
@@ -41,8 +42,12 @@ namespace ScavHunt.Data.Services
 
         public async Task<PointTransaction?> AddPoints(PointTransaction transaction)
         {
+            using var db = dbFactory.CreateDbContext();
+
             try
-            { 
+            {
+                db.Attach(transaction);
+
                 await db.PointTransactions.AddAsync(transaction);
                 await db.SaveChangesAsync();
 

@@ -5,13 +5,14 @@ namespace ScavHunt.Data.Services
 {
     public class LogAdminService : LogService
     {
-        public LogAdminService(ApplicationDbContext context) : base(context)
+        public LogAdminService(IDbContextFactory<ApplicationDbContext> factory) : base(factory)
         {
 
         }
 
         public async Task<List<LogRecord>> All()
         {
+            using var db = dbFactory.CreateDbContext();
             return await db.Log.Include(l => l.Player).Include(l => l.Question).ToListAsync();
         }
     }

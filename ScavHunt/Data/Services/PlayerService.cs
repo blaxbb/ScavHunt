@@ -5,28 +5,34 @@ namespace ScavHunt.Data.Services
 {
     public class PlayerService
     {
-        protected ApplicationDbContext db;
+        protected IDbContextFactory<ApplicationDbContext> dbFactory;
         protected JSInterop js;
 
-        public PlayerService(ApplicationDbContext ctx, JSInterop jsInterop)
+        public PlayerService(IDbContextFactory<ApplicationDbContext> factory, JSInterop jsInterop)
         {
-            db = ctx;
+            dbFactory = factory;
             js = jsInterop;
         }
 
         public virtual Player? GetFromBadge(string badge)
         {
-            var player = db.Players
-                .Include(p => p.Responses)
-                .Include(p => p.PointTransactions)
-                .ThenInclude(t => t.Question)
-                .FirstOrDefault(p => p.BadgeNumber == badge);
+            using (var db = dbFactory.CreateDbContext())
+            {
+                var player = db.Players
+                    .Include(p => p.Responses)
+                    .ThenInclude(r => r.Question)
+                    .Include(p => p.PointTransactions)
+                    .ThenInclude(t => t.Question)
+                    .FirstOrDefault(p => p.BadgeNumber == badge);
 
-            return player;
+                return player;
+            }
         }
 
         public async Task<Player> CreateOrExisting(string badge)
         {
+            using var db = dbFactory.CreateDbContext();
+
             var existing = GetFromBadge(badge);
             if(existing != default)
             {

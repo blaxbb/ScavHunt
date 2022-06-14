@@ -5,25 +5,28 @@ namespace ScavHunt.Data.Services
 {
     public class QuestionService
     {
-        protected ApplicationDbContext db;
+        protected IDbContextFactory<ApplicationDbContext> dbFactory;
 
-        public QuestionService(ApplicationDbContext db)
+        public QuestionService(IDbContextFactory<ApplicationDbContext> factory)
         {
-            this.db = db;
+            dbFactory = factory;
         }
 
         public async Task<Question?> Get(long id)
         {
+            using var db = dbFactory.CreateDbContext();
             return await db.Questions.FindAsync(id);
         }
 
         public async Task<Question?> GetFromShortCode(string code)
         {
+            using var db = dbFactory.CreateDbContext();
             return await db.Questions.Where(q => q.ShortCode == code).FirstOrDefaultAsync();
         }
 
         public async Task<List<Question>> Active()
         {
+            using var db = dbFactory.CreateDbContext();
             return await db.Questions.ToListAsync();
         }
     }
