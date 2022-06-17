@@ -6,6 +6,10 @@
 $primary: #4767AA;
 $secondary: #EAEAEA;
 
+.sidebar {
+    background-color: $primary;
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here
