@@ -33,12 +33,12 @@ else if(question != default)
         {
             @for(int i = 0; i < 4; i++)
             {
-                <div class="row">
-                    <button class="btn btn-outline-primary w-100 mb-3" type="button" disabled>
+                <div class="row bg-secondary choice py-3 my-0 @(i < 3 ? "spacer" : "")">
+                    <div class="col justify-content-center d-flex">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                    </button>
+                    </div>
                 </div>
             }
         }
@@ -51,12 +51,9 @@ else if(question != default)
                 var choice = DisplayChoices[index];
                 var attempted = Attempted[index];
 
-                <div class="row d-none">
-                    <button class="btn @(attempted ? "btn-danger" : "btn-outline-primary") w-100 mb-3" type="button" disabled="@(attempted)" @onclick="@(() => ChoiceSelected(index))">@choice</button>
-                </div>
-                <div class="row bg-secondary cursor-pointer choice py-3 my-0 @(i < DisplayChoices.Count - 1 ? "spacer" : "")" @onclick="@(() => ChoiceSelected(index))">
-                    <div class="col">@choice</div>
-                    <div class="col-auto arrow-bg mx-3">
+                <div class="row @(attempted ? "bg-danger" : "bg-secondary") cursor-pointer choice py-3 my-0 @(i < DisplayChoices.Count - 1 ? "spacer" : "")" @onclick="@(() => ChoiceSelected(index))">
+                    <div class="col text-center my-auto">@choice</div>
+                    <div class="col-auto arrow-bg mx-3 @(attempted ? "invisible" : "")">
                         <div class="arrow my-auto mx-auto">
                         </div>
                     </div>
@@ -75,8 +72,8 @@ else if(question != default)
         {
             var answer = question.Answers.FirstOrDefault();
             var points = Points();
-            <div class="row">
-                <button class="btn btn-success w-100 mb-3" type="button" disabled>@answer</button>
+            <div class="row bg-success choice py-3 my-0 spacer">
+                <div class="col text-center my-auto">@answer</div>
             </div>
             <div class="row">
                 <h5 class="text-center">

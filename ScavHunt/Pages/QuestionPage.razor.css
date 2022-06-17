@@ -12,6 +12,10 @@
     transition: all .2s ease;
 }
 
+.choice {
+    height: 4em;
+}
+
 .arrow-bg {
     background: #e6af57;
     width: 36px;
@@ -28,4 +32,8 @@
     top: 13px;
     left: -4px;
     z-index: 2;
+}
+
+.choice.bg-success .arrow, .choice.bg-success .arrow-bg {
+    width: 0px;
 }
