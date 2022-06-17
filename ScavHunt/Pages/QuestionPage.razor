@@ -19,8 +19,8 @@
 else if(question != default)
 {
     <div class="container">
-        <div class="row">
-            <div class="col-md-4 text-center my-auto">
+        <div class="row py-3 spacer">
+            <div class="col-md-4 text-center my-auto text-primary">
                 <h3>
                     @question.Title
                 </h3>
@@ -51,14 +51,21 @@ else if(question != default)
                 var choice = DisplayChoices[index];
                 var attempted = Attempted[index];
 
-                <div class="row">
+                <div class="row d-none">
                     <button class="btn @(attempted ? "btn-danger" : "btn-outline-primary") w-100 mb-3" type="button" disabled="@(attempted)" @onclick="@(() => ChoiceSelected(index))">@choice</button>
+                </div>
+                <div class="row bg-secondary cursor-pointer choice py-3 my-0 @(i < DisplayChoices.Count - 1 ? "spacer" : "")" @onclick="@(() => ChoiceSelected(index))">
+                    <div class="col">@choice</div>
+                    <div class="col-auto arrow-bg mx-3">
+                        <div class="arrow my-auto mx-auto">
+                        </div>
+                    </div>
                 </div>
             }
 
             var displayedProgress = Math.Max(ProgressPercent(), 20);
 
-            <div class="row">
+            <div class="row mt-3">
                 <div class="progress p-0" style="height: 2rem;">
                     <div class="progress-bar @ProgressClass()" role="progressbar" style="width: @displayedProgress%;" aria-valuenow="@displayedProgress" aria-valuemin="0" aria-valuemax="100">@(Points()) Points</div>
                 </div>

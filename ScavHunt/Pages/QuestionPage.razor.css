@@ -1,0 +1,31 @@
+﻿.spacer {
+    border-bottom: 1px rgb(0 0 0 / 20%) solid;
+}
+
+.choice:hover .arrow-bg {
+    background: #e1645a;
+    transition: all .2s ease;
+}
+
+.choice:hover {
+    filter: brightness(95%);
+    transition: all .2s ease;
+}
+
+.arrow-bg {
+    background: #e6af57;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.arrow {
+    background: url(/assets/arrow-right-alt-small.svg) center center no-repeat;
+    position: relative;
+    width: 20px;
+    height: 10px;
+    top: 13px;
+    left: -4px;
+    z-index: 2;
+}
