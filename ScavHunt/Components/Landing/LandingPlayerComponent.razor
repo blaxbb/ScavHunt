@@ -17,13 +17,13 @@
         </div>
         <form class="col-xl-9 my-auto row p-0 m-0" @onsubmit="async () => await SubmitQuestionCode(ManualQuestionCode)">
             <div class="col-auto">
-                <button type="button" class="btn btn-lg btn-primary" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
+                <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
             </div>
             <div class="col">
                 <input type="text" class="form-control form-control-lg" placeholder="Enter question code" @bind-value="@ManualQuestionCode"/>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-lg btn-primary"><span class="oi oi-media-play"></span></button>
+                <button type="submit" class="btn btn-lg btn-interactable"><span class="oi oi-media-play"></span></button>
             </div>
             <input type="submit" hidden />
         </form>
@@ -43,14 +43,21 @@
                     var question = ActiveQuestions[i];
                     var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
 
-                    <button type="button" class="alert @(complete ? "alert-success" : "alert-primary") w-100" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
-                        <div>@question.Title <span class="ms-3 oi oi-plus"></span></div>
+                    <div class="@(complete ? "alert-secondary" : "alert-primary") p-3 w-100 spacer cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
+                        <div class="row">
+                            <div class="col">
+                                @question.Title
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="oi oi-plus btn btn-interactable"></button>
+                            </div>
+                        </div>
                         <div class="collapse mt-3" id="collapseExample-@i">
                             <div class="card card-body bg-transparent text-start">
                                 @md.Render(question.HintText)
                             </div>
                         </div>
-                    </button>
+                    </div>
                 }
             }
         </div>
@@ -63,7 +70,7 @@
             </div>
         </div>
         <div class="col-xl-9">
-            <table class="table table-striped table-secondary table-hover h-100">
+            <table class="table table-striped table-primary table-hover h-100">
                 <tbody>
                     <tr>
                         <td>1</td>

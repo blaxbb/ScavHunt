@@ -5,9 +5,18 @@
 
 $primary: #4767AA;
 $secondary: #EAEAEA;
+$interactable: #E6AF57;
 
 .sidebar {
     background-color: $primary;
+}
+
+.btn-interactable {
+    background-color: $interactable !important;
+}
+
+.text-interactable {
+    color: $interactable !important;
 }
 
 @import "../node_modules/bootstrap/scss/bootstrap";
