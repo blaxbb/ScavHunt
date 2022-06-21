@@ -4,20 +4,28 @@
 @inject LogAdminService logs
 
 <div class="container">
+    @if(log != default)
+    {
+        <Pagination ItemsPerPage="ItemsPerPage" Page="Page" TotalItems="log.Count" PageChanged="p => Page = p"/>
+    }
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <td>Type</td>
-                <td>User</td>
-                <td>Question</td>
+                <td @onclick="@(() => SetSort(SortMode.Type))">Type @GetDirectionIndicator(SortMode.Type)</td>
+                <td @onclick="@(() => SetSort(SortMode.Player))">Player @GetDirectionIndicator(SortMode.Player)</td>
+                <td @onclick="@(() => SetSort(SortMode.Question))">Question @GetDirectionIndicator(SortMode.Question)</td>
                 <td>Message</td>
-                <td>Timestamp</td>
+                <td @onclick="@(() => SetSort(SortMode.Timestamp))">Timestamp @GetDirectionIndicator(SortMode.Timestamp)</td>
             </tr>
         </thead>
     @if(log != default)
     {
         <tbody>
-            @foreach(var entry in log.OrderByDescending(l => l.Timestamp))
+            @foreach(var entry in (
+                Direction == SortDirection.Ascending ?
+                    log.OrderBy(l => Sort(l)) :
+                    log.OrderByDescending(l => Sort(l))
+                ).Skip(ItemsPerPage * Page).Take(ItemsPerPage))
             {
                 <tr>
                     <td>@entry.Type</td>
@@ -34,9 +42,68 @@
 </div>
 
 @code {
+    int Page { get; set; }
+    const int ItemsPerPage = 100;
+
     List<LogRecord> log { get; set; }
+
+    SortMode Mode;
+
+    enum SortMode
+    {
+        Type,
+        Player,
+        Question,
+        Timestamp
+    }
+    SortDirection Direction;
+    enum SortDirection
+    {
+        Ascending,
+        Descending
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        Mode = SortMode.Timestamp;
+        Direction = SortDirection.Descending;
+
         log = await logs.All();
+    }
+
+    string GetDirectionIndicator(SortMode mode)
+    {
+        //this should be done in css
+        if(mode == Mode)
+        {
+            return Direction == SortDirection.Ascending ? "▲" : "▼";
+        }
+
+        return " ";
+    }
+
+    void SetSort(SortMode mode)
+    {
+        if(Mode == mode)
+        {
+            Direction = Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
+        }
+        else
+        {
+            Mode = mode;
+            Direction = SortDirection.Descending;
+        }
+    }
+
+    object Sort(LogRecord log)
+    {
+        return Mode switch
+        {
+            SortMode.Type => log.Type,
+            SortMode.Player => log.Player?.BadgeNumber,
+            SortMode.Question => log.Question?.Id,
+            SortMode.Timestamp => log.Timestamp,
+            _ => ""
+        };
     }
 }

@@ -1,8 +1,4 @@
-﻿.spacer {
-    border-bottom: 1px rgb(0 0 0 / 20%) solid;
-}
-
-.choice:hover .arrow-bg {
+﻿.choice:hover .arrow-bg {
     background: #e1645a;
     transition: all .2s ease;
 }

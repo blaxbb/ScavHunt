@@ -41,6 +41,8 @@ builder.Services.AddScoped<LogAdminService>();
 builder.Services.AddScoped<PointService>();
 builder.Services.AddScoped<PointAdminService>();
 
+builder.Services.AddScoped<LeaderboardService>();
+
 builder.Services.AddScoped<JSInterop>();
 builder.Services.AddSingleton<MarkdownService>();
 

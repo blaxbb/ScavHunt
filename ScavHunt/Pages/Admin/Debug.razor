@@ -1,0 +1,82 @@
+﻿@page "/admin/debug"
+
+@inject PlayerAdminService players
+
+<div class="container p-3">
+    <h3>Debug</h3>
+    <form >
+        <div class="py-3 spacer">
+            <label class="form-label">Add Players</label>
+            <input type="number" @bind-value="PlayerCount" class="form-control mb-3" step="1" min="0" max="10000" />
+            <button type="button" class="btn btn-primary" @onclick="@(async() => await CreatePlayers())">Add</button>
+            @if (PlayerProgress != 0)
+            {
+                <ProgressBar CssClass="mt-3" Progress="@PlayerProgress" Text="@($"{PlayerProgress}%")"/>
+            }
+        </div>
+        <div class="py-3 spacer">
+            <label class="form-label">Remove Debug Players</label>
+            <button type="button" class="btn btn-danger" @onclick="@(async() => await RemoveDebugPlayers())">Remove</button>
+            @if (RemovePlayerProgress != 0)
+            {
+                <ProgressBar CssClass="mt-3" Progress="@RemovePlayerProgress" Text="@($"{RemovePlayerProgress}%")"/>
+            }
+        </div>
+        <div class="py-3 spacer">
+            <label class="form-label">Add Questions</label>
+            <input type="number" class="form-control mb-3" step="1" min="0" max="10000" />
+            <button type="button" class="btn btn-primary">Add</button>
+        </div>
+    </form>
+</div>
+
+@code {
+
+    string PlayerCount { get; set; }
+    int PlayerProgress { get; set; }
+    int RemovePlayerProgress { get; set; }
+
+    int QuestionCount { get; set; }
+    int QuestionProgress { get; set; }
+
+    async Task CreatePlayers()
+    {
+        await Task.Run(async () =>
+        {
+            if (int.TryParse(PlayerCount, out int count))
+            {
+                var all = players.AllPlayers().Count;
+                for (int i = 0; i < count; i++)
+                {
+                    await players.CreateOrExisting($"DBG:{all + i}");
+                    PlayerProgress = (int)(((float)i / count) * 100);
+                    await InvokeAsync(StateHasChanged);
+                }
+
+                PlayerProgress = 100;
+            }
+        });
+        
+    }
+
+    async Task RemoveDebugPlayers()
+    {
+        var all = players.AllPlayers().Where(p => p.BadgeNumber.Contains("DBG")).ToList();
+
+        if(all.Count == 0)
+        {
+            return;
+        }
+
+        for(int i = 0; i < all.Count; i++)
+        {
+            var player = all[i];
+
+            await players.Delete(player);
+            RemovePlayerProgress = (int)(((float)i / all.Count) * 100);
+            StateHasChanged();
+        }
+        RemovePlayerProgress = 100;
+
+    }
+}

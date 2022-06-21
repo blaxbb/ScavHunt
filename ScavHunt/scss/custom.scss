@@ -19,6 +19,10 @@ $interactable: #E6AF57;
     color: $interactable !important;
 }
 
+.spacer {
+    border-bottom: 1px rgba(0, 0, 0, 0.2) solid;
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here

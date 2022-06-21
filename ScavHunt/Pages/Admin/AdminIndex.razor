@@ -1,7 +1,7 @@
 ﻿@page "/admin"
 @attribute [Authorize]
 
-<div class="container">
+<div class="container p-3">
     <div class="row mb-3">
         <NavLink class="btn btn-outline-primary py-3" href="admin/questions">
             <span class="oi oi-question-mark"></span> Questions
@@ -15,6 +15,11 @@
     <div class="row mb-3">
         <NavLink class="btn btn-outline-primary py-3" href="admin/log">
             <span class="oi oi-clipboard"></span> Log
+        </NavLink>
+    </div>
+    <div class="row mb-3">
+        <NavLink class="btn btn-outline-primary py-3" href="admin/debug">
+            <span class="oi oi-wrench"></span> Debug
         </NavLink>
     </div>
 </div>

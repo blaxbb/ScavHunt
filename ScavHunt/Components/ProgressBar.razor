@@ -1,0 +1,35 @@
+﻿<div class="progress p-0 @CssClass" style="@Style">
+    <div class="progress-bar bg-@Color" role="progressbar" style="width: @Progress%;" aria-valuenow="@Progress" aria-valuemin="0" aria-valuemax="100">@Text</div>
+</div>
+
+@code {
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    [Parameter]
+    public BackgroundColor Color { get; set; }
+
+    public enum BackgroundColor
+    {
+        primary,
+        secondary,
+        success,
+        danger,
+        warning,
+        info,
+        light,
+        dark,
+        body,
+        white,
+        transparent
+    }
+
+    [Parameter]
+    public int Progress { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public string? Text { get; set; }
+}

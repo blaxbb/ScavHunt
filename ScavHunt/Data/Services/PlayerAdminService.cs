@@ -28,5 +28,17 @@ namespace ScavHunt.Data.Services
                 .ThenInclude(t => t.Question)
                 .FirstOrDefault(p => p.BadgeNumber == badge);
         }
+
+        public async Task Delete(Player player)
+        {
+            using var db = await dbFactory.CreateDbContextAsync();
+
+            var existing = await db.Players.Where(p => p.BadgeNumber == player.BadgeNumber).FirstOrDefaultAsync();
+            if(existing != null)
+            {
+                db.Players.Remove(existing);
+                await db.SaveChangesAsync();
+            }
+        }
     }
 }

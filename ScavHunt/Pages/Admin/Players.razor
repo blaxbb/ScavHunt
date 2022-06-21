@@ -5,6 +5,10 @@
 
 <div class="container">
     <h3>Players</h3>
+    @if(All != null)
+    {
+        <Pagination ItemsPerPage="PlayersPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p"/>
+    }
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -18,7 +22,10 @@
         <tbody>
             @if (All != null)
             {
-                @foreach (var player in (Direction == SortDirection.Ascending ? All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))))
+                @foreach (var player in (
+                    Direction == SortDirection.Ascending ?
+                        All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))
+                    ).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
                 {
                     <tr>
                         <td>@player.BadgeNumber</td>
@@ -39,6 +46,9 @@
 
     SortMode Mode { get; set; }
     SortDirection Direction { get; set; }
+
+    int Page { get; set; }
+    const int PlayersPerPage = 100;
 
     enum SortMode
     {
