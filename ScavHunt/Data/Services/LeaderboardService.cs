@@ -12,11 +12,11 @@ namespace ScavHunt.Data.Services
             this.dbFactory = dbFactory;
         }
 
-        public async Task<List<Player>> FullLeaderboard()
+        public async Task<List<Player>> Leaderboard()
         {
             using var db = await dbFactory.CreateDbContextAsync();
 
-            return await db.Players.Include(p => p.PointTransactions).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).ToListAsync();
+            return await db.Players.Include(p => p.PointTransactions).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).Take(25).ToListAsync();
         }
     }
 }

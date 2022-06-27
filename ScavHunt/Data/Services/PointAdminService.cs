@@ -14,7 +14,7 @@ namespace ScavHunt.Data.Services
             auth = authProvider;
         }
 
-        public async Task<bool> Reset(Player player, Question question)
+        public async Task<bool> Reset(Player player, Question question, string message)
         {
             using var db = dbFactory.CreateDbContext();
 
@@ -38,7 +38,7 @@ namespace ScavHunt.Data.Services
 
             await log.Create(new LogRecord()
             {
-                Message = $"Admin {adminName} RESET PROGRESS on question {question.ShortCode} for player {player.BadgeNumber} removing {totalPoints} points.",
+                Message = $"Admin {adminName} RESET PROGRESS on question {question.ShortCode} for player {player.BadgeNumber} removing {totalPoints} points.  {message}",
                 Player = player,
                 Question = question,
                 Type = LogRecord.RecordType.Player,

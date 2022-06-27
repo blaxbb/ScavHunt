@@ -105,7 +105,7 @@
     protected override async Task OnInitializedAsync()
     {
         ActiveQuestions = await questions.Active();
-        Leaderboard = await leaders.FullLeaderboard();
+        Leaderboard = await leaders.Leaderboard();
     }
 
     async Task SubmitQuestionCode(string code)

@@ -17,6 +17,7 @@
         public string Title { get; set; }
         public string HintText { get; set; }
         public List<string> Answers { get; set; } = new List<string>();
+        public bool ShuffleAnswers { get; set; }
 
         public List<LogRecord> Responses { get; set; }
         public List<PointTransaction> PointTransactions { get; set; }

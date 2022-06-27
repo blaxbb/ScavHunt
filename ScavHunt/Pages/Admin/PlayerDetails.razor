@@ -294,7 +294,7 @@ else
             return;
         }
 
-        if(await points.Reset(player, resetQuestion))
+        if(await points.Reset(player, resetQuestion, resetMessage))
         {
             resetQuestion = default;
             player = players.GetFromBadge(BadgeNumber);

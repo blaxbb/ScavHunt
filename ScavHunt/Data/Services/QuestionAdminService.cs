@@ -58,6 +58,7 @@ namespace ScavHunt.Data.Services
                 existing.Answers = question.Answers;
                 existing.Title = question.Title;
                 existing.HintText = question.HintText;
+                existing.ShuffleAnswers = question.ShuffleAnswers;
 
                 db.Attach(existing);
 
