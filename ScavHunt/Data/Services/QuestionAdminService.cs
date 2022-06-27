@@ -59,6 +59,8 @@ namespace ScavHunt.Data.Services
                 existing.Title = question.Title;
                 existing.HintText = question.HintText;
                 existing.ShuffleAnswers = question.ShuffleAnswers;
+                existing.UnlockTime = question.UnlockTime;
+                existing.LockTime = question.LockTime;
 
                 db.Attach(existing);
 

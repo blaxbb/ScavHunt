@@ -1,4 +1,6 @@
-﻿namespace ScavHunt.Data.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ScavHunt.Data.Models
 {
     public class Question
     {
@@ -17,12 +19,38 @@
         public string Title { get; set; }
         public string HintText { get; set; }
         public List<string> Answers { get; set; } = new List<string>();
+
         public bool ShuffleAnswers { get; set; }
+
+        public DateTime UnlockTime { get; set; }
+        public DateTime LockTime { get; set; }
+
 
         public List<LogRecord> Responses { get; set; }
         public List<PointTransaction> PointTransactions { get; set; }
 
         // QuestionAdminService -> Update() must be updated for additional fields
         // Admin/Questions.razor -> EditQuestion() must be updated for additional fields
+
+        public bool IsCurrentlyLockedEarly()
+        {
+            if(UnlockTime != DateTime.MinValue && UnlockTime > DateTime.Now)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool IsCurrentlyLockedLate()
+        {
+            if (LockTime != DateTime.MinValue && LockTime < DateTime.Now)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

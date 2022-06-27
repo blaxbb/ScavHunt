@@ -81,6 +81,18 @@ else if(question != default)
                 </h5>
             </div>
         }
+        @if(State == QuestionState.EarlyLocked)
+        {
+            <div class="row bg-primary text-white choice py-3 my-0 spacer">
+                <div class="col text-center my-auto">@($"You are {(question.UnlockTime - DateTime.Now).Humanize()} early!")</div>
+            </div>
+        }
+        @if(State == QuestionState.LateLocked)
+        {
+            <div class="row bg-primary text-white choice py-3 my-0 spacer">
+                <div class="col text-center my-auto">@($"This question has expired, you are {(DateTime.Now - question.LockTime).Humanize()} late.")</div>
+            </div>
+        }
     </div>
 }
 
@@ -94,7 +106,9 @@ else if(question != default)
         Loading,
         LeadIn,
         Active,
-        Success
+        Success,
+        EarlyLocked,
+        LateLocked
     }
 
     [Parameter]
@@ -140,6 +154,20 @@ else if(question != default)
         {
             SetElapsed(succeededResponse.Value);
             State = QuestionState.Success;
+            StateHasChanged();
+            return;
+        }
+
+        if (question.IsCurrentlyLockedEarly())
+        {
+            State = QuestionState.EarlyLocked;
+            StateHasChanged();
+            return;
+        }
+
+        if (question.IsCurrentlyLockedLate())
+        {
+            State = QuestionState.LateLocked;
             StateHasChanged();
             return;
         }

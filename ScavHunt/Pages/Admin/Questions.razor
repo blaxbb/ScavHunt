@@ -11,27 +11,37 @@
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <div class="form-check mb-3">
-                <label class="form-label">Title</label>
-                <InputText class="form-control" id="title" @bind-Value="editQuestion.Title" placeholder="Title" />
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <label class="form-label">Title</label>
+                        <InputText class="form-control" id="title" @bind-Value="editQuestion.Title" placeholder="Title" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <label class="form-label">Vendor</label>
+                        <InputText class="form-control" id="vendor" @bind-Value="editQuestion.Vendor" placeholder="Vendor" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <label class="form-label">Question</label>
+                        <InputTextArea class="form-control" id="text" rows="6" @bind-Value="editQuestion.Text" placeholder="Question" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <label class="form-label">Hint</label>
+                        <InputTextArea class="form-control" id="hint" rows="6" @bind-Value="editQuestion.HintText" placeholder="Hint" />
+                    </div>
+                </div>
             </div>
 
-            <div class="form-check mb-3">
-                <label class="form-label">Vendor</label>
-                <InputText class="form-control" id="vendor" @bind-Value="editQuestion.Vendor" placeholder="Vendor" />
-            </div>
-
-            <div class="form-check mb-3">
-                <label class="form-label">Question</label>
-                <InputTextArea class="form-control" id="text" rows="6" @bind-Value="editQuestion.Text" placeholder="Question" />
-            </div>
-
-            <div class="form-check mb-3">
-                <label class="form-label">Hint</label>
-                <InputTextArea class="form-control" id="hint" rows="6" @bind-Value="editQuestion.HintText" placeholder="Hint" />
-            </div>
-
-            <div class="card">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Answer</h5>
+                </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-sm-auto my-auto">
@@ -59,6 +69,21 @@
                         </div>
                 
                     }
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Access</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <label class="form-label">Unlock Time</label>
+                        <input type="datetime-local" class="form-control" @bind="editQuestion.UnlockTime" step="1"/>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label">Lock Time</label>
+                        <input type="datetime-local" class="form-control" @bind="editQuestion.LockTime" step="1"/>
+                    </div>
                 </div>
             </div>
             <div class="form-check mb-3">
@@ -138,9 +163,11 @@
             Answers = question.Answers.ToList(),
             Title = question.Title,
             HintText = question.HintText,
-            ShuffleAnswers = question.ShuffleAnswers
+            ShuffleAnswers = question.ShuffleAnswers,
+            UnlockTime = question.UnlockTime,
+            LockTime = question.LockTime
         };
-
+        
         await js.ShowModal(EditId);
     }
 
