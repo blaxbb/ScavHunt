@@ -64,3 +64,28 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+.footer {
+    background-color: #1A1F1F;
+}
+
+.footer-logo {
+    max-height:100px;
+}
+
+.footer-col-title {
+    color: white;
+    text-transform: uppercase;
+}
+
+/*::deep is to bypass blazor css isolation for this component*/
+
+::deep .footer-col-link:hover {
+    color: #e1645a;
+    text-decoration: none;
+}
+
+::deep .footer-col-link {
+    color: #e6af57;
+    text-decoration: none;
+}
