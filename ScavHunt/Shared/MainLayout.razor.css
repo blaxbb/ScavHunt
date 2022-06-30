@@ -70,7 +70,8 @@ main {
 }
 
 .footer-logo {
-    max-height:100px;
+    max-height: 100px;
+    max-width: 100%;
 }
 
 .footer-col-title {
