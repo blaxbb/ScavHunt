@@ -27,6 +27,7 @@ namespace ScavHunt.Data.Models
         public DateTime UnlockTime { get; set; }
         public DateTime LockTime { get; set; }
 
+        public List<Question> ChainQuestions { get; set; } = new List<Question>();
 
         public List<LogRecord> Responses { get; set; }
         public List<PointTransaction> PointTransactions { get; set; }

@@ -91,6 +91,49 @@
                     </div>
                 </div>
             </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Chained Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-auto my-auto">
+                            Add chained question
+                        </div>
+                        <div class="col-sm-auto">
+                            <select class="form-select" id="chainQuestionSelect" aria-label="Add chained question" @onchange="ChainChanged">
+                                <option value="-1" selected>Add chained question</option>
+                                @for(int i = 0; i < All.Count; i++)
+                                {
+                                    if(All[i].Id == editQuestion.Id || editQuestion.ChainQuestions.Any(q => q.Id == All[i].Id))
+                                    {
+                                        continue;
+                                    }
+                                    <option value="@i">@($"{All[i].Title} - {All[i].ShortCode}")</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table class="table table-striped">
+                            <tbody>
+                                @for(int i = 0; i < editQuestion.ChainQuestions.Count; i++)
+                                {
+                                    // index required for onchange function call
+                                    var chainIndex = i;
+                                    var chain = editQuestion.ChainQuestions[chainIndex];
+
+                                    <tr>
+                                        <td>@chain.Title</td>
+                                        <td>@chain.ShortCode</td>
+                                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveChain(chainIndex)">X</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <div class="form-check mb-3">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
@@ -181,9 +224,10 @@
             SuccessText = question.SuccessText,
             ShuffleAnswers = question.ShuffleAnswers,
             UnlockTime = question.UnlockTime,
-            LockTime = question.LockTime
+            LockTime = question.LockTime,
+            ChainQuestions = question.ChainQuestions.ToList()
         };
-        
+
         await js.ShowModal(EditId);
     }
 
@@ -192,6 +236,7 @@
         if(editQuestion != null)
         {
             editQuestion.Answers.RemoveAll(q => string.IsNullOrWhiteSpace(q));
+
             if(string.IsNullOrWhiteSpace(editQuestion.ShortCode))
             {
                 await questions.Add(editQuestion);
@@ -223,6 +268,43 @@
         if(editQuestion != default)
         {
             editQuestion?.Answers.Add("");
+        }
+    }
+
+    void UpdateChainQuestion(int index, string value)
+    {
+        if(editQuestion == null || editQuestion.ChainQuestions.Count <= index)
+        {
+            return;
+        }
+
+        //editQuestion.ChainQuestions[index] = value;
+    }
+
+    void AddChainedQuestion()
+    {
+        if(editQuestion != default)
+        {
+            //editQuestion.ChainQuestions.Add("");
+        }
+    }
+
+    async Task ChainChanged(ChangeEventArgs e)
+    {
+        var selected = e.Value.ToString();
+        if(editQuestion != null && int.TryParse(selected, out int index) && index >= 0)
+        {
+            await js.SelectValue("chainQuestionSelect", "-1");
+            var question = All[index];
+            editQuestion.ChainQuestions.Add(question);
+        }
+    }
+
+    void RemoveChain(int index)
+    {
+        if(editQuestion != null && index >= 0)
+        {
+            editQuestion.ChainQuestions.RemoveAt(index);
         }
     }
 }

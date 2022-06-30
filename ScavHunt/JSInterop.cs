@@ -67,5 +67,10 @@ namespace ScavHunt
         {
             await js.InvokeVoidAsync("SetupScanner", objRef, modal, id);
         }
+
+        public async Task SelectValue(string id, string value)
+        {
+            await js.InvokeVoidAsync("SelectValue", id, value);
+        }
     }
 }

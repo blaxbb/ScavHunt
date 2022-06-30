@@ -59,3 +59,7 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
         qrScanner.start();
     });
 }
+
+window.SelectValue = function (id, value) {
+    document.getElementById(id).selectedIndex = value;
+}

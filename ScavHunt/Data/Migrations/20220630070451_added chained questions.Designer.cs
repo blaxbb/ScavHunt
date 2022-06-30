@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScavHunt.Data;
 
@@ -11,9 +12,10 @@ using ScavHunt.Data;
 namespace ScavHunt.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220630070451_added chained questions")]
+    partial class addedchainedquestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,14 +323,15 @@ namespace ScavHunt.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ChainQuestions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HintText")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LockTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<long?>("QuestionId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("ShortCode")
                         .IsRequired()
@@ -353,8 +356,6 @@ namespace ScavHunt.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
 
                     b.HasIndex("ShortCode")
                         .IsUnique();
@@ -445,13 +446,6 @@ namespace ScavHunt.Data.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("ScavHunt.Data.Models.Question", b =>
-                {
-                    b.HasOne("ScavHunt.Data.Models.Question", null)
-                        .WithMany("ChainQuestions")
-                        .HasForeignKey("QuestionId");
-                });
-
             modelBuilder.Entity("ScavHunt.Data.Models.Player", b =>
                 {
                     b.Navigation("PointTransactions");
@@ -461,8 +455,6 @@ namespace ScavHunt.Data.Migrations
 
             modelBuilder.Entity("ScavHunt.Data.Models.Question", b =>
                 {
-                    b.Navigation("ChainQuestions");
-
                     b.Navigation("PointTransactions");
 
                     b.Navigation("Responses");
