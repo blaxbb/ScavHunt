@@ -27,13 +27,18 @@
                     </div>
 
                     <div class="form-check mb-3">
-                        <label class="form-label">Question</label>
+                        <label class="form-label">Question - Markdown enabled</label>
                         <InputTextArea class="form-control" id="text" rows="6" @bind-Value="editQuestion.Text" placeholder="Question" />
                     </div>
 
                     <div class="form-check mb-3">
-                        <label class="form-label">Hint</label>
+                        <label class="form-label">Hint - Markdown enabled</label>
                         <InputTextArea class="form-control" id="hint" rows="6" @bind-Value="editQuestion.HintText" placeholder="Hint" />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <label class="form-label">Success - Markdown enabled</label>
+                        <InputTextArea class="form-control" id="successText" rows="6" @bind-Value="editQuestion.SuccessText" placeholder="Success Text" />
                     </div>
                 </div>
             </div>
@@ -102,6 +107,12 @@
         <div class="col-sm-auto">
             <button type="button" class="btn btn-primary" @onclick="NewQuestion">New</button>
         </div>
+        <div class="col-sm-auto">
+            @if(All != null)
+            {
+                <Pagination ItemsPerPage="ItemsPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p"/>
+            }
+        </div>
     </div>
 
     <table class="table table-striped table-hover">
@@ -118,7 +129,7 @@
         @if (All != null)
         {
             <tbody>
-                @foreach(var question in All)
+                @foreach(var question in All.Skip(Page * ItemsPerPage).Take(ItemsPerPage))
                 {
                     <tr>
                         <td>@question.ShortCode</td>
@@ -139,6 +150,10 @@
     List<Question> All { get; set; }
 
     Question editQuestion { get; set; }
+
+    const int ItemsPerPage = 25;
+    int Page { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,6 +178,7 @@
             Answers = question.Answers.ToList(),
             Title = question.Title,
             HintText = question.HintText,
+            SuccessText = question.SuccessText,
             ShuffleAnswers = question.ShuffleAnswers,
             UnlockTime = question.UnlockTime,
             LockTime = question.LockTime

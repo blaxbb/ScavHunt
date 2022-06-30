@@ -14,10 +14,12 @@ namespace ScavHunt.Data.Models
         public long Id { get; set; }
 
         public string ShortCode { get; set; }
-        public string Vendor { get; set; }
-        public string Text { get; set; }
-        public string Title { get; set; }
-        public string HintText { get; set; }
+        public string? Vendor { get; set; }
+        public string? Text { get; set; }
+        public string? Title { get; set; }
+        public string? HintText { get; set; }
+        public string? SuccessText { get; set; }
+
         public List<string> Answers { get; set; } = new List<string>();
 
         public bool ShuffleAnswers { get; set; }

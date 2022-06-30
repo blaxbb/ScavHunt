@@ -80,6 +80,9 @@ else if(question != default)
                     You have earned @points points!
                 </h5>
             </div>
+            <div class="row">
+                @md.Render(question.SuccessText)
+            </div>
         }
         @if(State == QuestionState.EarlyLocked)
         {
