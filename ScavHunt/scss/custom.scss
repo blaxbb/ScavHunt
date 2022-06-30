@@ -23,6 +23,11 @@ $interactable: #E6AF57;
     border-bottom: 1px rgba(0, 0, 0, 0.2) solid;
 }
 
+.youtube {
+    min-height: 400px;
+    width: 100%;
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here
