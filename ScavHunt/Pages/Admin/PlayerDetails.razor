@@ -133,6 +133,7 @@ else
                 </div>
             </div>
             <div class="card-body">
+                <Pagination ItemsPerPage="LogItemsPerPage" Page="LogPage" TotalItems="player.Responses.Count" PageChanged="p => LogPage = p" />
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -144,7 +145,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var log in player.Responses.OrderByDescending(l => l.Timestamp))
+                        @foreach(var log in player.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * LogItemsPerPage).Take(LogItemsPerPage))
                         {
                             <tr>
                                 <td>@log.Type</td>
@@ -183,6 +184,12 @@ else
 
     Question? resetQuestion { get; set; }
     string? resetMessage { get; set; }
+
+    const int LogItemsPerPage = 20;
+    int LogPage { get; set; }
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
