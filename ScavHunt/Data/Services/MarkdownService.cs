@@ -15,8 +15,13 @@ namespace ScavHunt.Data.Services
                 .Build();
         }
 
-        public MarkupString Render(string text)
+        public MarkupString Render(string? text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return new MarkupString();
+            }
+
             return (MarkupString)Markdown.ToHtml(text, pipeline);
         }
     }
