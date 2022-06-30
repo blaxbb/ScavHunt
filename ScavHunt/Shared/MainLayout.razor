@@ -7,7 +7,7 @@
         <NavMenu />
     </div>
 
-    <main class="">
+    <main class="d-grid" style="grid-template-rows: auto 1fr auto;">
         <AuthorizeView>
             <Authorized>
                 <div class="top-row px-4 auth bg-warning justify-content-start">
@@ -17,12 +17,15 @@
                     </div>
                 </div>
             </Authorized>
+            <NotAuthorized>
+                <div></div>
+            </NotAuthorized>
         </AuthorizeView>
 
         <article class="content">
             @Body
         </article>
-        <footer class="footer border-top pl-3 text-muted">
+        <footer class="footer">
             <div class="container">
                 <div class="row mt-3 pt-3">
                     <div class="col-lg mb-3">
@@ -43,7 +46,7 @@
                         <div><NavLink class="footer-col-link" href="#">Support</NavLink></div>
                     </div>
                 </div>
-                <div class="row text-end py-3">
+                <div class="row text-end py-3 text-muted">
                     <div class="col-sm">&copy; 2022 - Legal stuff</div>
                 </div>
             </div>
