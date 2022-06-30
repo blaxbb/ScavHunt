@@ -89,6 +89,7 @@ else
                 </div>
             </div>
             <div class="card-body">
+                <Pagination ItemsPerPage="LogItemsPerPage" Page="PointsPage" TotalItems="player.PointTransactions.Count" PageChanged="p => PointsPage = p"/>
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -100,7 +101,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
+                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp).Skip(LogItemsPerPage * PointsPage).Take(LogItemsPerPage))
                         {
                             <tr>
                                 <td>@transaction.Source</td>
@@ -185,10 +186,10 @@ else
     Question? resetQuestion { get; set; }
     string? resetMessage { get; set; }
 
-    const int LogItemsPerPage = 20;
+    const int LogItemsPerPage = 25;
     int LogPage { get; set; }
 
-
+    int PointsPage { get; set; }
 
 
     protected override async Task OnInitializedAsync()
