@@ -5,6 +5,8 @@
 @inject MarkdownService md;
 @inject JSInterop js;
 @inject LeaderboardService leaders;
+@inject LogService log;
+@inject PlayerService players;
 
 <ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" />
 
@@ -30,11 +32,17 @@
         </form>
     </div>
     <div class="row spacer bg-white p-3">
-        <div class="header text-primary col-xl-3 mb-3">
-            <h1>Current Hints</h1>
-            <div class="text-black">
+        <div class="header col-xl-3 mb-3">
+            <h1 class="text-primary">Current Hints</h1>
+            <div class="mb-3">
                 Here are some hints for the currently active questions.
             </div>
+            @if (CompletedQuestions != null && CompletedQuestions.Count > 0)
+            {
+                <div class="mb-3">
+                    You have completed @CompletedQuestions.Count question today.
+                </div>
+            }
         </div>
         <div class="col-xl-9 my-auto">
             @if (ActiveQuestions != default)
@@ -96,6 +104,7 @@
     ScannerModal scannerModal { get; set; }
 
     List<Question>? ActiveQuestions { get; set; }
+    List<Question>? CompletedQuestions { get; set; }
 
     string ManualQuestionCode { get; set; }
 
@@ -104,7 +113,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ActiveQuestions = await questions.Active();
+        player = await players.GetCurrent();
+        if(player == null)
+        {
+            Console.WriteLine("ERROR: Player null on landing component!");
+            return;
+        }
+
+        var allActiveQuestions = await questions.Active();
+
+        var totalCount = allActiveQuestions.Count;
+
+        CompletedQuestions = allActiveQuestions.Where(q => q.IsCompleted(player)).ToList();
+
+        var lockedQuestions = allActiveQuestions.Where(q => !q.HasAccess(player));
+
+        ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
         Leaderboard = await leaders.Leaderboard();
     }
 

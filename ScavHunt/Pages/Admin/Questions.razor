@@ -93,19 +93,22 @@
             </div>
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5>Chained Questions</h5>
+                    <h5>Parent Questions</h5>
                 </div>
                 <div class="card-body">
+                    <div class="row mb-3">
+                        If there are any questions in this section, this question will not be accessible until one of the parents has been answered correctly.
+                    </div>
                     <div class="row mb-3">
                         <div class="col-sm-auto my-auto">
                             Add chained question
                         </div>
                         <div class="col-sm-auto">
-                            <select class="form-select" id="chainQuestionSelect" aria-label="Add chained question" @onchange="ChainChanged">
-                                <option value="-1" selected>Add chained question</option>
+                            <select class="form-select" id="parentQuestionSelect" aria-label="Add parent question" @onchange="ParentChanged">
+                                <option value="-1" selected>Add parent question</option>
                                 @for(int i = 0; i < All.Count; i++)
                                 {
-                                    if(All[i].Id == editQuestion.Id || editQuestion.ChainQuestions.Any(q => q.Id == All[i].Id))
+                                    if(All[i].Id == editQuestion.Id || editQuestion.ParentQuestions.Any(q => q.Id == All[i].Id))
                                     {
                                         continue;
                                     }
@@ -117,16 +120,16 @@
                     <div class="row">
                         <table class="table table-striped">
                             <tbody>
-                                @for(int i = 0; i < editQuestion.ChainQuestions.Count; i++)
+                                @for(int i = 0; i < editQuestion.ParentQuestions.Count; i++)
                                 {
                                     // index required for onchange function call
                                     var chainIndex = i;
-                                    var chain = editQuestion.ChainQuestions[chainIndex];
+                                    var parent = editQuestion.ParentQuestions[chainIndex];
 
                                     <tr>
-                                        <td>@chain.Title</td>
-                                        <td>@chain.ShortCode</td>
-                                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveChain(chainIndex)">X</button></td>
+                                        <td>@parent.Title</td>
+                                        <td>@parent.ShortCode</td>
+                                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveParent(chainIndex)">X</button></td>
                                     </tr>
                                 }
                             </tbody>
@@ -225,7 +228,7 @@
             ShuffleAnswers = question.ShuffleAnswers,
             UnlockTime = question.UnlockTime,
             LockTime = question.LockTime,
-            ChainQuestions = question.ChainQuestions.ToList()
+            ParentQuestions = question.ParentQuestions.ToList()
         };
 
         await js.ShowModal(EditId);
@@ -271,40 +274,22 @@
         }
     }
 
-    void UpdateChainQuestion(int index, string value)
-    {
-        if(editQuestion == null || editQuestion.ChainQuestions.Count <= index)
-        {
-            return;
-        }
-
-        //editQuestion.ChainQuestions[index] = value;
-    }
-
-    void AddChainedQuestion()
-    {
-        if(editQuestion != default)
-        {
-            //editQuestion.ChainQuestions.Add("");
-        }
-    }
-
-    async Task ChainChanged(ChangeEventArgs e)
+    async Task ParentChanged(ChangeEventArgs e)
     {
         var selected = e.Value.ToString();
         if(editQuestion != null && int.TryParse(selected, out int index) && index >= 0)
         {
-            await js.SelectValue("chainQuestionSelect", "-1");
+            await js.SelectValue("parentQuestionSelect", "-1");
             var question = All[index];
-            editQuestion.ChainQuestions.Add(question);
+            editQuestion.ParentQuestions.Add(question);
         }
     }
 
-    void RemoveChain(int index)
+    void RemoveParent(int index)
     {
         if(editQuestion != null && index >= 0)
         {
-            editQuestion.ChainQuestions.RemoveAt(index);
+            editQuestion.ParentQuestions.RemoveAt(index);
         }
     }
 }

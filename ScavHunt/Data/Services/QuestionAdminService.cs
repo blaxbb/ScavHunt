@@ -14,7 +14,7 @@ namespace ScavHunt.Data.Services
         public async Task<List<Question>> All()
         {
             using var db = dbFactory.CreateDbContext();
-            return await db.Questions.Include(q => q.ChainQuestions).ToListAsync();
+            return await db.Questions.Include(q => q.ParentQuestions).ToListAsync();
         }
 
         public async Task<Question?> Add(Question question)
@@ -45,13 +45,13 @@ namespace ScavHunt.Data.Services
 
             try
             {
-                var existing = await db.Questions.Include(q => q.ChainQuestions).FirstOrDefaultAsync(q => q.Id == question.Id);
+                var existing = await db.Questions.Include(q => q.ParentQuestions).FirstOrDefaultAsync(q => q.Id == question.Id);
 
                 if(existing == default)
                 {
                     return default;
                 }
-                var chains = question.ChainQuestions.Select(q => db.Questions.Find(q.Id)).Where(q => q != null);
+                var parents = question.ParentQuestions.Select(q => db.Questions.Find(q.Id)).Where(q => q != null);
 
                 existing.Vendor = question.Vendor;
                 existing.Text = question.Text;
@@ -63,7 +63,7 @@ namespace ScavHunt.Data.Services
                 existing.ShuffleAnswers = question.ShuffleAnswers;
                 existing.UnlockTime = question.UnlockTime;
                 existing.LockTime = question.LockTime;
-                existing.ChainQuestions = chains.ToList() ?? new();
+                existing.ParentQuestions = parents.ToList() ?? new();
 
                 db.Attach(existing);
 

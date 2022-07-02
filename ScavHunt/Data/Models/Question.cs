@@ -27,7 +27,7 @@ namespace ScavHunt.Data.Models
         public DateTime UnlockTime { get; set; }
         public DateTime LockTime { get; set; }
 
-        public List<Question> ChainQuestions { get; set; } = new List<Question>();
+        public List<Question> ParentQuestions { get; set; } = new List<Question>();
 
         public List<LogRecord> Responses { get; set; }
         public List<PointTransaction> PointTransactions { get; set; }
@@ -55,5 +55,36 @@ namespace ScavHunt.Data.Models
             return false;
         }
 
+        public bool IsCurrentlyLockedTime()
+        {
+            return IsCurrentlyLockedEarly() || IsCurrentlyLockedLate();
+        }
+
+        public bool IsCompleted(Player player)
+        {
+            return player.PointTransactions.Any(t => (t?.Question?.Id ?? -1) == Id);
+        }
+
+        public bool HasAccess(Player player)
+        {
+            // Skip if no prerequisites
+            if(ParentQuestions.Count == 0)
+            {
+                return true;
+            }
+
+            // Player has completed one of the parent tranasactions
+            if(ParentQuestions.Any(parent =>
+                player.PointTransactions.Any
+                (
+                    transaction => (transaction.Question?.Id ?? -1) == parent.Id)
+                )
+            )
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

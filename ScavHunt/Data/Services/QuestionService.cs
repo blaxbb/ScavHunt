@@ -27,7 +27,14 @@ namespace ScavHunt.Data.Services
         public async Task<List<Question>> Active()
         {
             using var db = dbFactory.CreateDbContext();
-            return await db.Questions.ToListAsync();
+            var res = await db.Questions.Include(q => q.ParentQuestions).ToListAsync();
+
+            return res.Where(q => !q.IsCurrentlyLockedTime()).ToList();
+        }
+
+        async Task IsUnlocked(Question q, Player p)
+        {
+            
         }
     }
 }

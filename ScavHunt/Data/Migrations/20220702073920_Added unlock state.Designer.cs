@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScavHunt.Data;
 
@@ -11,9 +12,10 @@ using ScavHunt.Data;
 namespace ScavHunt.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220702073920_Added unlock state")]
+    partial class Addedunlockstate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,6 +364,32 @@ namespace ScavHunt.Data.Migrations
                     b.ToTable("Questions");
                 });
 
+            modelBuilder.Entity("ScavHunt.Data.Models.UnlockState", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("UnlockStates");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -448,8 +476,27 @@ namespace ScavHunt.Data.Migrations
             modelBuilder.Entity("ScavHunt.Data.Models.Question", b =>
                 {
                     b.HasOne("ScavHunt.Data.Models.Question", null)
-                        .WithMany("ParentQuestions")
+                        .WithMany("ChainQuestions")
                         .HasForeignKey("QuestionId");
+                });
+
+            modelBuilder.Entity("ScavHunt.Data.Models.UnlockState", b =>
+                {
+                    b.HasOne("ScavHunt.Data.Models.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ScavHunt.Data.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("ScavHunt.Data.Models.Player", b =>
@@ -461,7 +508,7 @@ namespace ScavHunt.Data.Migrations
 
             modelBuilder.Entity("ScavHunt.Data.Models.Question", b =>
                 {
-                    b.Navigation("ParentQuestions");
+                    b.Navigation("ChainQuestions");
 
                     b.Navigation("PointTransactions");
 
