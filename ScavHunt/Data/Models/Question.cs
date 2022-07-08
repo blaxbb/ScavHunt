@@ -27,7 +27,7 @@ namespace ScavHunt.Data.Models
         public DateTime UnlockTime { get; set; }
         public DateTime LockTime { get; set; }
 
-        public List<Question> ParentQuestions { get; set; } = new List<Question>();
+        public Question? ParentQuestion { get; set; }
 
         public List<LogRecord> Responses { get; set; }
         public List<PointTransaction> PointTransactions { get; set; }
@@ -68,18 +68,13 @@ namespace ScavHunt.Data.Models
         public bool HasAccess(Player player)
         {
             // Skip if no prerequisites
-            if(ParentQuestions.Count == 0)
+            if(ParentQuestion == default)
             {
                 return true;
             }
 
             // Player has completed one of the parent tranasactions
-            if(ParentQuestions.Any(parent =>
-                player.PointTransactions.Any
-                (
-                    transaction => (transaction.Question?.Id ?? -1) == parent.Id)
-                )
-            )
+            if(player.PointTransactions.Any(t => (t.Question?.Id ?? -1) == ParentQuestion.Id))
             {
                 return true;
             }

@@ -1,0 +1,7 @@
+﻿.table-striped .row * {
+    padding: .5rem;
+}
+
+#questionList .list-group {
+    min-height: 20px;
+}

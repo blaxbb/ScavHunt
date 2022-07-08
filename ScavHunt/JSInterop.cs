@@ -72,5 +72,17 @@ namespace ScavHunt
         {
             await js.InvokeVoidAsync("SelectValue", id, value);
         }
+
+        public async Task InitSortable(string id)
+        {
+            await js.InvokeVoidAsync("InitSortable", id);
+        }
+
+        public record QuestionTree(string id, List<QuestionTree> children);
+
+        public async Task<List<QuestionTree>> GetQuestionTree(string id)
+        {
+            return await js.InvokeAsync<List<QuestionTree>>("GetQuestionTree", id);
+        }
     }
 }

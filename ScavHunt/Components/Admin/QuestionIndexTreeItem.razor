@@ -1,0 +1,54 @@
+﻿@using ScavHunt.Data.Models
+@using static ScavHunt.Pages.Admin.Questions
+
+@if(Node.Question != null)
+{
+    <div class="list-group-item">
+        <div class="row">
+            <div class="col-auto"><span class="oi oi-grid-four-up"></span></div>
+            <div class="col-2">@Node.Question.ShortCode</div>
+            <div class="col-2">@Node.Question.Vendor</div>
+            <div class="col">@Node.Question.Title</div>
+            <div class="col-auto"><button type="button" class="btn btn-primary" @onclick="(() => EditQuestion(Node.Question))">Edit</button></div>
+        </div>
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col">
+                <div class="list-group border-primary border" id="questionNode-@Node.Question.Id">
+                    @if (Node.Children != null)
+                    {
+                        @foreach (var child in Node.Children)
+                        {
+                            <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @if (Node.Children != null)
+    {
+        <div class="row list-group table-striped" id="questionList">
+            @foreach (var child in Node.Children)
+            {
+                <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" />
+            }
+        </div>
+    }    
+}
+
+@code {
+    [Parameter]
+    public QuestionTreeNode Node { get; set; }
+
+    [Parameter]
+    public EventCallback<Question> OnEdit { get; set; }
+
+    async Task EditQuestion(Question question)
+    {
+        await OnEdit.InvokeAsync(question);
+    }
+}

@@ -1,4 +1,5 @@
 ﻿@page "/admin/questions"
+@using ScavHunt.Components.Admin
 @using ScavHunt.Data.Models
 @attribute [Authorize]
 @inject QuestionAdminService questions
@@ -108,7 +109,7 @@
                                 <option value="-1" selected>Add parent question</option>
                                 @for(int i = 0; i < All.Count; i++)
                                 {
-                                    if(All[i].Id == editQuestion.Id || editQuestion.ParentQuestions.Any(q => q.Id == All[i].Id))
+                                    if(All[i].Id == editQuestion.Id || (editQuestion?.ParentQuestion?.Id ?? -1) == All[i].Id)
                                     {
                                         continue;
                                     }
@@ -120,16 +121,12 @@
                     <div class="row">
                         <table class="table table-striped">
                             <tbody>
-                                @for(int i = 0; i < editQuestion.ParentQuestions.Count; i++)
+                                @if (editQuestion.ParentQuestion != default)
                                 {
-                                    // index required for onchange function call
-                                    var chainIndex = i;
-                                    var parent = editQuestion.ParentQuestions[chainIndex];
-
                                     <tr>
-                                        <td>@parent.Title</td>
-                                        <td>@parent.ShortCode</td>
-                                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveParent(chainIndex)">X</button></td>
+                                        <td>@editQuestion.ParentQuestion.Title</td>
+                                        <td>@editQuestion.ParentQuestion.ShortCode</td>
+                                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveParent()">X</button></td>
                                     </tr>
                                 }
                             </tbody>
@@ -145,7 +142,7 @@
     }
 </Modal>
 
-<div class="container pt-3">
+<div class="container my-3">
     <div class="row">
         <div class="col-sm-auto">
             <h3>Questions</h3>
@@ -154,41 +151,13 @@
             <button type="button" class="btn btn-primary" @onclick="NewQuestion">New</button>
         </div>
         <div class="col-sm-auto">
-            @if(All != null)
-            {
-                <Pagination ItemsPerPage="ItemsPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p"/>
-            }
+            <button type="button" class="btn btn-primary" @onclick="SaveOrder">Save Order</button>
         </div>
     </div>
-
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <td>Short Code</td>
-                <td>Vendor</td>
-                <td>Title</td>
-                <td>Answers</td>
-                <td></td>
-                <td></td>
-            </tr>
-        </thead>
-        @if (All != null)
-        {
-            <tbody>
-                @foreach(var question in All.Skip(Page * ItemsPerPage).Take(ItemsPerPage))
-                {
-                    <tr>
-                        <td>@question.ShortCode</td>
-                        <td>@question.Vendor</td>
-                        <td>@question.Title</td>
-                        <td>@(question.Answers?.Count ?? 0)</td>
-                        <td><button type="button" class="btn btn-primary">Details</button></td>
-                        <td><button type="button" class="btn btn-primary" @onclick="(() => EditQuestion(question))">Edit</button></td>
-                    </tr>
-                }
-            </tbody>
-        }
-    </table>
+    @if (Tree != null)
+    {
+        <QuestionIndexTreeItem Node="Tree" OnEdit="(async (q) => await EditQuestion(q))" />
+    }
 </div>
 @code {
     const string EditId = "EditQuestionModal";
@@ -197,13 +166,48 @@
 
     Question editQuestion { get; set; }
 
-    const int ItemsPerPage = 25;
-    int Page { get; set; }
+    QuestionTreeNode Tree { get; set; }
 
+    public record QuestionTreeNode(Question? Question, List<QuestionTreeNode>? Children = default);
 
     protected override async Task OnInitializedAsync()
     {
+        await Init();
+    }
+
+    async Task Init()
+    {
         All = await questions.All();
+        BuildTree();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (All != null)
+        {
+            await js.InitSortable("questionList");
+        }
+    }
+
+    void BuildTree()
+    {
+        Tree = new QuestionTreeNode(default);
+        Tree = GrowTree(Tree);
+    }
+
+    QuestionTreeNode GrowTree(QuestionTreeNode node)
+    {
+
+        if(node.Question == default)
+        {
+            node = node with { Children = All.Where(q => q.ParentQuestion == null).Select(q => GrowTree(new QuestionTreeNode(q))).ToList() };
+        }
+        else
+        {
+            node = node with { Children = All.Where(q => q.ParentQuestion == node.Question).Select(q => GrowTree(new QuestionTreeNode(q))).ToList() };
+        }
+
+        return node;
     }
 
     async Task NewQuestion()
@@ -211,6 +215,42 @@
         editQuestion = new Question();
         editQuestion.Answers.Add("");
         await js.ShowModal(EditId);
+    }
+
+    async Task SaveOrder()
+    {
+        var result = await js.GetQuestionTree("questionList");
+        foreach(var node in result)
+        {
+            ParseOrderNode(node);
+        }
+
+        foreach(var question in All)
+        {
+            await questions.Update(question);
+        }
+
+        await Init();
+    }
+
+    void ParseOrderNode(JSInterop.QuestionTree tree, Question? parent = default)
+    {
+        if(long.TryParse(tree.id, out long id))
+        {
+            var question = All.FirstOrDefault(q => q.Id == id);
+            if(question == default)
+            {
+                return;
+            }
+
+            question.ParentQuestion = parent;
+
+            foreach(var child in tree.children)
+            {
+                ParseOrderNode(child, question);
+            }
+
+        }
     }
 
     async Task EditQuestion(Question question)
@@ -228,7 +268,7 @@
             ShuffleAnswers = question.ShuffleAnswers,
             UnlockTime = question.UnlockTime,
             LockTime = question.LockTime,
-            ParentQuestions = question.ParentQuestions.ToList()
+            ParentQuestion = question.ParentQuestion
         };
 
         await js.ShowModal(EditId);
@@ -252,7 +292,7 @@
 
         editQuestion = new Question();
 
-        All = await questions.All();
+        await Init();
         await js.HideModal(EditId);
     }
 
@@ -281,15 +321,12 @@
         {
             await js.SelectValue("parentQuestionSelect", "-1");
             var question = All[index];
-            editQuestion.ParentQuestions.Add(question);
+            editQuestion.ParentQuestion = question;
         }
     }
 
-    void RemoveParent(int index)
+    void RemoveParent()
     {
-        if(editQuestion != null && index >= 0)
-        {
-            editQuestion.ParentQuestions.RemoveAt(index);
-        }
+        editQuestion.ParentQuestion = default;
     }
 }

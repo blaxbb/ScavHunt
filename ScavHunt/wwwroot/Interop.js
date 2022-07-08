@@ -63,3 +63,45 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
 window.SelectValue = function (id, value) {
     document.getElementById(id).selectedIndex = value;
 }
+
+window.InitSortable = function (id) {
+    var root = document.getElementById(id);
+
+    if (root == null)
+    {
+        return;
+    }
+
+    Sortable.create(root, {
+        handle: '.oi-grid-four-up',
+        animation: 150,
+        group: "g"
+    });
+    var children = root.querySelectorAll(".list-group");
+    [...children].forEach(e => Sortable.create(e, {
+            handle: '.oi-grid-four-up',
+            animation: 150,
+            group: "g"
+        })
+    );
+}
+
+window.GetQuestionTree = function (id) {
+    var root = document.getElementById(id);
+    var res = _BuildQuestionTree(root);
+    return res.children;
+}
+
+_BuildQuestionTree = function (element) {
+    if (element == null) {
+        return;
+    }
+    
+    var nodes = element.querySelectorAll(":scope > .list-group-item");
+    var children = [];
+    [...nodes].forEach(n => {
+        children.push(_BuildQuestionTree(n.querySelector(".list-group")));
+    });
+
+    return { id: element.id.substring(13), children: children };
+}
