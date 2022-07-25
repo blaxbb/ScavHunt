@@ -10,6 +10,7 @@ namespace ScavHunt.Data
         public DbSet<Player> Players { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<PointTransaction> PointTransactions { get; set; }
+        public DbSet<Alert> Alerts { get; set; }
 
         public DbSet<LogRecord> Log { get; set; }
 

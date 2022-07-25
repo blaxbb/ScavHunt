@@ -1,0 +1,152 @@
+﻿@page "/admin/alerts"
+@using ScavHunt.Data.Models
+@inject AlertAdminService alerts
+@inject JSInterop js
+
+<Modal Id="@EDIT_ID" Title="@(editAlert?.Id != 0 ? $"Editing {editAlert?.Title}" : "New Alert")">
+    @if(editAlert != null)
+    {
+        <EditForm id="editAlertForm" Model="@editAlert" OnValidSubmit="@SaveAlert">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <InputText class="form-control" id="title" @bind-Value="editAlert.Title" placeholder="Title" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Message  - Markdown Enabled</label>
+                <InputTextArea class="form-control" id="text" rows="6" @bind-Value="editAlert.Message" placeholder="Message" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Type</label>
+                <InputSelect class="form-select" @bind-Value="editAlert.Type">
+                    @foreach(var type in Enum.GetValues<Alert.AlertType>())
+                    {
+                        <option>@type</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Unlock Time</label>
+                <input type="datetime-local" class="form-control" @bind="editAlert.StartTime" step="1"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Lock Time</label>
+                <input type="datetime-local" class="form-control" @bind="editAlert.EndTime" step="1"/>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </EditForm>
+    }
+</Modal>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-auto">
+            <h3>Alerts</h3>
+        </div>
+        <div class="col-sm-auto">
+            <button type="button" class="btn btn-primary" @onclick="NewAlert">New</button>
+        </div>
+    </div>
+
+    @if(Active != default)
+    {
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>Title</td>
+                    <td>Type</td>
+                    <td>Start Time</td>
+                    <td>End Time</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var alert in Active)
+            {
+                <tr>
+                    <td>@(alert.IsActive() ? "✅" : "❎)</td>
+                    <td>@alert.Title</td>
+                    <td>@alert.Type</td>
+                    <td>@alert.StartTime</td>
+                    <td>@alert.EndTime</td>
+                    <td><button type="button" class="btn btn-primary" @onclick="(async () => await EditAlert(alert))">Edit</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <Spinner />
+    }
+</div>
+
+@code {
+    const string EDIT_ID = "EditAlertModal";
+
+    List<Alert>? Active { get; set; }
+
+    Alert? editAlert;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Active = await alerts.All();
+    }
+
+    async Task NewAlert()
+    {
+        editAlert = new Alert()
+        {
+            Id = -1,
+            Type = Alert.AlertType.Danger
+        };
+
+        await js.ShowModal(EDIT_ID);
+    }
+
+    async Task EditAlert(Alert alert)
+    {
+        editAlert = new Alert()
+        {
+            Id = alert.Id,
+            Type = alert.Type,
+            Title = alert.Title,
+            Message = alert.Message,
+            StartTime = alert.StartTime,
+            EndTime = alert.EndTime
+        };
+
+        await js.ShowModal(EDIT_ID);
+    }
+
+    async Task SaveAlert()
+    {
+        await js.HideModal(EDIT_ID);
+
+        if(editAlert == null)
+        {
+            return;
+        }
+
+        if(editAlert.Id == -1)
+        {
+            editAlert.Id = 0;
+            await alerts.New(editAlert);
+        }
+        else
+        {
+            await alerts.Update(editAlert);
+        }
+
+        Active = await alerts.All();
+    }
+}
