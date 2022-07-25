@@ -72,8 +72,15 @@
             <tbody>
             @foreach(var alert in Active)
             {
-                <tr>
-                    <td>@(alert.IsActive() ? "✅" : "❎)</td>
+                <tr class="align-middle">
+                    @if(alert.IsActive())
+                    {
+                        <td><span class="oi oi-check"></span></td>
+                    }
+                    else
+                    {
+                        <td><span class="oi oi-ban"></span></td>
+                    }
                     <td>@alert.Title</td>
                     <td>@alert.Type</td>
                     <td>@alert.StartTime</td>
