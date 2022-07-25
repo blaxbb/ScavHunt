@@ -16,7 +16,20 @@ namespace ScavHunt.Data.Services
         {
             using var db = await dbFactory.CreateDbContextAsync();
 
-            return await db.Players.Include(p => p.PointTransactions).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).Take(25).ToListAsync();
+            return await db.Players.Include(p => p.PointTransactions).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).ToListAsync();
+        }
+
+        public async Task<List<Player>> ShortLeaderboard()
+        {
+            using var db = await dbFactory.CreateDbContextAsync();
+
+            return await db.Players.Include(p => p.PointTransactions).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).Take(5).ToListAsync();
+        }
+
+        public async Task<int> GetPosition(Player player)
+        {
+            var leaderboard = await Leaderboard();
+            return leaderboard.FindIndex(p => p.BadgeNumber == player.BadgeNumber) + 1;
         }
     }
 }
