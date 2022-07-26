@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using ScavHunt.Data.Models
+@inherits LayoutComponentBase
+@inject AlertService alerts
+@inject MarkdownService md
 
 <PageTitle>ScavHunt</PageTitle>
 
@@ -7,7 +10,7 @@
         <NavMenu />
     </div>
 
-    <main class="d-grid" style="grid-template-rows: auto 1fr auto;">
+    <main class="d-grid" style="grid-template-rows: auto auto 1fr auto;">
         <AuthorizeView>
             <Authorized>
                 <div class="top-row px-4 auth bg-warning justify-content-start">
@@ -21,6 +24,20 @@
                 <div></div>
             </NotAuthorized>
         </AuthorizeView>
+
+        <div id="alerts" class="spacer">
+            @if(Active != null && Active.Count > 0)
+            {
+                foreach(var alert in Active)
+                {
+                    <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                        <h4 class="alert-heading">@alert.Title</h4>
+                        <div>@md.Render(alert.Message)</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            }
+        </div>
 
         <article class="content">
             @Body
@@ -53,3 +70,11 @@
         </footer>
     </main>
 </div>
+
+@code {
+    List<Alert> Active { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        Active = await alerts.ActiveAlerts();
+    }
+}
