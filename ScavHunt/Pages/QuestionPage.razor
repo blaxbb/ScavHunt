@@ -24,7 +24,18 @@ else if(question != default)
                 <h3>
                     @question.Title
                 </h3>
-                <h5>12:05</h5>
+                @if(incorrectCount > 0)
+                {
+                    <h5>@incorrectCount Incorrect Answers</h5>
+                }
+                @if(ElapsedTime >= TotalTime)
+                {
+                    <h5>@ElapsedTime.ToString("0.0+ sec")</h5>
+                }
+                else
+                {
+                    <h5>@ElapsedTime.ToString("0.0 sec")</h5>
+                }
             </div>
             <div class="col-md">
                 <h5 class="">@md.Render(question.Text)</h5>
@@ -62,12 +73,6 @@ else if(question != default)
             }
 
             var displayedProgress = Math.Max(ProgressPercent(), 20);
-
-            <div class="row mt-3">
-                <div class="progress p-0" style="height: 2rem;">
-                    <div class="progress-bar @ProgressClass()" role="progressbar" style="width: @displayedProgress%;" aria-valuenow="@displayedProgress" aria-valuemin="0" aria-valuemax="100">@(Points()) Points</div>
-                </div>
-            </div>
         }
         @if(State == QuestionState.Success)
         {
@@ -76,7 +81,7 @@ else if(question != default)
             <div class="row bg-success choice py-3 my-0 spacer">
                 <div class="col text-center my-auto">@answer</div>
             </div>
-            <div class="row">
+            <div class="row py-3">
                 <h5 class="text-center">
                     You have earned @points points!
                 </h5>
@@ -102,7 +107,6 @@ else if(question != default)
 
 @code {
     const int DeltaTime = 100;
-    const double WrongPenalty = 5;
 
     QuestionState State { get; set; }
     enum QuestionState
@@ -125,6 +129,8 @@ else if(question != default)
 
     double TotalTime = 20;
     double ElapsedTime = 0;
+
+    int incorrectCount { get; set; }
 
     Timer tickTimer;
 
@@ -180,6 +186,9 @@ else if(question != default)
         {
             ElapsedTime = TotalTime;
         }
+
+        var incorrectResponses = player.Responses.Where(r => r.Type == LogRecord.RecordType.IncorrectAnswer && r.Question?.Id == question.Id);
+        incorrectCount = incorrectResponses.Count();
 
         State = QuestionState.LeadIn;
         StateHasChanged();
@@ -241,22 +250,14 @@ else if(question != default)
 
             return;
         }
-
-        await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.");
-
-        if(index > 0 && index < Attempted.Count)
+        if(index > 0 && index < Attempted.Count && !Attempted[displayIndex])
         {
+
+            await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.");
+
+            incorrectCount++;
+
             Attempted[displayIndex] = true;
-        }
-
-        if(ElapsedTime + WrongPenalty > TotalTime)
-        {
-            ElapsedTime = TotalTime;
-            StopTimer();
-        }
-        else
-        {
-            ElapsedTime += WrongPenalty;
         }
     }
 
@@ -272,12 +273,14 @@ else if(question != default)
 
     int Points()
     {
-        var progress = ProgressPercent();
-        return progress switch
+        return incorrectCount switch
         {
-            > 75 => 5,
-            > 25 => 3,
-            _ => 1
+            0 => 5,
+            1 => 4,
+            2 => 2,
+            3 => 1,
+            _ => 0
+
         };
     }
 
@@ -288,19 +291,6 @@ else if(question != default)
             5 => .24d * TotalTime,
             3 => .5d * TotalTime,
             _ => TotalTime
-        };
-    }
-
-    string ProgressClass()
-    {
-        var progress = ProgressPercent();
-        return progress switch
-        {
-            > 75 => "bg-success",
-            > 50 => "bg-info",
-            > 25 => "bg-warning",
-            >= 0 => "bg-danger",
-            _ => ""
         };
     }
 

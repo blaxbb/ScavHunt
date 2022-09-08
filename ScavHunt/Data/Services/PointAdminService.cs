@@ -30,7 +30,7 @@ namespace ScavHunt.Data.Services
             var totalPoints = points.Sum(p => p.Value);
             db.PointTransactions.RemoveRange(points);
 
-            var logs = db.Log.Where(l => l.Type == LogRecord.RecordType.StartedQuestion && l.Player == player && l.Question == question);
+            var logs = db.Log.Where(l => (l.Type == LogRecord.RecordType.StartedQuestion || l.Type == LogRecord.RecordType.IncorrectAnswer) && l.Player == player && l.Question == question);
             db.Log.RemoveRange(logs);
 
 
