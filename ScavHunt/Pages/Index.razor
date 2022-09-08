@@ -6,6 +6,7 @@
 
 @if(Mode == LandingMode.Loading){
     <Spinner CssClass="d-flex justify-content-center"/>
+    <div></div>
 }
 
 @if(Mode == LandingMode.Register)
@@ -13,7 +14,7 @@
     <LandingRegisterComponent />
 }
 
-@if(Mode == LandingMode.Landing)
+@if (Mode == LandingMode.Landing)
 {
     <LandingPlayerComponent Player="@player" />
 }
