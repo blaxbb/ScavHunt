@@ -9,6 +9,7 @@
             <div class="col-2">@Node.Question.ShortCode</div>
             <div class="col-2">@Node.Question.Vendor</div>
             <div class="col">@Node.Question.Title</div>
+            <div class="col-auto"><button type="button" class="btn btn-primary" @onclick="(() => AddChildQuestion(Node.Question))">Add</button></div>
             <div class="col-auto"><button type="button" class="btn btn-primary" @onclick="(() => EditQuestion(Node.Question))">Edit</button></div>
         </div>
         <div class="row">
@@ -19,7 +20,7 @@
                     {
                         @foreach (var child in Node.Children)
                         {
-                            <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" />
+                            <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" OnAddChild="(async q => await OnAddChild.InvokeAsync(q))" />
                         }
                     }
                 </div>
@@ -34,7 +35,7 @@ else
         <div class="row list-group table-striped" id="questionList">
             @foreach (var child in Node.Children)
             {
-                <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" />
+                <QuestionIndexTreeItem Node="child" OnEdit="(async q => await OnEdit.InvokeAsync(q))" OnAddChild="(async q => await OnAddChild.InvokeAsync(q))" />
             }
         </div>
     }    
@@ -46,6 +47,14 @@ else
 
     [Parameter]
     public EventCallback<Question> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<Question> OnAddChild { get; set; }
+
+    async Task AddChildQuestion(Question question)
+    {
+        await OnAddChild.InvokeAsync(question);
+    }
 
     async Task EditQuestion(Question question)
     {

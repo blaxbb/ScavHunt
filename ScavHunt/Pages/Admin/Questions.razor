@@ -156,7 +156,7 @@
     </div>
     @if (Tree != null)
     {
-        <QuestionIndexTreeItem Node="Tree" OnEdit="(async (q) => await EditQuestion(q))" />
+        <QuestionIndexTreeItem Node="Tree" OnEdit="(async (q) => await EditQuestion(q))" OnAddChild="(async (q) => await NewQuestion(q))" />
     }
 </div>
 @code {
@@ -215,6 +215,14 @@
     async Task NewQuestion()
     {
         editQuestion = new Question();
+        editQuestion.Answers.Add("");
+        await js.ShowModal(EditId);
+    }
+
+    async Task NewQuestion(Question parent)
+    {
+        editQuestion = new Question();
+        editQuestion.ParentQuestion = parent;
         editQuestion.Answers.Add("");
         await js.ShowModal(EditId);
     }
