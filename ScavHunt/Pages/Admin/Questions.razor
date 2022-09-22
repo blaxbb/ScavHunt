@@ -1,4 +1,5 @@
 ﻿@page "/admin/questions"
+@using Newtonsoft.Json
 @using ScavHunt.Components.Admin
 @using ScavHunt.Data.Models
 @attribute [Authorize]
@@ -142,6 +143,8 @@
     }
 </Modal>
 
+<ImportModal @ref="import"/>
+
 <div class="container my-3">
     <div class="row">
         <div class="col-sm-auto">
@@ -153,6 +156,12 @@
         <div class="col-sm-auto">
             <button type="button" class="btn btn-primary" @onclick="SaveOrder">Save Order</button>
         </div>
+        <div class="col-sm-auto">
+            <button type="button" class="btn btn-primary" @onclick="Export">Export</button>
+        </div>
+        <div class="col-sm-auto">
+            <button type="button" class="btn btn-primary" @onclick="async () => await import?.Show()">Import</button>
+        </div>
     </div>
     @if (Tree != null)
     {
@@ -162,13 +171,31 @@
 @code {
     const string EditId = "EditQuestionModal";
 
+    ImportModal? import;
+
     List<Question> All { get; set; }
 
     Question editQuestion { get; set; }
 
     QuestionTreeNode Tree { get; set; }
 
-    public record QuestionTreeNode(Question? Question, List<QuestionTreeNode>? Children = default);
+    public record QuestionTreeNode(Question? Question, List<QuestionTreeNode>? Children = default)
+    {
+        public QuestionTreeNode GrowTree(QuestionTreeNode node, List<Question> all)
+        {
+
+            if (node.Question == default)
+            {
+                node = node with { Children = all.Where(q => q.ParentQuestion == null).Select(q => GrowTree(new QuestionTreeNode(q), all)).ToList() };
+            }
+            else
+            {
+                node = node with { Children = all.Where(q => q.ParentQuestion == node.Question).Select(q => GrowTree(new QuestionTreeNode(q), all)).ToList() };
+            }
+
+            return node;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,23 +221,10 @@
         Tree = null;
         StateHasChanged();
         Tree = new QuestionTreeNode(default);
-        Tree = GrowTree(Tree);
+        Tree = Tree.GrowTree(Tree, All);
     }
 
-    QuestionTreeNode GrowTree(QuestionTreeNode node)
-    {
-
-        if(node.Question == default)
-        {
-            node = node with { Children = All.Where(q => q.ParentQuestion == null).Select(q => GrowTree(new QuestionTreeNode(q))).ToList() };
-        }
-        else
-        {
-            node = node with { Children = All.Where(q => q.ParentQuestion == node.Question).Select(q => GrowTree(new QuestionTreeNode(q))).ToList() };
-        }
-
-        return node;
-    }
+    
 
     async Task NewQuestion()
     {
@@ -241,6 +255,15 @@
         }
 
         await Init();
+    }
+
+    async Task Export()
+    {
+        BuildTree();
+        var json = JsonConvert.SerializeObject(Tree);
+        await js.StartDownload("export.json", new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)));
+        BuildTree();
+
     }
 
     void ParseOrderNode(JSInterop.QuestionTree tree, Question? parent = default)

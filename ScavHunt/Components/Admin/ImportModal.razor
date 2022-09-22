@@ -1,0 +1,126 @@
+﻿@using Newtonsoft.Json
+@using ScavHunt.Data.Models
+@using static ScavHunt.Pages.Admin.Questions
+@inject JSInterop js
+@inject QuestionAdminService questions
+
+<Modal Id="@ImportId" Title="Import" Confirmed="DoImport" ConfirmText="@(Importing == null ? null : ConfirmText)" CloseText="@(Importing == null ? null : CancelText)" FooterText=@FooterText>
+    <div class="container-fluid">
+        <div class="row">
+            <label>
+                <InputFile OnChange="LoadFiles" />
+            </label>
+        </div>
+        @if(loading)
+        {
+            <div class="row">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                </div>
+            </div>
+        }
+        @if(Existing != null && Importing != null)
+        {
+            <div class="row my-3">
+                @*<div class="col-6">
+                    <h5 class="py-1">@($"Existing: {Existing.Count} questions")</h5>
+                    @foreach(var q in Existing)
+                    {
+                        <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
+                    }
+                </div>
+                <div class="col-6">
+                    <h5 class="py-1">@($"Importing: {Importing.Count} questions")</h5>
+                    @foreach(var q in Importing)
+                    {
+                        <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
+                    }
+                </div>*@
+            </div>
+        }
+
+    </div>
+</Modal>
+
+@code {
+    const string ImportId = "ImportModal";
+
+    bool loading = false;
+
+    QuestionTreeNode Existing;
+    QuestionTreeNode Importing;
+
+    const string ConfirmText = "Confirm";
+    const string CancelText = "Cancel";
+
+    string FooterText => $"This will replace Existing?.Count items with Importing?.Count items. This is irreversible, would you like to continue?  This WILL break log entries and question status!!!";
+
+
+    public async Task Show()
+    {
+        Existing = null;
+        Importing = null;
+        StateHasChanged();
+        await js.ShowModal(ImportId);
+    }
+
+    private async Task DoImport()
+    {
+        await Delete(Existing);
+
+        await Add(Importing);
+    }
+
+    async Task Delete(QuestionTreeNode node)
+    {
+        if(node.Question != null)
+        {
+            await questions.Delete(node.Question);
+        }
+
+        foreach(var child in node.Children)
+        {
+            await Delete(child);
+        }
+    }
+
+    async Task Add(QuestionTreeNode node, Question parent = null)
+    {
+        Question? created = null;
+
+        if(node.Question != null)
+        {
+            if(parent != null)
+            {
+                node.Question.ParentQuestion = parent;
+            }
+
+            node.Question.Id = 0;
+            created = await questions.Add(node.Question);
+        }
+
+        foreach(var child in node.Children)
+        {
+            await Add(child, created);
+        }
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs args)
+    {
+        loading = true;
+        try
+        {
+            using var stream = new MemoryStream();
+            await args.File.OpenReadStream().CopyToAsync(stream);
+            var text = System.Text.Encoding.UTF8.GetString(stream.GetBuffer());
+            Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text) ?? new(null, null);
+            var all = await questions?.All() ?? new();
+            Existing = new(default);
+            Existing = Existing.GrowTree(Existing, all);
+        }
+        catch(Exception e) {
+            Console.WriteLine(e.Message);
+        }
+        loading = false;
+    }
+}

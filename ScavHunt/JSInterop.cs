@@ -84,5 +84,11 @@ namespace ScavHunt
         {
             return await js.InvokeAsync<List<QuestionTree>>("GetQuestionTree", id);
         }
+
+        public async Task StartDownload(string filename, Stream stream)
+        {
+            using var streamRef = new DotNetStreamReference(stream);
+            await js.InvokeVoidAsync("downloadFileFromStream", filename, streamRef);
+        }
     }
 }

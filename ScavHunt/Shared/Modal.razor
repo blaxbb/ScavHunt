@@ -10,14 +10,25 @@
             </div>
             @if (CloseText != null || ConfirmText != null)
             {
-                <div class="modal-footer">
-                    @if (CloseText != null)
+                <div class="modal-footer flex-column align-items-end">
+                    @if (CloseText != null || ConfirmText != null)
                     {
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@CloseText</button>
-                    }
-                    @if (ConfirmText != null)
-                    {
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="OnConfirmed">@ConfirmText</button>
+                        @if (FooterText != null)
+                        {
+                            <div class="row">
+                                <h5>@FooterText</h5>
+                            </div>
+                        }
+                        <div class="d-flex flex-row">
+                            @if (CloseText != null)
+                            {
+                                <button type="button" class="btn btn-secondary mx-3" data-bs-dismiss="modal">@CloseText</button>
+                            }
+                            @if (ConfirmText != null)
+                            {
+                                <button type="button" class="btn btn-primary mx-3" data-bs-dismiss="modal" @onclick="OnConfirmed">@ConfirmText</button>
+                            }
+                        </div>
                     }
                 </div>
             }
@@ -35,6 +46,8 @@
     public string? CloseText { get; set; }
     [Parameter]
     public string? ConfirmText { get; set; }
+    [Parameter]
+    public string? FooterText { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }

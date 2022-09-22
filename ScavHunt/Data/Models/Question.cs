@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ScavHunt.Data.Models
 {
@@ -27,9 +28,11 @@ namespace ScavHunt.Data.Models
         public DateTime UnlockTime { get; set; }
         public DateTime LockTime { get; set; }
 
+        [JsonIgnore]
         public Question? ParentQuestion { get; set; }
-
+        [JsonIgnore]
         public List<LogRecord> Responses { get; set; }
+        [JsonIgnore]
         public List<PointTransaction> PointTransactions { get; set; }
 
         // QuestionAdminService -> Update() must be updated for additional fields

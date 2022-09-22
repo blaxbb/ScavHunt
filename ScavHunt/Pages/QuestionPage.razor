@@ -78,9 +78,12 @@ else if(question != default)
         {
             var answer = question.Answers.FirstOrDefault();
             var points = Points();
-            <div class="row bg-success choice py-3 my-0 spacer">
-                <div class="col text-center my-auto">@answer</div>
-            </div>
+            @if (answer != null)
+            {
+                <div class="row bg-success choice py-3 my-0 spacer">
+                    <div class="col text-center my-auto">@answer</div>
+                </div>
+            }
             <div class="row py-3">
                 <h5 class="text-center">
                     You have earned @points points!
@@ -142,6 +145,7 @@ else if(question != default)
         {
             return;
         }
+        ElapsedTime = 0;
 
         player = await players.GetCurrent();
 
@@ -162,7 +166,6 @@ else if(question != default)
         var succeededResponse = player.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);
         if(succeededResponse != default)
         {
-            SetElapsed(succeededResponse.Value);
             State = QuestionState.Success;
             StateHasChanged();
             return;
@@ -179,6 +182,12 @@ else if(question != default)
         {
             State = QuestionState.LateLocked;
             StateHasChanged();
+            return;
+        }
+
+        if(question.Answers.Count == 0)
+        {
+            await Success();
             return;
         }
 
@@ -242,11 +251,7 @@ else if(question != default)
 
         if(index == 0)
         {
-            State = QuestionState.Success;
-            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
-
-            await points.AddPoints(player, question, Points());
-            StopTimer();
+            await Success(choice);
 
             return;
         }
@@ -261,6 +266,24 @@ else if(question != default)
         }
     }
 
+    async Task Success(string? choice = null)
+    {
+        State = QuestionState.Success;
+        if(choice == null)
+        {
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Awarded default for {Points()} points.");
+        }
+        else
+        {   
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
+        }
+
+        await points.AddPoints(player, question, Points());
+        StopTimer();
+
+        StateHasChanged();
+    }
+
     int ProgressPercent()
     {
         return 100 - (int)(100 * (ElapsedTime / TotalTime));
@@ -268,7 +291,7 @@ else if(question != default)
 
     void StopTimer()
     {
-        tickTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        tickTimer?.Change(Timeout.Infinite, Timeout.Infinite);
     }
 
     int Points()
@@ -284,15 +307,6 @@ else if(question != default)
         };
     }
 
-    void SetElapsed(int points)
-    {
-        ElapsedTime = points switch
-        {
-            5 => .24d * TotalTime,
-            3 => .5d * TotalTime,
-            _ => TotalTime
-        };
-    }
 
     void Tick(int ms)
     {

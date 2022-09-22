@@ -100,5 +100,44 @@ namespace ScavHunt.Data.Services
 
             return default;
         }
+
+        public async Task Delete(Question question)
+        {
+            using var db = await dbFactory.CreateDbContextAsync();
+
+            var existing = await db.Questions.Include(q => q.ParentQuestion).FirstOrDefaultAsync(q => q.Id == question.Id);
+
+            if (existing == default)
+            {
+                return;
+            }
+
+            var children = await db.Questions.Where(q => q.ParentQuestion == existing).ToListAsync();
+            if(existing.ParentQuestion != null)
+            {
+                children.ForEach(q => q.ParentQuestion = existing.ParentQuestion);
+            }
+            else
+            {
+                children.ForEach(q => q.ParentQuestion = null);
+            }
+
+            db.UpdateRange(children);
+
+            var logs = await db.Log.Where(l => l.Question == existing).ToListAsync();
+            logs.ForEach(l => l.Question = null);
+            db.UpdateRange(logs);
+
+            var points = await db.PointTransactions.Where(p => p.Question == existing).ToListAsync();
+            foreach(var p in points)
+            {
+                p.Source = PointTransaction.PointSource.Manual;
+                p.Question = null;
+            }
+            db.UpdateRange(points);
+
+            db.Remove(existing);
+            await db.SaveChangesAsync();
+        }
     }
 }
