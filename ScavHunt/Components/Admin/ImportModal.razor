@@ -22,20 +22,35 @@
         @if(Existing != null && Importing != null)
         {
             <div class="row my-3">
-                @*<div class="col-6">
-                    <h5 class="py-1">@($"Existing: {Existing.Count} questions")</h5>
-                    @foreach(var q in Existing)
+                <h5 class="py-1">@($"Unchanged: {UnchangedQuestions.Count} questions")</h5>
+            </div>
+            <div class="row my-3">
+                <h5 class="py-1">@($"To Update: {UpdatedQuestions.Count} questions")</h5>
+                    @foreach (var q in UpdatedQuestions)
+                    {
+                        <div class="col-6">
+                            <div class="py-1">@($"{q.old.ShortCode} - {q.old.Title}")</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="py-1">@($"{q.updated.ShortCode} - {q.updated.Title}")</div>
+                        </div>
+                    }
+            </div>
+            <div class="row my-3">
+                <div class="col-6">
+                    <h5 class="py-1">@($"To Remove: {ToRemoveQuestions.Count} questions")</h5>
+                    @foreach (var q in ToRemoveQuestions)
                     {
                         <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
                     }
                 </div>
                 <div class="col-6">
-                    <h5 class="py-1">@($"Importing: {Importing.Count} questions")</h5>
-                    @foreach(var q in Importing)
+                    <h5 class="py-1">@($"To Add: {NewQuestions.Count()} questions")</h5>
+                    @foreach (var q in NewQuestions)
                     {
                         <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
                     }
-                </div>*@
+                </div>
             </div>
         }
 
@@ -50,10 +65,15 @@
     QuestionTreeNode Existing;
     QuestionTreeNode Importing;
 
+    List<Question> NewQuestions = new();
+    List<Question> ToRemoveQuestions = new();
+    List<(Question old, Question updated)> UpdatedQuestions = new();
+    List<(Question old, Question updated)> UnchangedQuestions = new();
+
     const string ConfirmText = "Confirm";
     const string CancelText = "Cancel";
 
-    string FooterText => $"This will replace Existing?.Count items with Importing?.Count items. This is irreversible, would you like to continue?  This WILL break log entries and question status!!!";
+    string FooterText => $"This is irreversible, would you like to continue?  {(ToRemoveQuestions.Count > 0 ? "This WILL break log entries and player question status for all removed questions!!!" : "")}";
 
 
     public async Task Show()
@@ -66,26 +86,40 @@
 
     private async Task DoImport()
     {
-        await Delete(Existing);
+        var dbg = await Delete(Existing);
 
-        await Add(Importing);
+        dbg.AddRange(await AddOrUpdate(Importing));
+        Console.WriteLine("-----------------");
+        foreach(var d in dbg)
+        {
+            Console.WriteLine(d);
+        }
     }
 
-    async Task Delete(QuestionTreeNode node)
+    async Task<List<string>> Delete(QuestionTreeNode node)
     {
-        if(node.Question != null)
+        var dbg = new List<string>();
+
+        if(node.Question != null && ToRemoveQuestions.Any(q => q.Id == node.Question.Id))
         {
+            Console.WriteLine($"Deleting question - {node.Question.ShortCode} - {node.Question.Title}");
             await questions.Delete(node.Question);
+            dbg.Add($"Deleting question - {node.Question.ShortCode} - {node.Question.Title}");
         }
 
         foreach(var child in node.Children)
         {
-            await Delete(child);
+            var res = await Delete(child);
+            dbg.AddRange(res);
         }
+
+        return dbg;
     }
 
-    async Task Add(QuestionTreeNode node, Question parent = null)
+    async Task<List<string>> AddOrUpdate(QuestionTreeNode node, Question parent = null)
     {
+        var dbg = new List<string>();
+
         Question? created = null;
 
         if(node.Question != null)
@@ -95,14 +129,33 @@
                 node.Question.ParentQuestion = parent;
             }
 
-            node.Question.Id = 0;
-            created = await questions.Add(node.Question);
+            if(NewQuestions.Any(q => q.Id == node.Question.Id))
+            {
+                node.Question.Id = 0;
+                created = await questions.Add(node.Question);
+                Console.WriteLine($"Creating question - {node.Question.ShortCode} - {node.Question.Title}");
+                dbg.Add($"Creating question - {node.Question.ShortCode} - {node.Question.Title}");
+            }
+            else if(UpdatedQuestions.Any(q => q.old.Id == node.Question.Id))
+            {
+                created = await questions.Update(node.Question);
+                Console.WriteLine($"Updating question - {node.Question.ShortCode} - {node.Question.Title}");
+                dbg.Add($"Updating question - {node.Question.ShortCode} - {node.Question.Title}");
+            }
+            else
+            {
+                dbg.Add($"Unchanged question - {node.Question.ShortCode} - {node.Question.Title}");
+                created = node.Question;
+            }
         }
 
         foreach(var child in node.Children)
         {
-            await Add(child, created);
+            var res = await AddOrUpdate(child, created);
+            dbg.AddRange(res);
         }
+
+        return dbg;
     }
 
     private async Task LoadFiles(InputFileChangeEventArgs args)
@@ -117,6 +170,41 @@
             var all = await questions?.All() ?? new();
             Existing = new(default);
             Existing = Existing.GrowTree(Existing, all);
+
+            var impAll = Importing.Flatten();
+
+            ToRemoveQuestions = new();
+            NewQuestions = new();
+            UpdatedQuestions = new();
+            UnchangedQuestions.Clear();
+
+            foreach(var import in impAll)
+            {
+                var existing = all.FirstOrDefault(q => q.Id == import.Id);
+                if(existing == default)
+                {
+                    NewQuestions.Add(import);
+                }
+                else
+                {
+                    if(existing.Equals(import))
+                    {
+                        UnchangedQuestions.Add((existing, import));
+                    }
+                    else
+                    {
+                        UpdatedQuestions.Add((existing, import));
+                    }
+                }
+            }
+
+            foreach(var existing in all)
+            {
+                if(!(UpdatedQuestions.Any(pair => pair.old.Id == existing.Id) || UnchangedQuestions.Any(pair => pair.old.Id == existing.Id)))
+                {
+                    ToRemoveQuestions.Add(existing);
+                }
+            }
         }
         catch(Exception e) {
             Console.WriteLine(e.Message);

@@ -21,15 +21,18 @@ namespace ScavHunt.Data.Services
         {
             using var db = dbFactory.CreateDbContext();
 
-            var shortCode = await NewShortCode();
-            if(shortCode == default)
+            if(question.ShortCode == default)
             {
-                // This should be nearly mathematically impossible for this application...
-                Console.WriteLine("ERROR: No short code was able to be found!!!");
-                return default;
-            }
+                var shortCode = await NewShortCode();
+                if(shortCode == default)
+                {
+                    // This should be nearly mathematically impossible for this application...
+                    Console.WriteLine("ERROR: No short code was able to be found!!!");
+                    return default;
+                }
 
-            question.ShortCode = shortCode;
+                question.ShortCode = shortCode;
+            }
 
             db.Attach(question);
 

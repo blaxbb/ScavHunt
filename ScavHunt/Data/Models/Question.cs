@@ -84,5 +84,43 @@ namespace ScavHunt.Data.Models
 
             return false;
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Question question)
+            {
+                var lc = Answers.SequenceEqual(question.Answers);
+                var ret = Id == question.Id &&
+                       ShortCode == question.ShortCode &&
+                       Vendor == question.Vendor &&
+                       Text == question.Text &&
+                       Title == question.Title &&
+                       HintText == question.HintText &&
+                       SuccessText == question.SuccessText &&
+                       lc &&
+                       ShuffleAnswers == question.ShuffleAnswers &&
+                       UnlockTime == question.UnlockTime &&
+                       LockTime == question.LockTime;
+                return ret;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new HashCode();
+            hash.Add(Id);
+            hash.Add(ShortCode);
+            hash.Add(Vendor);
+            hash.Add(Text);
+            hash.Add(Title);
+            hash.Add(HintText);
+            hash.Add(SuccessText);
+            hash.Add(Answers);
+            hash.Add(ShuffleAnswers);
+            hash.Add(UnlockTime);
+            hash.Add(LockTime);
+            return hash.ToHashCode();
+        }
     }
 }

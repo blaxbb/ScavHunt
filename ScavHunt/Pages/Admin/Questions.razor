@@ -195,6 +195,25 @@
 
             return node;
         }
+
+        public IEnumerable<Question> Flatten()
+        {
+            if(Question != null)
+            {
+                yield return Question;
+            }
+            if(Children != null)
+            {
+                foreach(var child in Children)
+                {
+                    foreach(var q in child.Flatten())
+                    {
+                        yield return q;
+                    }
+                }
+
+            }
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -259,6 +278,7 @@
 
     async Task Export()
     {
+        All = await questions.All();
         BuildTree();
         var json = JsonConvert.SerializeObject(Tree);
         await js.StartDownload("export.json", new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json)));
