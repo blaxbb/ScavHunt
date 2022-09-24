@@ -22,33 +22,162 @@
         @if(Existing != null && Importing != null)
         {
             <div class="row my-3">
-                <h5 class="py-1">@($"Unchanged: {UnchangedQuestions.Count} questions")</h5>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#updateQuestions">To Update <span class="badge bg-primary my-auto">@UpdatedQuestions.Count</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#removeQuestions">To Remove <span class="badge bg-primary my-auto">@ToRemoveQuestions.Count</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#addQuestions">To Add <span class="badge bg-primary my-auto">@NewQuestions.Count</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#unchangedQuestions">Unchanged <span class="badge bg-primary my-auto">@UnchangedQuestions.Count</span></a>
+                    </li>
+                </ul>
             </div>
-            <div class="row my-3">
-                <h5 class="py-1">@($"To Update: {UpdatedQuestions.Count} questions")</h5>
-                    @foreach (var q in UpdatedQuestions)
+            <div class="row tab-content">
+                <div class="tab-pane active" id="updateQuestions">
+                    @if(UpdatedQuestions.Count == 0)
                     {
-                        <div class="col-6">
-                            <div class="py-1">@($"{q.old.ShortCode} - {q.old.Title}")</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="py-1">@($"{q.updated.ShortCode} - {q.updated.Title}")</div>
-                        </div>
+                        <div>No Questions will be updated.</div>
                     }
-            </div>
-            <div class="row my-3">
-                <div class="col-6">
-                    <h5 class="py-1">@($"To Remove: {ToRemoveQuestions.Count} questions")</h5>
+
+                    <div class="row">
+                        @foreach (var q in UpdatedQuestions)
+                        {
+                            <div class="col">
+                                <div class="py-1">@($"{q.old.Title}")</div>
+                            </div>
+                            <div class="col">
+                                <div class="py-1">@($"{q.updated.Title}")</div>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary py-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#updated_@q.old.Id" aria-expanded="false" aria-controls="collapseExample">
+                                    v
+                                </button>
+                            </div>
+                            <div class="col-12 collapse" id="updated_@q.old.Id">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <td></td>
+                                            <td>Existing</td>
+                                            <td>Updated</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (q.old.ShortCode != q.updated.ShortCode)
+                                        {
+                                            <tr>
+                                                <td>ShortCode</td>
+                                                <td>@q.old.ShortCode</td>
+                                                <td>@q.updated.ShortCode</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.Vendor != q.updated.Vendor)
+                                        {
+                                            <tr>
+                                                <td>Vendor</td>
+                                                <td>@q.old.Vendor</td>
+                                                <td>@q.updated.Vendor</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.Text != q.updated.Text)
+                                        {
+                                            <tr>
+                                                <td>Text</td>
+                                                <td>@q.old.Text</td>
+                                                <td>@q.updated.Text</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.HintText != q.updated.HintText)
+                                        {
+                                            <tr>
+                                                <td>HintText</td>
+                                                <td>@q.old.HintText</td>
+                                                <td>@q.updated.HintText</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.SuccessText != q.updated.SuccessText)
+                                        {
+                                            <tr>
+                                                <td>SuccessText</td>
+                                                <td>@q.old.SuccessText</td>
+                                                <td>@q.updated.SuccessText</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.ShuffleAnswers != q.updated.ShuffleAnswers)
+                                        {
+                                            <tr>
+                                                <td>ShuffleAnswers</td>
+                                                <td>@(q.old.ShuffleAnswers ? "✅" : "❌")</td>
+                                                <td>@(q.updated.ShuffleAnswers ? "✅" : "❌")</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.UnlockTime != q.updated.UnlockTime)
+                                        {
+                                            <tr>
+                                                <td>UnlockTime</td>
+                                                <td>@q.old.UnlockTime</td>
+                                                <td>@q.updated.UnlockTime</td>
+                                            </tr>
+                                        }
+                                        @if (q.old.LockTime != q.updated.LockTime)
+                                        {
+                                            <tr>
+                                                <td>LockTime</td>
+                                                <td>@q.old.LockTime</td>
+                                                <td>@q.updated.LockTime</td>
+                                            </tr>
+                                        }
+                                        @if (!q.old.Answers.SequenceEqual(q.updated.Answers))
+                                        {
+                                            <tr>
+                                                <td>Answers</td>
+                                                <td>@((MarkupString)String.Join("<br />", q.old.Answers))</td>
+                                                <td>@((MarkupString)String.Join("<br />", q.updated.Answers))</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="tab-pane" id="removeQuestions">
+                    @if (ToRemoveQuestions.Count == 0)
+                    {
+                        <div>No Questions will be removed.</div>
+                    }
+
                     @foreach (var q in ToRemoveQuestions)
                     {
                         <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
                     }
                 </div>
-                <div class="col-6">
-                    <h5 class="py-1">@($"To Add: {NewQuestions.Count()} questions")</h5>
+                <div class="tab-pane" id="addQuestions">
+                    @if (NewQuestions.Count == 0)
+                    {
+                        <div>No Questions will be added.</div>
+                    }
+
                     @foreach (var q in NewQuestions)
                     {
                         <div class="py-1">@($"{q.ShortCode} - {q.Title}")</div>
+                    }
+                </div>
+                <div class="tab-pane" id="unchangedQuestions">
+                    @if (UnchangedQuestions.Count == 0)
+                    {
+                        <div>All existing questions will be changed.</div>
+                    }
+
+                    @foreach (var q in UnchangedQuestions)
+                    {
+                        <div class="py-1">@($"{q.old.ShortCode} - {q.old.Title}")</div>
                     }
                 </div>
             </div>
