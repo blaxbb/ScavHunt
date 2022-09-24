@@ -54,8 +54,8 @@
                                 <div class="py-1">@($"{q.updated.Title}")</div>
                             </div>
                             <div class="col-auto">
-                                <button class="btn btn-primary py-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#updated_@q.old.Id" aria-expanded="false" aria-controls="collapseExample">
-                                    v
+                                <button class="btn btn-primary py-0 px-2 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#updated_@q.old.Id" aria-expanded="false" aria-controls="collapseExample">
+                                    ➕
                                 </button>
                             </div>
                             <div class="col-12 collapse" id="updated_@q.old.Id">
@@ -68,6 +68,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                            <td>Title</td>
+                                            <td>@q.old.Title</td>
+                                            <td>@q.updated.Title</td>
+                                        </tr>
                                         @if (q.old.ShortCode != q.updated.ShortCode)
                                         {
                                             <tr>
@@ -138,6 +143,14 @@
                                                 <td>Answers</td>
                                                 <td>@((MarkupString)String.Join("<br />", q.old.Answers))</td>
                                                 <td>@((MarkupString)String.Join("<br />", q.updated.Answers))</td>
+                                            </tr>
+                                        }
+                                        @if(q.old.ParentQuestion?.Id != q.updated.ParentQuestion?.Id)
+                                        {
+                                            <tr>
+                                                <td>Parent</td>
+                                                <td>@(q.old.ParentQuestion?.Title ?? "")</td>
+                                                <td>@(q.updated.ParentQuestion?.Title ?? "")</td>
                                             </tr>
                                         }
 
@@ -316,7 +329,23 @@
                 }
                 else
                 {
-                    if(existing.Equals(import))
+                    var oldParent = Existing.FindParent(import);
+                    var newParent = Importing.FindParent(import);
+
+                    bool parentChanged;
+
+                    if((oldParent == null && newParent == null) || (oldParent?.Equals(newParent) ?? false))
+                    {
+                        parentChanged = false;
+                    }
+                    else
+                    {
+                        parentChanged = true;
+                        import.ParentQuestion = newParent;
+                        existing.ParentQuestion = oldParent;
+                    }
+
+                    if(existing.Equals(import) && !parentChanged)
                     {
                         UnchangedQuestions.Add((existing, import));
                     }

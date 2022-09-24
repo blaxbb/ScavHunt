@@ -214,6 +214,27 @@
 
             }
         }
+
+        public Question? FindParent(Question child)
+        {
+            foreach(var c in Children)
+            {
+                if(c.Question.Equals(child))
+                {
+                    return Question;
+                }
+                else
+                {
+                    var test = c.FindParent(child);
+                    if(test != default)
+                    {
+                        return test;
+                    }
+                }
+            }
+
+            return default;
+        }
     }
 
     protected override async Task OnInitializedAsync()
