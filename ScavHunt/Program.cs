@@ -21,8 +21,11 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -48,6 +51,7 @@ builder.Services.AddScoped<AlertAdminService>();
 
 builder.Services.AddScoped<JSInterop>();
 builder.Services.AddSingleton<MarkdownService>();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -75,6 +79,12 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+if(app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 var db = app.Services.CreateScope().ServiceProvider.GetService<ApplicationDbContext>();
 if (db != null)

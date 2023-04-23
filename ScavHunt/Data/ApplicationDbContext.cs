@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ScavHunt.Data.Models;
+using System.Reflection.Emit;
 
 namespace ScavHunt.Data
 {
@@ -21,6 +23,8 @@ namespace ScavHunt.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<IdentityRole>().HasData(new IdentityRole { Id = "8a3258f3-4a3e-40c8-997e-e04421c1210e", Name = "admin", NormalizedName = "ADMIN".ToUpper() });
+
             builder.Entity<Question>()
                 .Property(q => q.Answers)
                 .HasConversion(

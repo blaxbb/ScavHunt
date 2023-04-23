@@ -1,0 +1,57 @@
+﻿@page "/admin/accounts/{id}"
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<IdentityUser> userManager;
+@inject NavigationManager navManager;
+
+<div class="container">
+    @if (user != null)
+    {
+        <h3>AccountEdit</h3>
+        <form @onsubmit="(async() => await saveAccount())">
+            <input class="form-control" readonly @bind-value="user.Email" />
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="adminCheckbox">
+                <label class="form-check-label" for="adminCheckbox">
+                    Is Administrator
+                </label>
+            </div>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    IdentityUser user;
+    public bool IsAdmin { get; set; }
+    IList<string> roles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await userManager.FindByIdAsync(id);
+        roles = await userManager.GetRolesAsync(user);
+        if (roles.Contains("admin"))
+        {
+            IsAdmin = true;
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    async Task saveAccount()
+    {
+        if(IsAdmin && !roles.Contains("admin"))
+        {
+            await userManager.AddToRoleAsync(user, "admin");
+        }
+
+        if(!IsAdmin && roles.Contains("admin"))
+        {
+            await userManager.RemoveFromRoleAsync(user, "admin");
+        }
+
+        navManager.NavigateTo("/admin/accounts");
+    }
+
+}

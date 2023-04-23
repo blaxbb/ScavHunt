@@ -1,0 +1,82 @@
+﻿@page "/admin/accounts"
+@using Microsoft.AspNetCore.Identity;
+@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager;
+
+<div class="container">
+    <h3>Accounts</h3>
+
+    <Pagination ItemsPerPage="AccountsPerPage" Page="Page" TotalItems="userManager.Users.Count()" PageChanged="p => Page = p" />
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <td>Email</td>
+                <td class="text-center">Account active</td>
+                <td class="text-center">Roles</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in AllAccounts)
+            {
+                <tr class="align-middle">
+                    <td>@user.user.Email</td>
+                    <td class="text-center">@(user.user.EmailConfirmed ? "✅" : "❎")</td>
+                    <td class="text-center">@user.roleString</td>
+                    <td class="text-end"><NavLink class="btn btn-primary" href=@($"/admin/accounts/{user.user.Id}")>Edit</NavLink></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    SortMode Mode { get; set; }
+    SortDirection Direction { get; set; }
+
+    int Page { get; set; }
+    const int AccountsPerPage = 100;
+
+    enum SortMode
+    {
+        Username
+    };
+
+    enum SortDirection
+    {
+        Ascending,
+        Descending
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllAccounts.Clear();
+        foreach (var user in Visible)
+        {
+            var role = await roleString(user);
+            AllAccounts.Add(new UserRoleVM(user, role));
+        }
+    }
+
+    List<UserRoleVM> AllAccounts = new List<UserRoleVM>();
+    record UserRoleVM(IdentityUser user, string roleString);
+
+    IEnumerable<IdentityUser> Visible => (Direction == SortDirection.Ascending ? userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u)) : userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u))).Skip(AccountsPerPage * Page).Take(AccountsPerPage);
+
+    object AccountSort(IdentityUser user)
+    {
+        return Mode switch
+        {
+            SortMode.Username => user.UserName,
+            _ => ""
+        };
+    }
+
+    async Task<string> roleString(IdentityUser user)
+    {
+        var roles = await userManager.GetRolesAsync(user);
+        return string.Join(", ", roles);
+    }
+
+
+}
