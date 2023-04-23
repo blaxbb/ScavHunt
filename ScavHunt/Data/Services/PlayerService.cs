@@ -1,17 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
 using ScavHunt.Data.Models;
+using ScavHunt.Pages.Admin;
 
 namespace ScavHunt.Data.Services
 {
     public class PlayerService
     {
         protected IDbContextFactory<ApplicationDbContext> dbFactory;
-        protected JSInterop js;
+        private readonly AuthenticationStateProvider authProvider;
 
-        public PlayerService(IDbContextFactory<ApplicationDbContext> factory, JSInterop jsInterop)
+        public PlayerService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth)
         {
             dbFactory = factory;
-            js = jsInterop;
+            authProvider = auth;
         }
 
         public virtual Player? GetFromBadge(string badge)
@@ -53,19 +55,14 @@ namespace ScavHunt.Data.Services
 
         public async Task<Player?> GetCurrent()
         {
-            var existingBadge = await js.GetStorage("badgeNumber");
-            if (string.IsNullOrWhiteSpace(existingBadge))
+            var authStatus = await authProvider.GetAuthenticationStateAsync();
+
+            if (authStatus.User?.Identity?.Name != null)
             {
-                return default;
+                return GetFromBadge(authStatus.User.Identity.Name);
             }
 
-            var existingPlayer = GetFromBadge(existingBadge);
-            if (existingPlayer == default)
-            {
-                return default;
-            }
-
-            return existingPlayer;
+            return default;
         }
     }
 }

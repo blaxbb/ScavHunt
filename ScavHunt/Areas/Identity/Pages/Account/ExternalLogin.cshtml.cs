@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using ScavHunt.Data;
 
 namespace ScavHunt.Areas.Identity.Pages.Account
 {
@@ -28,6 +29,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _db;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
@@ -35,7 +37,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext db)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -43,6 +46,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _db = db;
         }
 
         /// <summary>
@@ -159,6 +163,13 @@ namespace ScavHunt.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+
+                    _db.Players.Add(new Data.Models.Player()
+                    {
+                        BadgeNumber = user.Email
+                    });
+                    await _db.SaveChangesAsync();
+
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {

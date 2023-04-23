@@ -1,11 +1,12 @@
 ﻿using ScavHunt.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ScavHunt.Data.Services
 {
     public class PlayerAdminService : PlayerService
     {
-        public PlayerAdminService(IDbContextFactory<ApplicationDbContext> factory, JSInterop js) : base(factory, js)
+        public PlayerAdminService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth) : base(factory, auth)
         {
 
         }
