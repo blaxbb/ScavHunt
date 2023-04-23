@@ -1,7 +1,7 @@
 ﻿@page "/admin/players"
 @using ScavHunt.Data.Models
 @inject PlayerAdminService players;
-@attribute [Authorize]
+@attribute [Authorize(Roles = "admin")]
 
 <div class="container">
     <h3>Players</h3>

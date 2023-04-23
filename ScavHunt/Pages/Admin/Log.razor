@@ -1,6 +1,6 @@
 ﻿@page "/admin/log"
 @using ScavHunt.Data.Models
-@attribute [Authorize]
+@attribute [Authorize(Roles = "admin")]
 @inject LogAdminService logs
 
 <div class="container">

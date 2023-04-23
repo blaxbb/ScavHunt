@@ -1,4 +1,5 @@
 ﻿@page "/admin/accounts/{id}"
+@attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
 @inject UserManager<IdentityUser> userManager;
 @inject NavigationManager navManager;

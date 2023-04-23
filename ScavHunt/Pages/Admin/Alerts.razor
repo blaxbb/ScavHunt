@@ -1,4 +1,5 @@
 ﻿@page "/admin/alerts"
+@attribute [Authorize(Roles = "admin")]
 @using ScavHunt.Data.Models
 @inject AlertAdminService alerts
 @inject JSInterop js

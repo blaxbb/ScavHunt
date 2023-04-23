@@ -1,4 +1,5 @@
 ﻿@page "/admin/debug"
+@attribute [Authorize(Roles = "admin")]
 
 @inject PlayerAdminService players
 

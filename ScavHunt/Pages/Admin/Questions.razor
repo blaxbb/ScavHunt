@@ -1,4 +1,5 @@
 ﻿@page "/admin/questions"
+@attribute [Authorize(Roles = "admin")]
 @using Newtonsoft.Json
 @using ScavHunt.Components.Admin
 @using ScavHunt.Data.Models
