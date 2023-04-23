@@ -4,15 +4,21 @@
 @inject NavigationManager navManager;
 
 <div class="container">
-    @if (user != null)
+    @if (User != null)
     {
         <h3>AccountEdit</h3>
         <form @onsubmit="(async() => await saveAccount())">
-            <input class="form-control" readonly @bind-value="user.Email" />
-            <div class="form-check">
+            <input class="form-control mb-3" readonly @bind-value="User.Email" />
+            <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="adminCheckbox">
                 <label class="form-check-label" for="adminCheckbox">
                     Is Administrator
+                </label>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="lockCheckbox">
+                <label class="form-check-label" for="lockCheckbox">
+                    Is Locked
                 </label>
             </div>
             <button class="btn btn-primary" type="submit">Save</button>
@@ -23,14 +29,16 @@
 @code {
     [Parameter]
     public string id { get; set; }
-    IdentityUser user;
-    public bool IsAdmin { get; set; }
+
+    IdentityUser User;
+    bool IsAdmin { get; set; }
+
     IList<string> roles;
 
     protected override async Task OnInitializedAsync()
     {
-        user = await userManager.FindByIdAsync(id);
-        roles = await userManager.GetRolesAsync(user);
+        User = await userManager.FindByIdAsync(id);
+        roles = await userManager.GetRolesAsync(User);
         if (roles.Contains("admin"))
         {
             IsAdmin = true;
@@ -41,14 +49,14 @@
 
     async Task saveAccount()
     {
-        if(IsAdmin && !roles.Contains("admin"))
+        if (IsAdmin && !roles.Contains("admin"))
         {
-            await userManager.AddToRoleAsync(user, "admin");
+            await userManager.AddToRoleAsync(User, "admin");
         }
 
-        if(!IsAdmin && roles.Contains("admin"))
+        if (!IsAdmin && roles.Contains("admin"))
         {
-            await userManager.RemoveFromRoleAsync(user, "admin");
+            await userManager.RemoveFromRoleAsync(User, "admin");
         }
 
         navManager.NavigateTo("/admin/accounts");
