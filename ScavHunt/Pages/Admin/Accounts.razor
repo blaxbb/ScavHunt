@@ -1,7 +1,8 @@
 ﻿@page "/admin/accounts"
 @attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
-@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager;
+@using ScavHunt.Data.Models;
+@inject Microsoft.AspNetCore.Identity.UserManager<ScavhuntUser> userManager;
 
 <div class="container">
     <h3>Accounts</h3>
@@ -60,11 +61,11 @@
     }
 
     List<UserRoleVM> AllAccounts = new List<UserRoleVM>();
-    record UserRoleVM(IdentityUser user, string roleString);
+    record UserRoleVM(ScavhuntUser user, string roleString);
 
-    IEnumerable<IdentityUser> Visible => (Direction == SortDirection.Ascending ? userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u)) : userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u))).Skip(AccountsPerPage * Page).Take(AccountsPerPage);
+    IEnumerable<ScavhuntUser> Visible => (Direction == SortDirection.Ascending ? userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u)) : userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u))).Skip(AccountsPerPage * Page).Take(AccountsPerPage);
 
-    object AccountSort(IdentityUser user)
+    object AccountSort(ScavhuntUser user)
     {
         return Mode switch
         {
@@ -73,7 +74,7 @@
         };
     }
 
-    async Task<string> roleString(IdentityUser user)
+    async Task<string> roleString(ScavhuntUser user)
     {
         var roles = await userManager.GetRolesAsync(user);
         return string.Join(", ", roles);

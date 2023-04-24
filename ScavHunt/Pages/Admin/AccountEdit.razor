@@ -1,7 +1,8 @@
 ﻿@page "/admin/accounts/{id}"
 @attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
-@inject UserManager<IdentityUser> userManager;
+@using ScavHunt.Data.Models;
+@inject UserManager<ScavhuntUser> userManager;
 @inject NavigationManager navManager;
 
 <div class="container">
@@ -31,7 +32,7 @@
     [Parameter]
     public string id { get; set; }
 
-    IdentityUser User;
+    ScavhuntUser User;
     bool IsAdmin { get; set; }
 
     IList<string> roles;

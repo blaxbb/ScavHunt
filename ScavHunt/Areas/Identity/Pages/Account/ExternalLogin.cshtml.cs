@@ -18,24 +18,25 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ScavHunt.Data;
+using ScavHunt.Data.Models;
 
 namespace ScavHunt.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<ScavhuntUser> _signInManager;
+        private readonly UserManager<ScavhuntUser> _userManager;
+        private readonly IUserStore<ScavhuntUser> _userStore;
+        private readonly IUserEmailStore<ScavhuntUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ApplicationDbContext _db;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
+            SignInManager<ScavhuntUser> signInManager,
+            UserManager<ScavhuntUser> userManager,
+            IUserStore<ScavhuntUser> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender,
             ApplicationDbContext db)
@@ -208,11 +209,11 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ScavhuntUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<ScavhuntUser>();
             }
             catch
             {
@@ -222,13 +223,13 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<ScavhuntUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<ScavhuntUser>)_userStore;
         }
     }
 }

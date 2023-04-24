@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace ScavHunt.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ScavhuntUser>
     {
         public DbSet<Player> Players { get; set; }
         public DbSet<Question> Questions { get; set; }

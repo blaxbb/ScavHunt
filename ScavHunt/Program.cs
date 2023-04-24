@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ScavHunt;
 using ScavHunt.Areas.Identity;
 using ScavHunt.Data;
+using ScavHunt.Data.Models;
 using ScavHunt.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +22,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
+builder.Services.AddDefaultIdentity<ScavhuntUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -36,7 +37,7 @@ builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ScavhuntUser>>();
 
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddScoped<PlayerAdminService>();
