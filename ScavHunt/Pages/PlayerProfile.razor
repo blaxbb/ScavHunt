@@ -1,11 +1,13 @@
 ﻿@page "/player"
 @using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Identity;
 @using ScavHunt.Data.Models
 @inject PlayerService players
 @inject JSInterop js;
 @inject NavigationManager nav;
+@inject SignInManager<ScavhuntUser> SignInManager;
 
-@if(State == LoginState.Loading)
+@if (State == LoginState.Loading)
 {
     <div class="container">
         <div class="spinner-border text-primary" role="status">
@@ -13,7 +15,7 @@
         </div>
     </div>
 }
-else if(State == LoginState.Register)
+else if (State == LoginState.Register)
 {
     <div class="container">
         <h3>Register to play</h3>
@@ -22,7 +24,7 @@ else if(State == LoginState.Register)
         </div>
     </div>
 }
-else if(State == LoginState.Info && player != null)
+else if (State == LoginState.Info && player != null)
 {
     <div class="container">
 
@@ -31,17 +33,18 @@ else if(State == LoginState.Info && player != null)
                 <h3 class="text-center my-1">Profile</h3>
             </div>
             <div class="card-body">
-                <EditForm Model="@player" OnValidSubmit="@(async() => await PlayerEditSubmit())">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
-
-                    <div class="mb-3">
-                        <label class="form-label">BadgeNumber
-                            <InputText class="form-control" id="badgeNumber" disabled="true" @bind-Value="player.BadgeNumber" />
-                        </label>
-                    </div>
-                    <NavLink class="btn btn-primary" type="button" href="/player/logout">Logout</NavLink>
-                </EditForm>            
+                    <dl class="row mx-3">
+                        <dd class="col-3">Username</dd>
+                        <dt class="col-9">@player.BadgeNumber</dt>
+                        <dd class="col-3">Display Name</dd>
+                        <dt class="col-9"></dt>
+                    </dl>
+                <div class="row mx-3">
+                    <a class="btn btn-primary col-auto" href="/Identity/Account/Manage">Edit Account</a>
+                    <form class="col-auto" method="post" action="Identity/Account/LogOut">
+                        <button type="submit" class="btn btn-primary">Log out</button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -59,7 +62,7 @@ else if(State == LoginState.Info && player != null)
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
+                        @foreach (var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
                         {
                             <tr>
                                 <td>@(transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.Title ?? "") : transaction.Source)</td>
@@ -94,7 +97,7 @@ else if(State == LoginState.Info && player != null)
         if (first)
         {
             player = await players.GetCurrent();
-            if(player == default)
+            if (player == default)
             {
                 State = LoginState.Register;
             }
@@ -140,7 +143,7 @@ else if(State == LoginState.Info && player != null)
 
     async Task PlayerEditSubmit()
     {
-        
+
     }
 
 }
