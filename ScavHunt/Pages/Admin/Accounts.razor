@@ -12,6 +12,7 @@
     <table class="table table-hover">
         <thead>
             <tr>
+                <td>Display Name</td>
                 <td>Email</td>
                 <td class="text-center">Account active</td>
                 <td class="text-center">Roles</td>
@@ -22,6 +23,7 @@
             @foreach (var user in AllAccounts)
             {
                 <tr class="align-middle">
+                    <td>@user.user.DisplayName</td>
                     <td>@user.user.Email</td>
                     <td class="text-center">@(user.user.EmailConfirmed ? "✅" : "❎")</td>
                     <td class="text-center">@user.roleString</td>

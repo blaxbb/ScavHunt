@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ScavHunt.Data;
 using ScavHunt.Data.Models;
+using System.Web;
 
 namespace ScavHunt.Areas.Identity.Pages.Account
 {
@@ -89,6 +90,12 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 4)]
+            [RegularExpression(@"^[a-zA-Z\d\s]+$", ErrorMessage = "Display name can only include letters, numbers, and spaces.")]
+            [Display(Name = "Display Name")]
+            public string DisplayName { get; set; }
         }
         
         public IActionResult OnGet() => RedirectToPage("./Login");
@@ -160,6 +167,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                user.DisplayName = HttpUtility.HtmlEncode(Input.DisplayName);
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
