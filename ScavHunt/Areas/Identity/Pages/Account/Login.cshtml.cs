@@ -21,12 +21,14 @@ namespace ScavHunt.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ScavhuntUser> _signInManager;
+        private readonly UserManager<ScavhuntUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ScavhuntUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ScavhuntUser> signInManager, UserManager<ScavhuntUser> userManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -115,6 +117,15 @@ namespace ScavHunt.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+
+                    var allAdmins = await _userManager.GetUsersInRoleAsync("admin");
+                    if(allAdmins.Count == 0)
+                    {
+                        // this is initializing a site without an admin account yet
+                        var user = await _userManager.FindByNameAsync(Input.Email);
+                        await _userManager.AddToRoleAsync(user, "admin");
+                    }
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
