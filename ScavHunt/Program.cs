@@ -37,6 +37,7 @@ builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.Secure = CookieSecurePolicy.Always;
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
 });
 
 builder.Services.AddRazorPages();
