@@ -35,11 +35,6 @@ builder.Services.AddAuthentication().AddGoogle(googleOptions =>
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-});
-
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
@@ -68,7 +63,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
+app.Use((context, next) =>
+{
+    context.Request.Scheme = "https";
+    return next(context);
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
