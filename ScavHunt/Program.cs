@@ -10,6 +10,7 @@ using ScavHunt.Areas.Identity;
 using ScavHunt.Data;
 using ScavHunt.Data.Models;
 using ScavHunt.Data.Services;
+using ScavHunt.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,8 @@ builder.Services.AddScoped<LeaderboardService>();
 
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<AlertAdminService>();
+
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<JSInterop>();
 builder.Services.AddSingleton<MarkdownService>();

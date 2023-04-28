@@ -2,7 +2,9 @@
 @attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
 @using ScavHunt.Data.Models;
+@using ScavHunt.Services;
 @inject UserManager<ScavhuntUser> userManager;
+@inject UserService users;
 @inject NavigationManager navManager;
 
 <div class="container">
@@ -11,7 +13,10 @@
         <h3>AccountEdit</h3>
         <form @onsubmit="(async() => await saveAccount())">
             <input class="form-control mb-3" readonly @bind-value="User.Email" />
-            <input class="form-control mb-3" readonly @bind-value="User.DisplayName" />
+            <div class="mb-3">
+                <label class="form-label">Display Name</label>
+                <input class="form-control mb-3" @bind-value="User.DisplayName" />
+            </div>
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="adminCheckbox">
                 <label class="form-check-label" for="adminCheckbox">
@@ -41,7 +46,7 @@
     protected override async Task OnInitializedAsync()
     {
         User = await userManager.FindByIdAsync(id);
-        roles = await userManager.GetRolesAsync(User);
+        roles = users.GetRolesById(id).ToList();
         if (roles.Contains("admin"))
         {
             IsAdmin = true;
@@ -54,13 +59,15 @@
     {
         if (IsAdmin && !roles.Contains("admin"))
         {
-            await userManager.AddToRoleAsync(User, "admin");
+            users.AddToRole(User, "admin");
         }
 
         if (!IsAdmin && roles.Contains("admin"))
         {
-            await userManager.RemoveFromRoleAsync(User, "admin");
+            users.RemoveFromRole(User, "admin");
         }
+
+        await users.Update(User);
 
         navManager.NavigateTo("/admin/accounts");
     }

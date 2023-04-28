@@ -2,12 +2,14 @@
 @attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
 @using ScavHunt.Data.Models;
-@inject Microsoft.AspNetCore.Identity.UserManager<ScavhuntUser> userManager;
+@using ScavHunt.Data;
+@using ScavHunt.Services;
+@inject UserService users;
 
 <div class="container">
     <h3>Accounts</h3>
 
-    <Pagination ItemsPerPage="AccountsPerPage" Page="Page" TotalItems="userManager.Users.Count()" PageChanged="p => Page = p" />
+    <Pagination ItemsPerPage="AccountsPerPage" Page="Page" TotalItems="users.Count()" PageChanged="p => Page = p" />
 
     <table class="table table-hover">
         <thead>
@@ -20,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in AllAccounts)
+            @foreach (var user in AllAccounts.ToList())
             {
                 <tr class="align-middle">
                     <td>@user.user.DisplayName</td>
@@ -65,7 +67,7 @@
     List<UserRoleVM> AllAccounts = new List<UserRoleVM>();
     record UserRoleVM(ScavhuntUser user, string roleString);
 
-    IEnumerable<ScavhuntUser> Visible => (Direction == SortDirection.Ascending ? userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u)) : userManager.Users.AsEnumerable().OrderBy(u => AccountSort(u))).Skip(AccountsPerPage * Page).Take(AccountsPerPage);
+    IEnumerable<ScavhuntUser> Visible => (Direction == SortDirection.Ascending ? users.Users.AsEnumerable().OrderBy(u => AccountSort(u)) : users.Users.AsEnumerable().OrderBy(u => AccountSort(u))).Skip(AccountsPerPage * Page).Take(AccountsPerPage);
 
     object AccountSort(ScavhuntUser user)
     {
@@ -78,8 +80,7 @@
 
     async Task<string> roleString(ScavhuntUser user)
     {
-        var roles = await userManager.GetRolesAsync(user);
-        return string.Join(", ", roles);
+        return string.Join(", ", users.GetRoles(user));
     }
 
 

@@ -6,6 +6,8 @@
 @inject JSInterop js;
 @inject NavigationManager nav;
 @inject SignInManager<ScavhuntUser> SignInManager;
+@inject AuthenticationStateProvider auth;
+@inject UserManager<ScavhuntUser> users;
 
 @if (State == LoginState.Loading)
 {
@@ -37,7 +39,7 @@ else if (State == LoginState.Info && player != null)
                         <dd class="col-3">Username</dd>
                         <dt class="col-9">@player.BadgeNumber</dt>
                         <dd class="col-3">Display Name</dd>
-                        <dt class="col-9"></dt>
+                        <dt class="col-9">@user?.DisplayName</dt>
                     </dl>
                 <div class="row mx-3">
                     <a class="btn btn-primary col-auto" href="/Identity/Account/Manage">Edit Account</a>
@@ -91,12 +93,15 @@ else if (State == LoginState.Info && player != null)
     string? InputBadgeNumber { get => inputBadgeNumber; set { inputBadgeNumber = value; BadgeNumberUpdated(); } }
 
     Player? player;
+    ScavhuntUser user;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
         if (first)
         {
             player = await players.GetCurrent();
+            var state = await auth.GetAuthenticationStateAsync();
+            user = await users.FindByNameAsync(state.User.Identity.Name);
             if (player == default)
             {
                 State = LoginState.Register;
