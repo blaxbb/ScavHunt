@@ -38,7 +38,7 @@ namespace ScavHunt.Data.Services
 
             await log.Create(new LogRecord()
             {
-                Message = $"Admin {adminName} RESET PROGRESS on question {question.ShortCode} for player {player.BadgeNumber} removing {totalPoints} points.  {message}",
+                Message = $"Admin {adminName} RESET PROGRESS on question {question.ShortCode} for player {player.User.UserName} removing {totalPoints} points.  {message}",
                 Player = player,
                 Question = question,
                 Type = LogRecord.RecordType.Player,

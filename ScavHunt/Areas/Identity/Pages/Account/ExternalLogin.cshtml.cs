@@ -176,7 +176,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account
 
                     _db.Players.Add(new Data.Models.Player()
                     {
-                        BadgeNumber = user.Email
+                        User = user,
+                        Created = DateTime.Now
                     });
                     await _db.SaveChangesAsync();
 

@@ -6,7 +6,8 @@ namespace ScavHunt.Data.Models
     {
         public long Id { get; set; }
 
-        public string BadgeNumber { get; set; }
+        public ScavhuntUser User { get; set; }
+
         public DateTime Created { get; set; }
 
         public static Regex BadgeFormat = new Regex("^\\d{10}$");

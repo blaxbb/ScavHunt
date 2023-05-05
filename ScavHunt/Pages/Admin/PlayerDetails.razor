@@ -40,7 +40,7 @@
 <Modal Id="resetQuestion" Title="Reset Question">
     <form class="px-3" @onsubmit="(async() => ConfirmResetQuestion())">
         <div class="mb-3 row">
-            This will reset progress on question @resetQuestion?.ShortCode for player with badge number @player.BadgeNumber.
+            This will reset progress on question @resetQuestion?.ShortCode for player with username @player.User.UserName.
         </div>
         <div class="mb-3 row">
             This should not be done unless deemed necessary due to game malfunction.
@@ -72,8 +72,8 @@ else
             </div>
             <div class="card-body">
                 <dl class="row">
-                    <dt class="col-lg-3">Badge Number</dt>
-                    <dd class="col-lg-9">@player.BadgeNumber</dd>
+                    <dt class="col-lg-3">Name</dt>
+                    <dd class="col-lg-9">@player.User.DisplayName</dd>
                     <dt class="col-lg-3">Points</dt>
                     <dd class="col-lg-9">@player.PointTransactions.Sum(p => p.Value)</dd>
                 </dl>

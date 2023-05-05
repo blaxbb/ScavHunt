@@ -42,42 +42,42 @@
 
     async Task CreatePlayers()
     {
-        await Task.Run(async () =>
-        {
-            if (int.TryParse(PlayerCount, out int count))
-            {
-                var all = players.AllPlayers().Count;
-                for (int i = 0; i < count; i++)
-                {
-                    await players.CreateOrExisting($"DBG:{all + i}");
-                    PlayerProgress = (int)(((float)i / count) * 100);
-                    await InvokeAsync(StateHasChanged);
-                }
+        //await Task.Run(async () =>
+        //{
+        //    if (int.TryParse(PlayerCount, out int count))
+        //    {
+        //        var all = players.AllPlayers().Count;
+        //        for (int i = 0; i < count; i++)
+        //        {
+        //            await players.CreateOrExisting($"DBG:{all + i}");
+        //            PlayerProgress = (int)(((float)i / count) * 100);
+        //            await InvokeAsync(StateHasChanged);
+        //        }
 
-                PlayerProgress = 100;
-            }
-        });
+        //        PlayerProgress = 100;
+        //    }
+        //});
         
     }
 
     async Task RemoveDebugPlayers()
     {
-        var all = players.AllPlayers().Where(p => p.BadgeNumber.Contains("DBG")).ToList();
+        //var all = players.AllPlayers().Where(p => p.BadgeNumber.Contains("DBG")).ToList();
 
-        if(all.Count == 0)
-        {
-            return;
-        }
+        //if(all.Count == 0)
+        //{
+        //    return;
+        //}
 
-        for(int i = 0; i < all.Count; i++)
-        {
-            var player = all[i];
+        //for(int i = 0; i < all.Count; i++)
+        //{
+        //    var player = all[i];
 
-            await players.Delete(player);
-            RemovePlayerProgress = (int)(((float)i / all.Count) * 100);
-            StateHasChanged();
-        }
-        RemovePlayerProgress = 100;
+        //    await players.Delete(player);
+        //    RemovePlayerProgress = (int)(((float)i / all.Count) * 100);
+        //    StateHasChanged();
+        //}
+        //RemovePlayerProgress = 100;
 
     }
 }

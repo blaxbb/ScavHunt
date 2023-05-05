@@ -25,7 +25,8 @@ namespace ScavHunt.Data.Services
                     .ThenInclude(r => r.Question)
                     .Include(p => p.PointTransactions)
                     .ThenInclude(t => t.Question)
-                    .FirstOrDefault(p => p.BadgeNumber == badge);
+                    .Include(p => p.User)
+                    .FirstOrDefault(p => p.User.UserName == badge);
 
                 return player;
             }
@@ -43,12 +44,11 @@ namespace ScavHunt.Data.Services
 
             var player = new Player()
             {
-                BadgeNumber = badge,
                 Created = DateTime.Now,
             };
 
-            db.Players.Add(player);
-            await db.SaveChangesAsync();
+            //db.Players.Add(player);
+            //await db.SaveChangesAsync();
 
             return player;
         }

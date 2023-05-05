@@ -87,11 +87,11 @@
                         var leader = Leaderboard[index];
                         <tr>
                             <td>@(index + 1)</td>
-                            <td>@leader.BadgeNumber</td>
+                            <td>@leader.User.DisplayName</td>
                             <td>@leader.PointTransactions.Sum(p => p.Value)</td>
                         </tr>
                     }
-                    @if(!Leaderboard?.Any(p => p.BadgeNumber == player?.BadgeNumber) ?? false)
+                    @if(!Leaderboard?.Any(p => p.Id == player?.Id) ?? false)
                     {
                         <tr>
                             <td>&#x200b;</td>
@@ -100,7 +100,7 @@
                         </tr>
                         <tr>
                             <td>@(PlayerPosition == -1 ? "" : PlayerPosition)</td>
-                            <td>@player.BadgeNumber</td>
+                            <td>@player.User.DisplayName</td>
                             <td>@player.PointTransactions.Sum(p => p.Value)</td>
                         </tr>
                     }

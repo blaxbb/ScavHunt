@@ -37,7 +37,7 @@ else if (State == LoginState.Info && player != null)
             <div class="card-body">
                     <dl class="row mx-3">
                         <dd class="col-3">Username</dd>
-                        <dt class="col-9">@player.BadgeNumber</dt>
+                        <dt class="col-9">@user.UserName</dt>
                         <dd class="col-3">Display Name</dd>
                         <dt class="col-9">@user?.DisplayName</dt>
                     </dl>
@@ -137,7 +137,7 @@ else if (State == LoginState.Info && player != null)
 
         if (p != default)
         {
-            await js.SetStorage("badgeNumber", p.BadgeNumber);
+            await js.SetStorage("badgeNumber", p.User.DisplayName);
             nav.NavigateTo("/", true);
         }
         else

@@ -15,7 +15,7 @@ namespace ScavHunt.Data.Services
         {
             using var db = dbFactory.CreateDbContext();
 
-            return db.Players.Include(p => p.PointTransactions).ToList();
+            return db.Players.Include(p => p.User).Include(p => p.PointTransactions).ToList();
         }
 
         public override Player? GetFromBadge(string badge)
@@ -27,14 +27,15 @@ namespace ScavHunt.Data.Services
                 .ThenInclude(l => l.Question)
                 .Include(p => p.PointTransactions)
                 .ThenInclude(t => t.Question)
-                .FirstOrDefault(p => p.BadgeNumber == badge);
+                .Include(p => p.User)
+                .FirstOrDefault(p => p.User.UserName == badge);
         }
 
         public async Task Delete(Player player)
         {
             using var db = await dbFactory.CreateDbContextAsync();
 
-            var existing = await db.Players.Where(p => p.BadgeNumber == player.BadgeNumber).FirstOrDefaultAsync();
+            var existing = await db.Players.Include(p => p.User).Where(p => p.User.Id == player.User.Id).FirstOrDefaultAsync();
             if(existing != null)
             {
                 db.Players.Remove(existing);
