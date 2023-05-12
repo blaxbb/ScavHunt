@@ -11,10 +11,10 @@
 <ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" />
 
 <div class="container">
-    <div class="row spacer bg-secondary p-3">
-        <div class="header text-primary col-xl-3 mb-3">
+    <div class="row spacer bg-primary p-3">
+        <div class="header col-xl-3 mb-3">
             <h1>Start a question</h1>
-            <div class="text-black">
+            <div>
                 Find and scan the QR codes hidden around the conference.  Answer the questions quickly to collect the most points!
             </div>
         </div>
@@ -31,9 +31,9 @@
             <input type="submit" hidden />
         </form>
     </div>
-    <div class="row spacer bg-white p-3">
+    <div class="row spacer bg-secondary p-3">
         <div class="header col-xl-3 mb-3">
-            <h1 class="text-primary">Current Hints</h1>
+            <h1>Current Hints</h1>
             <div class="mb-3">
                 Here are some hints for the currently active questions.
             </div>
@@ -71,10 +71,10 @@
             }
         </div>
     </div>
-    <div class="row spacer bg-primary p-3">
-        <div class="header text-white col-xl-3 mb-3">
+    <div class="row spacer bg-white p-3">
+        <div class="header col-xl-3 mb-3">
             <h1>Leaderboard</h1>
-            <div class="text-secondary">
+            <div>
                 The top participants will recieve prizes at the end of the conference.
             </div>
         </div>
@@ -114,7 +114,7 @@
     [Parameter]
     public Player? player { get; set; }
 
-    ScannerModal scannerModal { get; set; }
+    ScannerModal? scannerModal { get; set; }
 
     List<Question>? ActiveQuestions { get; set; }
     List<Question>? CompletedQuestions { get; set; }

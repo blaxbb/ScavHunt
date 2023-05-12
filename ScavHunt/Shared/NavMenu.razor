@@ -1,67 +1,59 @@
 ﻿@using ScavHunt.Data.Models
 @inject PlayerService players
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">ScavHunt</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<div id="nav">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <button class="navbar-toggler float-end" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="collapse bg-dark" id="navCollapse">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="player" Match="NavLinkMatch.All">
+                            <span class="oi oi-person" aria-hidden="true"></span> Profile
+                        </NavLink>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/Identity/Account/Login" Match="NavLinkMatch.All">
+                            <span class="oi oi-account-login" aria-hidden="true"></span> Sign In
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="admin">
+                <Authorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin">
+                            <span class="oi oi-list-rich" aria-hidden="true"></span> Admin
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </nav>
     </div>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-
-        @if(loggedIn == default)
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/Identity/Account/Login" Match="NavLinkMatch.All">
-                    <span class="oi oi-account-login" aria-hidden="true"></span> Sign In
-                </NavLink>
-            </div>
-        }
-        else
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="player" Match="NavLinkMatch.All">
-                    <span class="oi oi-person" aria-hidden="true"></span> Profile
-                </NavLink>
-            </div>
-        }
-
-        <AuthorizeView Roles="admin">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="admin">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Admin
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-    </nav>
-</div>
-
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     Player? loggedIn { get; set; }
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(!firstRender)
+        if (!firstRender)
         {
             return;
         }

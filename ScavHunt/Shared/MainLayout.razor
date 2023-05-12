@@ -5,10 +5,10 @@
 
 <PageTitle>ScavHunt</PageTitle>
 
+<NavMenu />
 <div class="page h-100">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@*    <div class="sidebar">
+    </div>*@
 
     <main class="d-grid" style="grid-template-rows: auto auto 1fr auto;">
         <AuthorizeView Roles="admin">
@@ -51,16 +51,16 @@
                     <div class="col-sm text-center mb-3">
                         <div class="footer-col-title">SIGGRAPH Info</div>
                         <div>
-                            <NavLink class="footer-col-link" href="https://s2022.siggraph.org/">Event Home</NavLink>
+                            <NavLink class="footer-col-link text-primary" href="https://s2022.siggraph.org/">Event Home</NavLink>
                         </div>
                     </div>
                     <div class="col-sm text-center mb-3">
                         <div class="footer-col-title">Scavenger Hunt Info</div>
                         <div>
-                            <NavLink class="footer-col-link" href="/info/rules">Rules</NavLink>
+                            <NavLink class="footer-col-link text-primary" href="/info/rules">Rules</NavLink>
                         </div>
-                        <div><NavLink class="footer-col-link" href="/info/instructions">Instructions</NavLink></div>
-                        <div><NavLink class="footer-col-link" href="/info/support">Support</NavLink></div>
+                        <div><NavLink class="footer-col-link text-primary" href="/info/instructions">Instructions</NavLink></div>
+                        <div><NavLink class="footer-col-link text-primary" href="/info/support">Support</NavLink></div>
                     </div>
                 </div>
                 <div class="row text-end py-3 text-muted">
