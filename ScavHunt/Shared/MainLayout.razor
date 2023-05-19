@@ -3,40 +3,36 @@
 @inject AlertService alerts
 @inject MarkdownService md
 
-<PageTitle>ScavHunt</PageTitle>
+<PageTitle>SIGGRAPH 2023 - Scavenger Hunt</PageTitle>
 
-<NavMenu />
-<div class="page h-100">
-@*    <div class="sidebar">
-    </div>*@
-
+<div class="page vh-100">
     <main class="d-grid" style="grid-template-rows: auto auto 1fr auto;">
-        <AuthorizeView Roles="admin">
-            <Authorized>
-                <div class="top-row px-4 auth bg-warning justify-content-start">
-                    <div class="me-auto">Currently logged in as an administrator</div>
-                    <div class="top-row float-end bg-transparent">
-                        <LoginDisplay />
-                    </div>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div></div>
-            </NotAuthorized>
-        </AuthorizeView>
+        <NavMenu />
 
-        <div id="alerts" class="spacer">
-            @if(Active != null && Active.Count > 0)
+        <div id="alerts">
+            @if (Active != null && Active.Count > 0)
             {
-                foreach(var alert in Active)
+                <div class="container px-0">
+                @foreach (var alert in Active)
                 {
-                    <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
                         <h4 class="alert-heading">@alert.Title</h4>
                         <div>@md.Render(alert.Message)</div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 }
+                </div>
             }
+            <AuthorizeView Roles="admin">
+                <Authorized>
+                    <div class="container px-0">
+                    <div class="alert alert-warning show my-3" role="alert">
+                        <h4 class="alert-heading">Notice</h4>
+                        <div>Currently logged in as an administrator</div>
+                    </div>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content">
@@ -46,7 +42,7 @@
             <div class="container">
                 <div class="row mt-3 pt-3">
                     <div class="col-lg mb-3">
-                        <img class="footer-logo my-auto mx-auto d-block" src="/assets/logo_full_white.png" alt="SIGGRAPH"/>
+                        <img class="footer-logo my-auto mx-auto d-block" src="/assets/logo_full_white.png" alt="SIGGRAPH" />
                     </div>
                     <div class="col-sm text-center mb-3">
                         <div class="footer-col-title">SIGGRAPH Info</div>
