@@ -11,6 +11,10 @@
 <ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" />
 
 <div class="container">
+    <div class=" position-relative overflow-hidden">
+        <div class="position-absolute line-bg">
+
+        </div>
     <div class="row spacer bg-primary p-3">
         <div class="header col-xl-3 mb-3">
             <h1>Start a question</h1>
@@ -23,7 +27,7 @@
                 <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
             </div>
             <div class="col">
-                <input type="text" class="form-control form-control-lg" placeholder="Enter question code" @bind-value="@ManualQuestionCode"/>
+                <input type="text" class="form-control form-control-lg" placeholder="Enter question code" @bind-value="@ManualQuestionCode" />
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-lg btn-interactable"><span class="oi oi-media-play"></span></button>
@@ -71,6 +75,7 @@
             }
         </div>
     </div>
+    </div>
     <div class="row bg-white p-3">
         <div class="header col-xl-3 mb-3">
             <h1>Leaderboard</h1>
@@ -81,7 +86,7 @@
         <div class="col-xl-9">
             <table class="table table-striped table-primary table-hover h-100">
                 <tbody>
-                    @for(int i = 0; i < Leaderboard?.Count; i++)
+                    @for (int i = 0; i < Leaderboard?.Count; i++)
                     {
                         var index = i;
                         var leader = Leaderboard[index];
@@ -91,7 +96,7 @@
                             <td>@leader.PointTransactions.Sum(p => p.Value)</td>
                         </tr>
                     }
-                    @if(!Leaderboard?.Any(p => p.Id == player?.Id) ?? false)
+                    @if (!Leaderboard?.Any(p => p.Id == player?.Id) ?? false)
                     {
                         <tr>
                             <td>&#x200b;</td>
@@ -128,7 +133,7 @@
     protected override async Task OnInitializedAsync()
     {
         player = await players.GetCurrent();
-        if(player == null)
+        if (player == null)
         {
             Console.WriteLine("ERROR: Player null on landing component!");
             return;
@@ -150,10 +155,10 @@
     async Task SubmitQuestionCode(string code)
     {
         //^\d{N}$ - Checks for N digit string ex: "1234...N"
-        if(Regex.IsMatch(code, $"^\\d{{{Question.SHORT_CODE_LENGTH}}}$"))
+        if (Regex.IsMatch(code, $"^\\d{{{Question.SHORT_CODE_LENGTH}}}$"))
         {
             var question = await questions.GetFromShortCode(code);
-            if(question != default)
+            if (question != default)
             {
                 nav.NavigateTo($"/q/{code}");
             }
