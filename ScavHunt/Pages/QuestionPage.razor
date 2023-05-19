@@ -8,7 +8,7 @@
 @inject JSInterop js;
 @inject MarkdownService md;
 
-@if(State == QuestionState.Loading)
+@if (State == QuestionState.Loading)
 {
     <div class="container">
         <div class="spinner-border text-primary" role="status">
@@ -16,7 +16,7 @@
         </div>
     </div>
 }
-else if(question != default)
+else if (question != default)
 {
     <div class="container">
         <div class="row py-3 spacer">
@@ -24,26 +24,30 @@ else if(question != default)
                 <h3>
                     @question.Title
                 </h3>
-                @if(incorrectCount > 0)
+
+                @if (incorrectCount > 0)
                 {
                     <h5>@incorrectCount Incorrect Answers</h5>
                 }
-                @if(ElapsedTime >= TotalTime)
+                @if (ElapsedTime >= TotalTime)
                 {
                     <h5>@ElapsedTime.ToString("0.0+ sec")</h5>
                 }
-                else
+                else if (!IsBonus)
                 {
                     <h5>@ElapsedTime.ToString("0.0 sec")</h5>
                 }
             </div>
-            <div class="col-md">
-                <h5 class="">@md.Render(question.Text)</h5>
-            </div>
+            @if (!IsBonus)
+            {
+                <div class="col-md">
+                    <h5 class="">@md.Render(question.Text)</h5>
+                </div>
+            }
         </div>
-        @if(State == QuestionState.LeadIn)
+        @if (State == QuestionState.LeadIn)
         {
-            @for(int i = 0; i < 4; i++)
+            @for (int i = 0; i < 4; i++)
             {
                 <div class="row bg-secondary choice py-3 my-0 @(i < 3 ? "spacer" : "")">
                     <div class="col justify-content-center d-flex">
@@ -56,7 +60,7 @@ else if(question != default)
         }
         @if (State == QuestionState.Active)
         {
-            @for(int i = 0; i < DisplayChoices.Count; i++)
+            @for (int i = 0; i < DisplayChoices.Count; i++)
             {
                 var index = i; // required for invoking ChoiceSelected properly
 
@@ -74,7 +78,7 @@ else if(question != default)
 
             var displayedProgress = Math.Max(ProgressPercent(), 20);
         }
-        @if(State == QuestionState.Success)
+        @if (State == QuestionState.Success)
         {
             var answer = question.Answers.FirstOrDefault();
             var points = Points();
@@ -93,13 +97,13 @@ else if(question != default)
                 @md.Render(question.SuccessText)
             </div>
         }
-        @if(State == QuestionState.EarlyLocked)
+        @if (State == QuestionState.EarlyLocked)
         {
             <div class="row bg-primary text-white choice py-3 my-0 spacer">
                 <div class="col text-center my-auto">@($"You are {(question.UnlockTime - DateTime.Now).Humanize()} early!")</div>
             </div>
         }
-        @if(State == QuestionState.LateLocked)
+        @if (State == QuestionState.LateLocked)
         {
             <div class="row bg-primary text-white choice py-3 my-0 spacer">
                 <div class="col text-center my-auto">@($"This question has expired, you are {(DateTime.Now - question.LockTime).Humanize()} late.")</div>
@@ -125,7 +129,7 @@ else if(question != default)
     [Parameter]
     public string QuestionId { get; set; }
 
-    Question question{ get; set; }
+    Question question { get; set; }
     List<string> DisplayChoices { get; set; }
     List<bool> Attempted { get; set; }
 
@@ -139,9 +143,11 @@ else if(question != default)
 
     Player player;
 
+    bool IsBonus => question?.Answers.Count == 0;
+
     protected override async Task OnAfterRenderAsync(bool first)
     {
-        if(!first)
+        if (!first)
         {
             return;
         }
@@ -149,7 +155,7 @@ else if(question != default)
 
         player = await players.GetCurrent();
 
-        if(player == default)
+        if (player == default)
         {
             nav.NavigateTo("player");
             return;
@@ -157,14 +163,14 @@ else if(question != default)
 
         question = await questions.GetFromShortCode(QuestionId);
 
-        if(question == default)
+        if (question == default)
         {
             nav.NavigateTo("404");
             return;
         }
 
         var succeededResponse = player.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);
-        if(succeededResponse != default)
+        if (succeededResponse != default)
         {
             State = QuestionState.Success;
             StateHasChanged();
@@ -185,13 +191,13 @@ else if(question != default)
             return;
         }
 
-        if(question.Answers.Count == 0)
+        if (IsBonus)
         {
             await Success();
             return;
         }
 
-        if(player.Responses.Any(r => r.Type == LogRecord.RecordType.StartedQuestion && r.Question?.Id == question.Id))
+        if (player.Responses.Any(r => r.Type == LogRecord.RecordType.StartedQuestion && r.Question?.Id == question.Id))
         {
             ElapsedTime = TotalTime;
         }
@@ -214,7 +220,7 @@ else if(question != default)
 
             await log.Question(player, question, LogRecord.RecordType.StartedQuestion, $"Started question {question.ShortCode}.");
 
-            if(question.ShuffleAnswers)
+            if (question.ShuffleAnswers)
             {
                 DisplayChoices = question.Answers.OrderBy(c => Random.Shared.Next()).ToList();
             }
@@ -231,31 +237,31 @@ else if(question != default)
             {
                 Tick(DeltaTime);
             }, null, DeltaTime, DeltaTime);
-        });   
+        });
     }
 
     async Task ChoiceSelected(int displayIndex)
     {
-        if(State != QuestionState.Active)
+        if (State != QuestionState.Active)
         {
             return;
         }
 
         var choice = DisplayChoices[displayIndex];
         var index = question.Answers.IndexOf(choice);
-        if(index == -1)
+        if (index == -1)
         {
             Console.WriteLine($"ERROR: Invalid choice selected on question {QuestionId} {choice}!");
             return;
         }
 
-        if(index == 0)
+        if (index == 0)
         {
             await Success(choice);
 
             return;
         }
-        if(index > 0 && index < Attempted.Count && !Attempted[displayIndex])
+        if (index > 0 && index < Attempted.Count && !Attempted[displayIndex])
         {
 
             await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.");
@@ -269,13 +275,13 @@ else if(question != default)
     async Task Success(string? choice = null)
     {
         State = QuestionState.Success;
-        if(choice == null)
+        if (IsBonus)
         {
-            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Awarded default for {Points()} points.");
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Completed bonus worth {Points()} points.");
         }
         else
-        {   
-            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
+        {
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice ?? "NULL"} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
         }
 
         await points.AddPoints(player, question, Points());
@@ -311,7 +317,7 @@ else if(question != default)
     void Tick(int ms)
     {
         ElapsedTime += ms / 1000d;
-        if(ElapsedTime >= TotalTime)
+        if (ElapsedTime >= TotalTime)
         {
             ElapsedTime = TotalTime;
             InvokeAsync(StopTimer);
