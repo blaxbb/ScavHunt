@@ -49,6 +49,15 @@
     color: white;
 }
 
-.navbar, .collapse {
+.navbar {
+    padding: .5rem 1rem;
+}
+
+.navbar, .collapse, .collapsing {
     background-color: #1A1F1F;
+}
+
+.navbar-brand {
+    align-items: center;
+    display: flex;
 }
