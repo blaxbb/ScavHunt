@@ -11,8 +11,9 @@ $interactable: #E6AF57;
     background-color: $primary;
 }
 
-.btn-interactable {
+.btn.btn-interactable {
     background-color: $interactable !important;
+    border: black solid 1px;
 }
 
 .text-interactable {

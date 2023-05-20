@@ -16,3 +16,21 @@
 .container .row * {
     z-index: 4;
 }
+
+.list-item {
+    color: #856420;
+    background-color: #f8edd7;
+    border-color: #dea635;
+}
+
+.list-item:last-child {
+    border: 0;
+}
+
+.table tr {
+    border-color: #dea635;
+}
+
+.table tr:last-child {
+    border-color: transparent;
+}

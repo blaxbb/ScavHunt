@@ -56,7 +56,7 @@
                     var question = ActiveQuestions[i];
                     var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
 
-                    <div class="@(complete ? "alert-secondary" : "alert-primary") p-3 w-100 spacer cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
+                    <div class="list-item p-3 w-100 spacer cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
                         <div class="row">
                             <div class="col">
                                 @question.Title
