@@ -30,7 +30,14 @@
 
     <script src="/js/bootstrap/bootstrap.min.js"></script>
     <script src="~/Interop.js"></script>
-    <script src="_framework/blazor.server.js"></script>
+    <script src="_framework/blazor.server.js" autostart="false"></script>
+    <script>
+        Blazor.start().then(() => {
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                document.location.reload();
+            }
+        });
+    </script>
     <script src="https://sortablejs.github.io/Sortable/Sortable.js"></script>
 </body>
 </html>
