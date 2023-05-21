@@ -1,12 +1,50 @@
-﻿<div class="container">
-    <div class="row">
-        <div class="card">
-            <div class="card-body">
-                <div class="mb-3">
-                    This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  This is some info about the scavanger hunt.  
+﻿@using ScavHunt.Data.Models;
+@inject LeaderboardService leaders;
+
+<div class="container">
+    <div class=" position-relative overflow-hidden">
+        <div class="position-absolute line-bg">
+        </div>
+        <div class="row spacer bg-primary p-3">
+            <div class="header col-xl-3 mb-3">
+                <h1>Scavenger Hunt - SIGGRAPH 2023</h1>
+                <div>
+                    This is some info about the scavanger hunt.
                 </div>
-                <NavLink href="/player" class="btn btn-primary btn-interactable">Register</NavLink>
+            </div>
+        </div>
+        <div class="row spacer bg-secondary p-3">
+            <div class="header col-xl-3 mb-3">
+                <h1>Register</h1>
+                <div class="mb-3">
+                    Register here to play
+                </div>
+            </div>
+            <div class="col-xl-9 my-auto">
             </div>
         </div>
     </div>
+    <div class="row bg-white p-3">
+        <div class="header col-xl-3 mb-3">
+            <h1>Leaderboard</h1>
+            <div>
+                The top participants will recieve prizes at the end of the conference.
+            </div>
+        </div>
+        <div class="col-xl-9">
+            <Leaderboard />
+        </div>
+    </div>
 </div>
+
+@code {
+
+    List<Player>? Leaderboard { get; set; }
+    int PlayerPosition { get; set; } = -1;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Leaderboard = await leaders.ShortLeaderboard();
+    }
+}

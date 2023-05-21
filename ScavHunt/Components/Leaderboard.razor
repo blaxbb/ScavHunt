@@ -1,0 +1,72 @@
+﻿@using ScavHunt.Data.Models
+@inject LeaderboardService leaders
+@inject PlayerService players
+
+<table class="table table-striped table-primary table-hover h-100">
+    <tbody>
+        @for (int i = 0; i < LeaderboardData?.Count; i++)
+        {
+            var index = i;
+            var leader = LeaderboardData[index];
+            <tr>
+                <td>@(index + 1)</td>
+                <td>@leader.User.DisplayName</td>
+                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+            </tr>
+            <tr>
+                <td>@(index + 1)</td>
+                <td>@leader.User.DisplayName</td>
+                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+            </tr>
+            <tr>
+                <td>@(index + 1)</td>
+                <td>@leader.User.DisplayName</td>
+                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+            </tr>
+            <tr>
+                <td>@(index + 1)</td>
+                <td>@leader.User.DisplayName</td>
+                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+            </tr>
+            <tr>
+                <td>@(index + 1)</td>
+                <td>@leader.User.DisplayName</td>
+                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+            </tr>
+        }
+
+        @if (player != null)
+        {
+            @if (!LeaderboardData?.Any(p => p.Id == player?.Id) ?? false)
+            {
+                <tr>
+                    <td>&#x200b;</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        @(
+                            PlayerPosition == -1 ? "" : PlayerPosition
+                            )
+                    </td>
+                    <td>@player.User.DisplayName</td>
+                    <td>@player.PointTransactions.Sum(p => p.Value)</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<Player>? LeaderboardData { get; set; }
+    int PlayerPosition { get; set; } = -1;
+
+    Player? player { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        player = await players.GetCurrent();
+        LeaderboardData = await leaders.ShortLeaderboard();
+    }
+}

@@ -1,0 +1,35 @@
+﻿.line-bg {
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    background: url(/assets/s2023_line.svg);
+    background-size: 25%;
+    transform: rotate(12deg);
+    width: 200%;
+    height: 167%;
+    z-index: 2;
+    filter: invert(92%) sepia(13%) saturate(638%) hue-rotate(326deg) brightness(105%) contrast(85%);
+    left: -6%;
+}
+
+
+.container .row * {
+    z-index: 4;
+}
+
+.list-item {
+    background-color: #f8edd7;
+    border-color: #dea635;
+}
+
+.list-item:last-child {
+    border: 0;
+}
+
+.table tr {
+    border-color: #dea635;
+}
+
+.table tr:last-child {
+    border-color: transparent;
+}
