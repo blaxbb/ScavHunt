@@ -90,5 +90,9 @@ namespace ScavHunt
             using var streamRef = new DotNetStreamReference(stream);
             await js.InvokeVoidAsync("downloadFileFromStream", filename, streamRef);
         }
+        public async Task HideNav(string id)
+        {
+            await js.InvokeVoidAsync("closeNav", id);
+        }
     }
 }

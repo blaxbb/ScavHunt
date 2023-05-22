@@ -2,6 +2,8 @@
 @inherits LayoutComponentBase
 @inject AlertService alerts
 @inject MarkdownService md
+@inject NavigationManager navigation
+@inject JSInterop js
 
 <PageTitle>SIGGRAPH 2023 - Scavenger Hunt</PageTitle>
 
@@ -72,5 +74,9 @@
     protected override async Task OnInitializedAsync()
     {
         Active = await alerts.ActiveAlerts();
+        navigation.LocationChanged += async (obj, args) =>
+        {
+            await js.HideNav("navCollapse");
+        };
     }
 }

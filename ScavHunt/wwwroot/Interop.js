@@ -10,6 +10,14 @@ window.ClearLocalStorage = (key) => {
     localStorage.clear();
 }
 
+window.closeNav = (id) => {
+    var collapse = document.getElementById(id);
+    var bsCollapse = new bootstrap.Collapse(collapse, {
+        toggle: false
+    });
+    bsCollapse.hide();
+}
+
 window.ShowModal = function (id) {
     var modal = new bootstrap.Modal(document.getElementById(id));
     modal.show();
