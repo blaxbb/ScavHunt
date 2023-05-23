@@ -7,14 +7,13 @@
 
 <PageTitle>SIGGRAPH 2023 - Scavenger Hunt</PageTitle>
 
-<div class="page vh-100">
+<div class="page">
     <main class="d-grid" style="grid-template-rows: auto auto 1fr auto;">
         <NavMenu />
 
-        <div id="alerts">
-            @if (Active != null && Active.Count > 0)
+        <div id="alerts" class="container">
+            @if (Active != null)
             {
-                <div class="container">
                 @foreach (var alert in Active)
                 {
                     <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
@@ -23,18 +22,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 }
-                </div>
             }
             <AuthorizeView Roles="admin">
                 <Authorized>
-                    <div class="container">
                     <div class="alert alert-warning show my-3" role="alert">
                         <h4 class="alert-heading">Notice</h4>
                         <div>Currently logged in as an administrator</div>
                     </div>
-                    </div>
                 </Authorized>
             </AuthorizeView>
+
         </div>
 
         <article class="content">
