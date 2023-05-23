@@ -11,7 +11,7 @@
     <main class="d-grid" style="grid-template-rows: auto auto 1fr auto;">
         <NavMenu />
 
-        <div id="alerts" class="container">
+        <div id="alerts" class="container bg-white">
             @if (Active != null)
             {
                 @foreach (var alert in Active)
@@ -34,7 +34,7 @@
 
         </div>
 
-        <article class="content">
+        <article class="content bg-white">
             @Body
         </article>
         <footer class="footer">
