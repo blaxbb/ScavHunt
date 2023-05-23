@@ -2,16 +2,18 @@
 @inject PlayerService players
 
 <div id="nav">
-    <nav class="navbar navbar-dark d-flex flex-row flex-nowrap">
-            <a class="navbar-brand mr-auto" href="#">
+    <nav class="navbar navbar-dark">
+        <div class="row w-100">
+            <a class="navbar-brand col me-auto overflow-hidden" href="#">
                 <img src="/assets/logo.png" width="30" height="30" class="d-inline-block me-3" alt="">
                 <span>
-                Scavenger Hunt - SIGGRAPH 2023
+                    Scavenger Hunt - SIGGRAPH 2023
                 </span>
             </a>
-        <button type="button" class="btn btn-interactable" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="oi oi-menu"></span>
-        </button>
+            <button type="button" class="btn btn-interactable col-auto" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="oi oi-menu"></span>
+            </button>
+        </div>
     </nav>
 
     <div class="collapse" id="navCollapse">
@@ -31,7 +33,7 @@
                     </div>
                     <div class="nav-item mx-3">
                         <form class="col-auto" method="post" action="Identity/Account/LogOut">
-                            <input type="hidden" name="name" value="value" /> 
+                            <input type="hidden" name="name" value="value" />
                             <a class="nav-link cursor-pointer" onclick="this.parentNode.submit();">
                                 <span class="oi oi-account-logout" aria-hidden="true"></span>Log out
                             </a>
