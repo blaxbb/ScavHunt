@@ -57,3 +57,21 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+.line-bg {
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    background: url(/assets/s2023_line.svg);
+    background-size: 25%;
+    transform: rotate(12deg);
+    width: 200%;
+    height: 167%;
+    z-index: 2;
+    left: -6%;
+}
+
+.z-index-4 {
+    z-index: 4;
+}
