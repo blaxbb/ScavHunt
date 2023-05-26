@@ -8,7 +8,6 @@
     width: 200%;
     height: 167%;
     z-index: 2;
-    filter: invert(92%) sepia(13%) saturate(638%) hue-rotate(326deg) brightness(105%) contrast(85%);
     left: -6%;
 }
 
