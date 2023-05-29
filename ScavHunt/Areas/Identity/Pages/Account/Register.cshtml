@@ -6,36 +6,7 @@
 
 <div class="">
     <section class="mb-3">
-    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-        <h2>Create a new account.</h2>
-        <hr />
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="form-floating mb-3">
-            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
-            <label asp-for="Input.Email"></label>
-            <span asp-validation-for="Input.Email" class="text-danger"></span>
-        </div>
-        <div class="form-floating mb-3">
-            <input asp-for="Input.DisplayName" class="form-control" aria-required="true" />
-            <label asp-for="Input.DisplayName"></label>
-            <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
-        </div>
-        <div class="form-floating mb-3">
-            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
-            <label asp-for="Input.Password"></label>
-            <span asp-validation-for="Input.Password" class="text-danger"></span>
-        </div>
-        <div class="form-floating mb-3">
-            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
-            <label asp-for="Input.ConfirmPassword"></label>
-            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-        </div>
-        <button id="registerSubmit" type="submit" class="w-50 mx-auto d-block btn btn-lg btn-primary">Register</button>
-    </form>
-    </section>
-    <section>
         <h3 class="text-center">Sign on with</h3>
-    <hr />
         <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
             <div>
                 <p>
@@ -46,33 +17,37 @@
                 </p>
             </div>
         </form>
+        <hr />
     </section>
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-
-        
-        @{
-            if ((Model.ExternalLogins?.Count ?? 0) == 0)
-            {
-                <div>
-                    <p>
-                        There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                            article
-                            about setting up this ASP.NET application to support logging in via external services
-                        </a>.
-                    </p>
-                </div>
-            }
-            else
-            {
-
-            }
-        }
-    </div>
+    <section class="mb-3">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2 class="mb-3 text-center">Create a new account.</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                <label asp-for="Input.Email"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.DisplayName" class="form-control" aria-required="true" />
+                <label asp-for="Input.DisplayName"></label>
+                <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                <label asp-for="Input.ConfirmPassword"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="text-center">
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary btn-login">Register</button>
+            </div>
+        </form>
+    </section>
 </div>
 
 @section Scripts {
