@@ -17,20 +17,20 @@
     top: -2px;
 }
 
-.nav-item {
+nav .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
 }
 
-.nav-item:first-of-type {
+nav .nav-item:first-of-type {
     padding-top: 1rem;
 }
 
-.nav-item:last-of-type {
+nav .nav-item:last-of-type {
     padding-bottom: 1rem;
 }
 
-.nav-item .nav-link {
+nav .nav-item .nav-link {
     color: #d7d7d7 !important;
     border-radius: 4px  !important;
     height: 3rem  !important;
@@ -39,12 +39,12 @@
     line-height: 3rem  !important;
 }
 
-.nav-item .nav-link.active {
+nav .nav-item .nav-link.active {
     background-color: rgba(255,255,255,0.25)  !important;
     color: white  !important;
 }
 
-.nav-item .nav-link:hover {
+nav .nav-item .nav-link:hover {
     background-color: rgba(255,255,255,0.1)  !important;
     color: white  !important;
 }
