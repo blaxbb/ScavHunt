@@ -17,7 +17,7 @@
         }
         else
         {
-            <div class="mb-3">
+            <div class="mb-3 text-center">
                 <h3>Sign in With</h3>
                 <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
                     <div>
@@ -29,6 +29,7 @@
                         </p>
                     </div>
                 </form>
+                <hr />
             </div>
         }
     }
