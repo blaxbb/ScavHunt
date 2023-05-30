@@ -20,6 +20,10 @@
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">
+                        <label class="form-label">Code</label>
+                        <InputText class="form-control" id="code" @bind-Value="editQuestion.ShortCode" placeholder="Code" />
+                    </div>
+                    <div class="form-check mb-3">
                         <label class="form-label">Title</label>
                         <InputText class="form-control" id="title" @bind-Value="editQuestion.Title" placeholder="Title" />
                     </div>
@@ -355,7 +359,7 @@
         {
             editQuestion.Answers.RemoveAll(q => string.IsNullOrWhiteSpace(q));
 
-            if(string.IsNullOrWhiteSpace(editQuestion.ShortCode))
+            if(editQuestion.Id == 0)
             {
                 await questions.Add(editQuestion);
             }
