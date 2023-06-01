@@ -66,6 +66,7 @@ a, .btn-link {
     background: url(/assets/s2023_line.svg);
     background-size: 25%;
     transform: rotate(12deg);
+    transform-origin: top center;
     width: 200%;
     height: 167%;
     z-index: 2;
