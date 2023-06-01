@@ -54,19 +54,6 @@ if(builder.Configuration["Authentication:Twitter:ConsumerKey"] != null) {
 }
 
 if(builder.Configuration["Authentication:Apple:ClientId"] != null) {
-    // authBuilder.AddApple(options =>
-    //     {
-    //         options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
-    //         options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
-    //         options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
-    //         options.GenerateClientSecret = true;
-    //         options.PrivateKey = (keyId, _) =>
-    //         {
-    //             var key = builder.Configuration["Authentication:Apple:PrivateKey"];
-    //             var formattedKey = string.Format("-----BEGIN PRIVATE KEY-----\n{0}\n-----END PRIVATE KEY-----", key);
-    //             return Task.FromResult(formattedKey.AsMemory());
-    //         };
-    //     });
 
     authBuilder.AddOpenIdConnect("apple", "Apple", options =>
     {
