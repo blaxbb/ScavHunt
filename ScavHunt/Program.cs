@@ -59,10 +59,10 @@ if(builder.Configuration["Authentication:Apple:ClientId"] != null) {
             options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
             options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
             options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
-
+            options.GenerateClientSecret = true;
             options.PrivateKey = (keyId, _) =>
             {
-                return Task.FromResult(builder.Configuration[$"Authentication:Apple:{keyId}"].AsMemory());
+                return Task.FromResult(builder.Configuration[$"Authentication:Apple:{builder.Configuration["Authentication:Apple:KeyId"]}"].AsMemory());
             };
         });
 }
