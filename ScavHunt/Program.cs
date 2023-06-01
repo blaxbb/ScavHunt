@@ -37,11 +37,33 @@ if(builder.Configuration["Authentication:Google:ClientId"] != null) {
         googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
 }
+
 if(builder.Configuration["Authentication:Microsoft:ClientId"] != null) {
-    authBuilder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
+    authBuilder.AddMicrosoftAccount(microsoftOptions =>
+    {
+        microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+        microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+    });
+}
+
+if(builder.Configuration["Authentication:Twitter:ConsumerKey"] != null) {
+    authBuilder.AddTwitter(twitterOptions => {
+        twitterOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
+        twitterOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+    });
+}
+
+if(builder.Configuration["Authentication:Apple:ClientId"] != null) {
+    authBuilder.AddApple(options =>
         {
-            microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
-            microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+            options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
+            options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
+            options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
+
+            options.PrivateKey = (keyId, _) =>
+            {
+                return Task.FromResult(builder.Configuration[$"Authentication:Apple:{keyId}"].AsMemory());
+            };
         });
 }
 
