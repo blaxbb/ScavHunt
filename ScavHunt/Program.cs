@@ -54,19 +54,45 @@ if(builder.Configuration["Authentication:Twitter:ConsumerKey"] != null) {
 }
 
 if(builder.Configuration["Authentication:Apple:ClientId"] != null) {
-    authBuilder.AddApple(options =>
+    // authBuilder.AddApple(options =>
+    //     {
+    //         options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
+    //         options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
+    //         options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
+    //         options.GenerateClientSecret = true;
+    //         options.PrivateKey = (keyId, _) =>
+    //         {
+    //             var key = builder.Configuration["Authentication:Apple:PrivateKey"];
+    //             var formattedKey = string.Format("-----BEGIN PRIVATE KEY-----\n{0}\n-----END PRIVATE KEY-----", key);
+    //             return Task.FromResult(formattedKey.AsMemory());
+    //         };
+    //     });
+
+    authBuilder.AddOpenIdConnect("apple", "Apple", options =>
+    {
+        options.Authority = "https://appleid.apple.com"; // disco doc: https://appleid.apple.com/.well-known/openid-configuration
+
+        options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
+        options.CallbackPath = "/signin-apple"; // corresponding to your redirect URI
+
+        options.ResponseType = "code id_token"; // hybrid flow due to lack of PKCE support
+        options.ResponseMode = "form_post"; // form post due to prevent PII in the URL
+        options.DisableTelemetry = true;
+
+        options.Scope.Clear(); // apple does not support the profile scope
+        options.Scope.Add("openid");
+        options.Scope.Add("email");
+        options.Scope.Add("name");
+
+        // custom client secret generation - secret can be re-used for up to 6 months
+        options.Events.OnAuthorizationCodeReceived = context =>
         {
-            options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
-            options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
-            options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
-            options.GenerateClientSecret = true;
-            options.PrivateKey = (keyId, _) =>
-            {
-                var key = builder.Configuration["Authentication:Apple:PrivateKey"];
-                var formattedKey = string.Format("-----BEGIN PRIVATE KEY-----\n{0}\n-----END PRIVATE KEY-----", key);
-                return Task.FromResult(formattedKey.AsMemory());
-            };
-        });
+            context.TokenEndpointRequest.ClientSecret = TokenGenerator.CreateNewToken(builder.Configuration);
+            return Task.CompletedTask;
+        };
+
+        options.UsePkce = false; // apple does not currently support PKCE (April 2021)
+    });
 }
 
 builder.Services.AddRazorPages();
