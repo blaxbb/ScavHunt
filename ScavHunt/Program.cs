@@ -29,13 +29,20 @@ builder.Services.AddDefaultIdentity<ScavhuntUser>(options => { options.SignIn.Re
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
-
+var authBuilder = builder.Services.AddAuthentication();
 if(builder.Configuration["Authentication:Google:ClientId"] != null) {
-    builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+    authBuilder.AddGoogle(googleOptions =>
     {
         googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
+}
+if(builder.Configuration["Authentication:Microsoft:ClientId"] != null) {
+    authBuilder.Services.AddAuthentication().AddMicrosoftAccount(microsoftOptions =>
+        {
+            microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
+            microsoftOptions.ClientSecret = builder.Configuration["Authentication:Microsoft:ClientSecret"];
+        });
 }
 
 builder.Services.AddRazorPages();
