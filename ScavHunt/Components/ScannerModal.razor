@@ -25,12 +25,13 @@
     [JSInvokable]
     public async Task QRResult(string result)
     {
-
-        var santize = new Regex($"^\\d{{{Data.Models.Question.SHORT_CODE_LENGTH}}}$");
-        if (santize.IsMatch(result))
+        var regex = $"hunt\\.siggraph\\.org/q/([a-zA-Z\\d]+)";
+        var match = Regex.Match(result, regex);
+        if (match.Success)
         {
-            Console.WriteLine(result);
-            nav.NavigateTo($"/q/{result}");
+            var code = match.Groups[1].Value;
+            Console.WriteLine(code);
+            nav.NavigateTo($"/q/{code}");
         }
         else
         {
