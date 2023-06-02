@@ -1,6 +1,7 @@
 ﻿@using Newtonsoft.Json
 @using ScavHunt.Data.Models
 @using static ScavHunt.Pages.Admin.Questions
+@using CsvHelper
 @inject JSInterop js
 @inject QuestionAdminService questions
 
@@ -44,9 +45,9 @@
                         <div>No Questions will be updated.</div>
                     }
 
-                    <div class="row">
-                        @foreach (var q in UpdatedQuestions)
-                        {
+                    @foreach (var q in UpdatedQuestions)
+                    {
+                        <div class="row">
                             <div class="col">
                                 <div class="py-1">@($"{q.old.Title}")</div>
                             </div>
@@ -157,8 +158,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
                 <div class="tab-pane" id="removeQuestions">
                     @if (ToRemoveQuestions.Count == 0)
@@ -308,65 +309,170 @@
             using var stream = new MemoryStream();
             await args.File.OpenReadStream().CopyToAsync(stream);
             var text = System.Text.Encoding.UTF8.GetString(stream.GetBuffer());
-            Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text) ?? new(null, null);
-            var all = await questions?.All() ?? new();
-            Existing = new(default);
-            Existing = Existing.GrowTree(Existing, all);
-
-            var impAll = Importing.Flatten();
-
-            ToRemoveQuestions = new();
-            NewQuestions = new();
-            UpdatedQuestions = new();
-            UnchangedQuestions.Clear();
-
-            foreach(var import in impAll)
+            if(args.File.Name.EndsWith(".json"))
             {
-                var existing = all.FirstOrDefault(q => q.Id == import.Id);
-                if(existing == default)
-                {
-                    NewQuestions.Add(import);
-                }
-                else
-                {
-                    var oldParent = Existing.FindParent(import);
-                    var newParent = Importing.FindParent(import);
-
-                    bool parentChanged;
-
-                    if((oldParent == null && newParent == null) || (oldParent?.Equals(newParent) ?? false))
-                    {
-                        parentChanged = false;
-                    }
-                    else
-                    {
-                        parentChanged = true;
-                        import.ParentQuestion = newParent;
-                        existing.ParentQuestion = oldParent;
-                    }
-
-                    if(existing.Equals(import) && !parentChanged)
-                    {
-                        UnchangedQuestions.Add((existing, import));
-                    }
-                    else
-                    {
-                        UpdatedQuestions.Add((existing, import));
-                    }
-                }
+                await ImportJson(text);
             }
-
-            foreach(var existing in all)
-            {
-                if(!(UpdatedQuestions.Any(pair => pair.old.Id == existing.Id) || UnchangedQuestions.Any(pair => pair.old.Id == existing.Id)))
-                {
-                    ToRemoveQuestions.Add(existing);
-                }
+            else if(args.File.Name.EndsWith(".csv")) {
+                await ImportCSV(text);
             }
         }
         catch(Exception e) {
             Console.WriteLine(e.Message);
         }
         loading = false;
+    }
+
+    private async Task ImportJson(string text) {
+        Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text) ?? new(null, null);
+
+        var impAll = Importing.Flatten();
+        await Import(impAll, true, true);
+    }
+
+    private async Task ImportCSV(string text) {
+        var csv = new CsvReader(new StringReader(text), System.Globalization.CultureInfo.InvariantCulture);
+
+        List<Question> importing = new List<Question>();
+        csv.Read();
+        csv.ReadHeader();
+        while(csv.Read())
+        {
+            var titleText = csv.GetField(1);
+            var questionText = csv.GetField(3);
+            var questionPic = csv.GetField(4);
+            var choiceA = csv.GetField(6);
+            var choiceB = csv.GetField(7);
+            var choiceC = csv.GetField(8);
+            var choiceD = csv.GetField(9);
+            var correctChoice = csv.GetField(10);
+            var answerText = csv.GetField(12);
+            var answerPic = csv.GetField(13);
+            var hintText = csv.GetField(15);
+            var bonusClue = csv.GetField(16);
+            var startTime = csv.GetField<long>(17);
+            var endTime = csv.GetField<long>(18);
+            var token = csv.GetField(19);
+
+            if(!string.IsNullOrWhiteSpace(questionPic)) {
+                questionText = $"![image](/assets/pictures/{questionPic})\n\n{questionText}";
+            }
+
+            if(!string.IsNullOrWhiteSpace(answerText))
+            {
+                answerText = $"![image](/assets/pictures/{answerPic})\n\n{answerText}";
+            }
+
+            string? tmp;
+            switch(correctChoice)
+            {
+                case "B":
+                    tmp = choiceA;
+                    choiceA = choiceB;
+                    choiceB = tmp;
+                    break;
+                case "C":
+                    tmp = choiceA;
+                    choiceA = choiceC;
+                    choiceC = tmp;
+                    break;
+                case "D":
+                    tmp = choiceA;
+                    choiceA = choiceD;
+                    choiceD = tmp;
+                    break;
+            }
+
+            var choices = new List<string?>()
+            {
+                choiceA, choiceB, choiceC, choiceD
+            };
+
+            choices.RemoveAll(c => c == null);
+            
+
+            var question = new Question(){
+                ShortCode = token,
+                Text = questionText,
+                HintText = string.IsNullOrWhiteSpace(hintText) ? "Hint" : hintText,
+                Title = string.IsNullOrWhiteSpace(titleText) ? "Title" : titleText,
+                ShuffleAnswers = true,
+                Answers = choices,
+                SuccessText = answerText,
+                UnlockTime = DateTimeOffset.FromUnixTimeSeconds(startTime).UtcDateTime,
+                LockTime = DateTimeOffset.FromUnixTimeSeconds(endTime).UtcDateTime
+            };
+            importing.Add(question);
+        }
+
+        Importing = new QuestionTreeNode(null, importing.Select(i => new QuestionTreeNode(i, new())).ToList());
+        await Import(importing, false, false);
+    }
+
+    private async Task Import(IEnumerable<Question> importing, bool changeParents, bool matchId) {
+
+        var all = await questions?.All() ?? new();
+        Existing = new(default);
+        Existing = Existing.GrowTree(Existing, all);
+
+        ToRemoveQuestions = new();
+        NewQuestions = new();
+        UpdatedQuestions = new();
+        UnchangedQuestions.Clear();
+
+        foreach(var import in importing)
+        {
+            Question? existing;
+            if(matchId)
+            {
+                existing = all.FirstOrDefault(q => q.Id == import.Id);
+            }
+            else
+            {
+                existing = all.FirstOrDefault(q => q.ShortCode == import.ShortCode);
+            }
+
+            if(existing == default)
+            {
+                NewQuestions.Add(import);
+            }
+            else
+            {
+                import.Id = existing.Id;
+                
+                var oldParent = Existing.FindParent(import);
+                var newParent = Importing.FindParent(import);
+
+                bool parentChanged;
+
+                if(!changeParents || (oldParent == null && newParent == null) || (oldParent?.Equals(newParent) ?? false))
+                {
+                    parentChanged = false;
+                }
+                else
+                {
+                    parentChanged = true;
+                    import.ParentQuestion = newParent;
+                    existing.ParentQuestion = oldParent;
+                }
+
+                if(existing.Equals(import) && !parentChanged)
+                {
+                    UnchangedQuestions.Add((existing, import));
+                }
+                else
+                {
+                    UpdatedQuestions.Add((existing, import));
+                }
+            }
+        }
+
+        foreach(var existing in all)
+        {
+            if(!(UpdatedQuestions.Any(pair => pair.old.Id == existing.Id) || UnchangedQuestions.Any(pair => pair.old.Id == existing.Id)))
+            {
+                ToRemoveQuestions.Add(existing);
+            }
+        }
     }
 }

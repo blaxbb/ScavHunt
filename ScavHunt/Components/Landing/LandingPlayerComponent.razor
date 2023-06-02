@@ -128,18 +128,14 @@
 
     async Task SubmitQuestionCode(string code)
     {
-        //^\d{N}$ - Checks for N digit string ex: "1234...N"
-        if (Regex.IsMatch(code, $"^\\d{{{Question.SHORT_CODE_LENGTH}}}$"))
+        var question = await questions.GetFromShortCode(code);
+        if (question != default)
         {
-            var question = await questions.GetFromShortCode(code);
-            if (question != default)
-            {
-                nav.NavigateTo($"/q/{code}");
-            }
-            else
-            {
-                nav.NavigateTo($"404");
-            }
+            nav.NavigateTo($"/q/{code}");
+        }
+        else
+        {
+            nav.NavigateTo($"404");
         }
     }
 }
