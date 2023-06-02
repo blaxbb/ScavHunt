@@ -7,10 +7,28 @@
 
 <Modal Id="@ImportId" Title="Import" Confirmed="DoImport" ConfirmText="@(Importing == null ? null : ConfirmText)" CloseText="@(Importing == null ? null : CancelText)" FooterText=@FooterText>
     <div class="container-fluid">
-        <div class="row">
+        <div>
             <label>
                 <InputFile OnChange="LoadFiles" />
             </label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" @bind="DoUpdate" id="checkUpdate">
+                <label class="form-check-label" for="checkUpdate">
+                    Update
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" @bind="DoRemove" id="checkRemove">
+                <label class="form-check-label" for="checkRemove">
+                    Remove
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" @bind="DoAdd" id="checkAdd">
+                <label class="form-check-label" for="checkAdd">
+                    Add
+                </label>
+            </div>
         </div>
         @if(loading)
         {
@@ -196,7 +214,6 @@
                 </div>
             </div>
         }
-
     </div>
 </Modal>
 
@@ -218,6 +235,10 @@
 
     string FooterText => $"This is irreversible, would you like to continue?  {(ToRemoveQuestions.Count > 0 ? "This WILL break log entries and player question status for all removed questions!!!" : "")}";
 
+    bool DoUpdate { get; set; } = true;
+    bool DoRemove { get; set; } = true;
+    bool DoAdd { get; set; } = true;
+
 
     public async Task Show()
     {
@@ -229,7 +250,11 @@
 
     private async Task DoImport()
     {
-        var dbg = await Delete(Existing);
+        List<string> dbg = new();
+        if(DoRemove)
+        {
+            dbg.AddRange(await Delete(Existing));
+        }
 
         dbg.AddRange(await AddOrUpdate(Importing));
         Console.WriteLine("-----------------");
@@ -272,14 +297,14 @@
                 node.Question.ParentQuestion = parent;
             }
 
-            if(NewQuestions.Any(q => q.Id == node.Question.Id))
+            if(DoAdd && NewQuestions.Any(q => q.Id == node.Question.Id))
             {
                 node.Question.Id = 0;
                 created = await questions.Add(node.Question);
                 Console.WriteLine($"Creating question - {node.Question.ShortCode} - {node.Question.Title}");
                 dbg.Add($"Creating question - {node.Question.ShortCode} - {node.Question.Title}");
             }
-            else if(UpdatedQuestions.Any(q => q.old.Id == node.Question.Id))
+            else if(DoUpdate && UpdatedQuestions.Any(q => q.old.Id == node.Question.Id))
             {
                 created = await questions.Update(node.Question);
                 Console.WriteLine($"Updating question - {node.Question.ShortCode} - {node.Question.Title}");
@@ -327,7 +352,7 @@
         Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text) ?? new(null, null);
 
         var impAll = Importing.Flatten();
-        await Import(impAll, true, true);
+        await Import(impAll, true, false);
     }
 
     private async Task ImportCSV(string text) {
