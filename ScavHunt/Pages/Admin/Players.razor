@@ -12,6 +12,7 @@
     <table class="table table-striped table-hover">
         <thead>
             <tr>
+                <td>Email Confirmed</td>
                 <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Name))">Username @GetDirectionIndicator(SortMode.Name)</td>
                 <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Created))">Created @GetDirectionIndicator(SortMode.Created)</td>
                 <td class="cursor-pointer" @onclick="@(() => SetSort(SortMode.Points))">Points @GetDirectionIndicator(SortMode.Points)</td>
@@ -28,11 +29,12 @@
                     ).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
                 {
                     <tr>
+                        <td>@(player.User.EmailConfirmed ? "✔️" : "❌")</td>
                         <td>@player.User.UserName</td>
                         <td>@player.Created</td>
                         <td>@player.PointTransactions.Sum(p => p.Value)</td>
                         <td><NavLink class="btn btn-primary" href=@($"/admin/players/{player.User.UserName}")>Details</NavLink></td>
-                        <td><button type="button" class="btn btn-primary">Edit</button></td>
+                        <td><NavLink class="btn btn-primary" href=@($"admin/accounts/{player.User.Id}")>Edit</NavLink></td>
                     </tr>
                 }
             }

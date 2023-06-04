@@ -23,7 +23,7 @@ namespace ScavHunt.Data.Services
         {
             using var db = await dbFactory.CreateDbContextAsync();
 
-            return await db.Players.Include(p => p.PointTransactions).Include(p => p.User).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).Take(5).ToListAsync();
+            return await db.Players.Include(p => p.PointTransactions).Include(p => p.User).Where(p => p.User.EmailConfirmed).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).Take(5).ToListAsync();
         }
 
         public async Task<int> GetPosition(Player player)
