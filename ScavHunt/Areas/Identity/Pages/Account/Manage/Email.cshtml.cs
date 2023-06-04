@@ -126,8 +126,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account.Manage
                     protocol: Request.Scheme);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Confirm your email for SIGGRAPH 2023 Scavenger Hunt",
+                    $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023.<br /><br />To finish registration, confirm your email address by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br /><br />If you did not create this account, you can safely ignore this email.");
 
                 StatusMessage = "Confirmation link to change email sent. Please check your email.";
                 return RedirectToPage();
@@ -161,9 +161,9 @@ namespace ScavHunt.Areas.Identity.Pages.Account.Manage
                 values: new { area = "Identity", userId = userId, code = code },
                 protocol: Request.Scheme);
             await _emailSender.SendEmailAsync(
-                email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                Input.NewEmail,
+                "Confirm your email for SIGGRAPH 2023 Scavenger Hunt",
+                $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023.<br /><br />To finish registration, confirm your email address by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br /><br />If you did not create this account, you can safely ignore this email.");
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();

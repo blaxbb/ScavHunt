@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using ScavHunt;
 using ScavHunt.Areas.Identity;
@@ -109,6 +110,9 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<JSInterop>();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGrid"));
 
 var app = builder.Build();
 
