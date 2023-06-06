@@ -27,7 +27,7 @@ namespace ScavHunt.Services
 
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress(options.FromEmail),
+                From = new EmailAddress(options.FromEmail, "SIGGRAPH 2023 - Scavenger Hunt"),
                 Subject = subject,
                 PlainTextContent = message.Replace("<br />", "\n"),
                 HtmlContent = message,
