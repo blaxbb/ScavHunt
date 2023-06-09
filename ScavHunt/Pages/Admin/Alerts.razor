@@ -1,11 +1,14 @@
 ﻿@page "/admin/alerts"
 @attribute [Authorize(Roles = "admin")]
 @using ScavHunt.Data.Models
+@using ScavHunt.Services;
 @inject AlertAdminService alerts
 @inject JSInterop js
+@inject EmailSender emailSender
+@inject UserService users
 
 <Modal Id="@EDIT_ID" Title="@(editAlert?.Id != 0 ? $"Editing {editAlert?.Title}" : "New Alert")">
-    @if(editAlert != null)
+    @if (editAlert != null)
     {
         <EditForm id="editAlertForm" Model="@editAlert" OnValidSubmit="@SaveAlert">
             <DataAnnotationsValidator />
@@ -23,7 +26,7 @@
             <div class="mb-3">
                 <label class="form-label">Type</label>
                 <InputSelect class="form-select" @bind-Value="editAlert.Type">
-                    @foreach(var type in Enum.GetValues<Alert.AlertType>())
+                    @foreach (var type in Enum.GetValues<Alert.AlertType>())
                     {
                         <option>@type</option>
                     }
@@ -32,12 +35,12 @@
 
             <div class="mb-3">
                 <label class="form-label">Unlock Time</label>
-                <input type="datetime-local" class="form-control" @bind="editAlert.StartTime" step="1"/>
+                <input type="datetime-local" class="form-control" @bind="editAlert.StartTime" step="1" />
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Lock Time</label>
-                <input type="datetime-local" class="form-control" @bind="editAlert.EndTime" step="1"/>
+                <input type="datetime-local" class="form-control" @bind="editAlert.EndTime" step="1" />
             </div>
 
             <div class="mb-3">
@@ -47,17 +50,43 @@
     }
 </Modal>
 
+<Modal Id="@EMAIL_ID" Title="Send Mass Email">
+    @if (emailData != null)
+    {
+        <EditForm id="sendEmailForm" Model="@emailData" OnValidSubmit="@SendEmail">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-3">
+                <label class="form-label">Subject</label>
+                <InputText class="form-control" id="subject" @bind-Value="emailData.Subject" placeholder="Subject" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Content</label>
+                <InputTextArea class="form-control" id="text" rows="6" @bind-Value="emailData.Content" placeholder="Content" />
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </EditForm>
+    }
+</Modal>
+
 <div class="container">
     <div class="row">
-        <div class="col-sm-auto">
+        <div class="col-sm">
             <h3>Alerts</h3>
         </div>
         <div class="col-sm-auto">
-            <button type="button" class="btn btn-primary" @onclick="NewAlert">New</button>
+            <button type="button" class="btn btn-interactable btn-primary" @onclick="NewAlert">New</button>
+        </div>
+        <div class="col-sm-auto">
+            <button type="button" class="btn btn-interactable btn-primary" @onclick="ShowEmailModal">Send Email</button>
         </div>
     </div>
 
-    @if(Active != default)
+    @if (Active != default)
     {
         <table class="table table-striped table-hover">
             <thead>
@@ -71,24 +100,24 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach(var alert in Active)
-            {
-                <tr class="align-middle">
-                    @if(alert.IsActive())
-                    {
-                        <td><span class="oi oi-check"></span></td>
-                    }
-                    else
-                    {
-                        <td><span class="oi oi-ban"></span></td>
-                    }
-                    <td>@alert.Title</td>
-                    <td>@alert.Type</td>
-                    <td>@alert.StartTime</td>
-                    <td>@alert.EndTime</td>
-                    <td><button type="button" class="btn btn-primary" @onclick="(async () => await EditAlert(alert))">Edit</button></td>
-                </tr>
-            }
+                @foreach (var alert in Active)
+                {
+                    <tr class="align-middle">
+                        @if (alert.IsActive())
+                        {
+                            <td><span class="oi oi-check"></span></td>
+                        }
+                        else
+                        {
+                            <td><span class="oi oi-ban"></span></td>
+                        }
+                        <td>@alert.Title</td>
+                        <td>@alert.Type</td>
+                        <td>@alert.StartTime</td>
+                        <td>@alert.EndTime</td>
+                        <td><button type="button" class="btn btn-primary" @onclick="(async () => await EditAlert(alert))">Edit</button></td>
+                    </tr>
+                }
             </tbody>
         </table>
     }
@@ -100,10 +129,18 @@
 
 @code {
     const string EDIT_ID = "EditAlertModal";
+    const string EMAIL_ID = "SendEmailId";
 
     List<Alert>? Active { get; set; }
 
     Alert? editAlert;
+
+    EmailData? emailData;
+    public class EmailData
+    {
+        public string Subject;
+        public string Content;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,25 +150,32 @@
     async Task NewAlert()
     {
         editAlert = new Alert()
-        {
-            Id = -1,
-            Type = Alert.AlertType.Danger
-        };
+            {
+                Id = -1,
+                Type = Alert.AlertType.Danger
+            };
 
         await js.ShowModal(EDIT_ID);
+    }
+
+    async Task ShowEmailModal()
+    {
+        emailData = new EmailData();
+
+        await js.ShowModal(EMAIL_ID);
     }
 
     async Task EditAlert(Alert alert)
     {
         editAlert = new Alert()
-        {
-            Id = alert.Id,
-            Type = alert.Type,
-            Title = alert.Title,
-            Message = alert.Message,
-            StartTime = alert.StartTime,
-            EndTime = alert.EndTime
-        };
+            {
+                Id = alert.Id,
+                Type = alert.Type,
+                Title = alert.Title,
+                Message = alert.Message,
+                StartTime = alert.StartTime,
+                EndTime = alert.EndTime
+            };
 
         await js.ShowModal(EDIT_ID);
     }
@@ -140,12 +184,12 @@
     {
         await js.HideModal(EDIT_ID);
 
-        if(editAlert == null)
+        if (editAlert == null)
         {
             return;
         }
 
-        if(editAlert.Id == -1)
+        if (editAlert.Id == -1)
         {
             editAlert.Id = 0;
             await alerts.New(editAlert);
@@ -156,5 +200,25 @@
         }
 
         Active = await alerts.All();
+    }
+
+    async Task SendEmail()
+    {
+        if(string.IsNullOrWhiteSpace(emailData?.Subject))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(emailData?.Content))
+        {
+            return;
+        }
+
+        await js.HideModal(EMAIL_ID);
+
+        var emails = users.Users.Where(u => u.EmailConfirmed).Select(u => u.Email).ToList();
+
+
+        await emailSender.SendEmailAsync(emails, emailData.Subject, emailData.Content.Replace("\n", "<br />"));
     }
 }
