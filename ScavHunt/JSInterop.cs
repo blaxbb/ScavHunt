@@ -92,7 +92,14 @@ namespace ScavHunt
         }
         public async Task HideNav(string id)
         {
-            await js.InvokeVoidAsync("closeNav", id);
+            try
+            {
+                await js.InvokeVoidAsync("closeNav", id);
+            }
+            catch(Exception e)
+            {
+
+            }
         }
     }
 }

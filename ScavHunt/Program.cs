@@ -25,13 +25,21 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ScavhuntUser>(options => { options.SignIn.RequireConfirmedAccount = true; })
+builder.Services.AddDefaultIdentity<ScavhuntUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<ApplicationDbContext>(p => p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
 var authBuilder = builder.Services.AddAuthentication();
-if(builder.Configuration["Authentication:Google:ClientId"] != null) {
+if (builder.Configuration["Authentication:Google:ClientId"] != null)
+{
     authBuilder.AddGoogle(googleOptions =>
     {
         googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
@@ -39,7 +47,8 @@ if(builder.Configuration["Authentication:Google:ClientId"] != null) {
     });
 }
 
-if(builder.Configuration["Authentication:Microsoft:ClientId"] != null) {
+if (builder.Configuration["Authentication:Microsoft:ClientId"] != null)
+{
     authBuilder.AddMicrosoftAccount(microsoftOptions =>
     {
         microsoftOptions.ClientId = builder.Configuration["Authentication:Microsoft:ClientId"];
@@ -47,14 +56,17 @@ if(builder.Configuration["Authentication:Microsoft:ClientId"] != null) {
     });
 }
 
-if(builder.Configuration["Authentication:Twitter:ConsumerKey"] != null) {
-    authBuilder.AddTwitter(twitterOptions => {
+if (builder.Configuration["Authentication:Twitter:ConsumerKey"] != null)
+{
+    authBuilder.AddTwitter(twitterOptions =>
+    {
         twitterOptions.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerKey"];
         twitterOptions.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
     });
 }
 
-if(builder.Configuration["Authentication:Apple:ClientId"] != null) {
+if (builder.Configuration["Authentication:Apple:ClientId"] != null)
+{
 
     authBuilder.AddOpenIdConnect("apple", "Apple", options =>
     {
@@ -112,6 +124,7 @@ builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddTransient<EmailSender>();
 builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGrid"));
 
 var app = builder.Build();
@@ -146,7 +159,9 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-if(app.Environment.IsDevelopment())
+app.UseHttpLogging();
+
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
