@@ -157,7 +157,7 @@ else if (question != default)
 
         if (player == default)
         {
-            nav.NavigateTo("player");
+            nav.NavigateTo($"/Identity/Account/Login?returnUrl=/q/{QuestionId}", true);
             return;
         }
 
