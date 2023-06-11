@@ -1,4 +1,5 @@
 ﻿@page "/player"
+@attribute [Authorize]
 @using System.Text.RegularExpressions
 @using Microsoft.AspNetCore.Identity;
 @using ScavHunt.Data.Models
@@ -17,15 +18,6 @@
         </div>
     </div>
 }
-else if (State == LoginState.Register)
-{
-    <div class="container">
-        <h3>Register to play</h3>
-        <div class="form">
-            <input class="form-control" type="text" @oninput="@((e)=> InputBadgeNumber = e.Value?.ToString() ?? "")" placeholder="Enter or scan your badge number" />
-        </div>
-    </div>
-}
 else if (State == LoginState.Info && player != null)
 {
     <div class="container">
@@ -35,13 +27,17 @@ else if (State == LoginState.Info && player != null)
                 <h3 class="text-center my-1">Profile</h3>
             </div>
             <div class="card-body">
-                    <dl class="row mx-3">
-                        <dd class="col-3">Username</dd>
-                        <dt class="col-9">@user.UserName</dt>
-                        <dd class="col-3">Display Name</dd>
-                        <dt class="col-9">@user?.DisplayName</dt>
+                <div class="row ms-3">
+                    <dl class="col-xl-6 row align-content-start">
+                        <dd class="col-4">Username</dd>
+                        <dt class="col-8">@user.UserName</dt>
+                        <dd class="col-4">Display Name</dd>
+                        <dt class="col-8">@user?.DisplayName</dt>
                     </dl>
-                <div class="row mx-3">
+                    <div class="col-xl-6 p-3" id="player-qr-code">
+                    </div>
+                </div>
+                <div class="row ms-3 justify-content-evenly">
                     <a class="btn btn-primary col-auto" href="/Identity/Account/Manage">Edit Account</a>
                     <form class="col-auto" method="post" action="Identity/Account/LogOut">
                         <button type="submit" class="btn btn-primary">Log out</button>
@@ -50,32 +46,39 @@ else if (State == LoginState.Info && player != null)
             </div>
         </div>
 
-        <div class="card row mb-3" id="pointsCard">
-            <div class="card-header">
-                <h3 class="text-center my-1">You have @player.PointTransactions.Sum(p => p.Value) points</h3>
-            </div>
-            <div class="card-body">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <td>Question</td>
-                            <td>Value</td>
-                            <td>Timestamp</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
-                        {
+        @if (player.PointTransactions.Count > 0)
+        {
+            <div class="card row mb-3" id="pointsCard">
+                <div class="card-header">
+                    <h3 class="text-center my-1">You have @player.PointTransactions.Sum(p => p.Value) points</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
                             <tr>
-                                <td>@(transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.Title ?? "") : transaction.Source)</td>
-                                <td>@transaction.Value</td>
-                                <td>@transaction.Timestamp</td>
+                                <td>Question</td>
+                                <td>Value</td>
+                                <td>Timestamp</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp))
+                            {
+                                <tr>
+                                    <td>
+                                        @(
+                                            transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.Title ?? "") : transaction.Source
+                                            )
+                                    </td>
+                                    <td>@transaction.Value</td>
+                                    <td>@transaction.Timestamp</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        }
     </div>
 }
 
@@ -84,13 +87,9 @@ else if (State == LoginState.Info && player != null)
     enum LoginState
     {
         Loading,
-        Register,
         Info
     }
     LoginState State { get; set; }
-
-    string? inputBadgeNumber;
-    string? InputBadgeNumber { get => inputBadgeNumber; set { inputBadgeNumber = value; BadgeNumberUpdated(); } }
 
     Player? player;
     ScavhuntUser user;
@@ -102,53 +101,12 @@ else if (State == LoginState.Info && player != null)
             player = await players.GetCurrent();
             var state = await auth.GetAuthenticationStateAsync();
             user = await users.FindByNameAsync(state.User.Identity.Name);
-            if (player == default)
-            {
-                State = LoginState.Register;
-            }
-            else
-            {
-                State = LoginState.Info;
-            }
-
-
+            State = LoginState.Info;
             StateHasChanged();
-        }
-    }
-
-    void BadgeNumberUpdated()
-    {
-        if (Player.BadgeFormat.IsMatch(InputBadgeNumber ?? ""))
-        {
-            Task.Run(async () => await CreateOrSetPlayer(InputBadgeNumber));
-        }
-    }
-
-    async Task CreateOrSetPlayer(string? badgeNumber)
-    {
-        if (string.IsNullOrWhiteSpace(badgeNumber) || !Player.BadgeFormat.IsMatch(badgeNumber ?? ""))
-        {
-            return;
-        }
-
-        await InvokeAsync(() => { State = LoginState.Loading; StateHasChanged(); });
-
-        var p = await players.CreateOrExisting(badgeNumber);
-
-        if (p != default)
-        {
-            await js.SetStorage("badgeNumber", p.User.DisplayName);
-            nav.NavigateTo("/", true);
         }
         else
         {
-            State = LoginState.Register;
+            await js.CreateQrCode("player-qr-code", user.Id);
         }
     }
-
-    async Task PlayerEditSubmit()
-    {
-
-    }
-
 }

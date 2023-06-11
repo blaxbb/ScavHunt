@@ -101,5 +101,10 @@ namespace ScavHunt
 
             }
         }
+
+        public async Task CreateQrCode(string id, string text)
+        {
+            await js.InvokeVoidAsync("CreateQrCode", id, text);
+        }
     }
 }

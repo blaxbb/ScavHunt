@@ -132,3 +132,10 @@ function triggerFileDownload(fileName, url) {
     anchorElement.click();
     anchorElement.remove();
 }
+
+window.CreateQrCode = function(id, text) {
+    new QRCode(document.getElementById(id),
+    {
+        text: text
+    });
+}
