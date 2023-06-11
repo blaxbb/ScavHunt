@@ -35,20 +35,8 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
 
     var modalEle = document.getElementById(modalId);
 
-    const questionRegex = /^https:\/\/scavhunt\.bbarrett\.me\/q\/(?<id>\d{5})$/m;
-
     var qrFound = function (result) {
-
-        var match = result.data.match(questionRegex);
-        if (match) {
-            console.log('HIT', match[1]);
-            modal.hide();
-            dotNetInstance.invokeMethodAsync("QRResult", match[1]);
-
-        }
-        else {
-            console.log('miss', result.data);
-        }
+        dotNetInstance.invokeMethodAsync("QRResult", result.data);
     }
 
     import('/js/qr-scanner/qr-scanner.min.js').then((module) => {

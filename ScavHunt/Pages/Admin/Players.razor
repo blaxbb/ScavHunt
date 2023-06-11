@@ -1,14 +1,30 @@
 ﻿@page "/admin/players"
+@attribute [Authorize(Roles = "admin")]
 @using ScavHunt.Data.Models
 @inject PlayerAdminService players;
-@attribute [Authorize(Roles = "admin")]
+@inject JSInterop js;
+@inject NavigationManager nav;
+
+<ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" Success="ScanSuccess" />
 
 <div class="container">
-    <h3>Players</h3>
-    @if(All != null)
-    {
-        <Pagination ItemsPerPage="PlayersPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p"/>
-    }
+    <div class="row">
+        <div class="col-auto">
+            <h3>Players</h3>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
+        </div>
+        <div class="col-auto">
+            <input type="text" class="form-control" placeholder="Search"/>
+        </div>
+        @if (All != null)
+        {
+            <div class="col-auto ms-auto">
+                <Pagination ItemsPerPage="PlayersPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p" />
+            </div>
+        }
+    </div>
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -24,17 +40,17 @@
             @if (All != null)
             {
                 @foreach (var player in (
-                    Direction == SortDirection.Ascending ?
-                        All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))
-                    ).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
+               Direction == SortDirection.Ascending ?
+               All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))
+               ).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
                 {
                     <tr>
                         <td>@(player.User.EmailConfirmed ? "✔️" : "❌")</td>
                         <td>@player.User.UserName</td>
                         <td>@player.Created</td>
                         <td>@player.PointTransactions.Sum(p => p.Value)</td>
-                        <td><NavLink class="btn btn-primary" href=@($"/admin/players/{player.User.UserName}")>Details</NavLink></td>
-                        <td><NavLink class="btn btn-primary" href=@($"admin/accounts/{player.User.Id}")>Edit</NavLink></td>
+                        <td><NavLink class="btn btn-primary btn-interactable" href=@($"/admin/players/{player.User.UserName}")>Details</NavLink></td>
+                        <td><NavLink class="btn btn-primary btn-interactable" href=@($"admin/accounts/{player.User.Id}")>Edit</NavLink></td>
                     </tr>
                 }
             }
@@ -51,6 +67,8 @@
 
     int Page { get; set; }
     const int PlayersPerPage = 100;
+
+    ScannerModal? scannerModal { get; set; }
 
     enum SortMode
     {
@@ -73,7 +91,7 @@
     string GetDirectionIndicator(SortMode mode)
     {
         //this should be done in css
-        if(mode == Mode)
+        if (mode == Mode)
         {
             return Direction == SortDirection.Ascending ? "▲" : "▼";
         }
@@ -83,7 +101,7 @@
 
     void SetSort(SortMode mode)
     {
-        if(Mode == mode)
+        if (Mode == mode)
         {
             Direction = Direction == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
         }
@@ -103,5 +121,15 @@
             SortMode.Points => p.PointTransactions.Sum(p => p.Value),
             _ => ""
         };
+    }
+
+    async Task ScanSuccess(string text)
+    {
+        var player = All.FirstOrDefault(p => p.User.Id == text);
+        if(player != null)
+        {
+            await js.HideModal("scannerModal");
+            nav.NavigateTo($"/admin/players/{player.User.Email}");
+        }
     }
 }

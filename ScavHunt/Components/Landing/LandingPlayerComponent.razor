@@ -8,7 +8,7 @@
 @inject LogService log;
 @inject PlayerService players;
 
-<ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" />
+<ScannerModal @ref="@scannerModal" Id="scannerModal" Title="Scan QR Code" CloseText="Cancel" Success="QrSuccess" />
 
 <div class="container">
     <div class=" position-relative overflow-hidden">
@@ -136,6 +136,18 @@
         else
         {
             nav.NavigateTo($"404");
+        }
+    }
+
+    async Task QrSuccess(string text)
+    {
+        var regex = new Regex("https:\\/\\/hunt\\.siggraph\\.org\\/q\\/(?<id>.+)");
+        var match = regex.Match(text);
+        if(match.Success)
+        {
+            var qId = match.Groups[1].Value;
+            await js.HideModal("scannerModal");
+            await SubmitQuestionCode(qId);
         }
     }
 }

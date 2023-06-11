@@ -20,23 +20,12 @@
     public string? CloseText { get; set; }
 
     [Parameter]
-    public EventCallback Success { get; set; }
+    public EventCallback<string> Success { get; set; }
 
     [JSInvokable]
     public async Task QRResult(string result)
     {
-        var regex = $"hunt\\.siggraph\\.org/q/([a-zA-Z\\d]+)";
-        var match = Regex.Match(result, regex);
-        if (match.Success)
-        {
-            var code = match.Groups[1].Value;
-            Console.WriteLine(code);
-            nav.NavigateTo($"/q/{code}");
-        }
-        else
-        {
-            Console.WriteLine("Invalid format");
-        }
+        await Success.InvokeAsync(result);
     }
 
     public async Task Show()
