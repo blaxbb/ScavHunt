@@ -165,8 +165,10 @@ namespace ScavHunt.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                await _userStore.SetUserNameAsync(user, email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, email, CancellationToken.None);
+                await _emailStore.SetEmailConfirmedAsync(user, true, CancellationToken.None);
 
                 user.DisplayName = HttpUtility.HtmlEncode(Input.DisplayName);
 
@@ -186,25 +188,28 @@ namespace ScavHunt.Areas.Identity.Pages.Account
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
-                        var userId = await _userManager.GetUserIdAsync(user);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var callbackUrl = Url.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { area = "Identity", userId = userId, code = code },
-                            protocol: Request.Scheme);
+                        //var userId = await _userManager.GetUserIdAsync(user);
+                        //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        //var callbackUrl = Url.Page(
+                        //    "/Account/ConfirmEmail",
+                        //    pageHandler: null,
+                        //    values: new { area = "Identity", userId = userId, code = code },
+                        //    protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023.<br /><br />To finish registration, confirm your email address by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br /><br />If you did not create this account, you can safely ignore this email.");
+                        await _emailSender.SendEmailAsync(Input.Email, "Scavenger Hunt SIGGRAPH 2023 Account Created",
+                            $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023 using the external login provider {info.ProviderDisplayName}.<br /><br />Contact hunt@acmsiggraph.org for more info.");
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
-                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                        {
-                            return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
-                        }
+                        //
+                        //  We don't need to confirm email provided by external login providers as we are locking the account to the email provided by the service.
+                        //
+                        //if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                        //{
+                        //    return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
+                        //}
 
-                        await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                        await _signInManager.SignInAsync(user, isPersistent: true, info.LoginProvider);
                         return LocalRedirect(returnUrl);
                     }
                 }
