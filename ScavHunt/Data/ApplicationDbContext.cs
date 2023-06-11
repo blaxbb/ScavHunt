@@ -16,6 +16,9 @@ namespace ScavHunt.Data
 
         public DbSet<LogRecord> Log { get; set; }
 
+        public DbSet<Prize> Prizes { get; set; }
+        public DbSet<PrizeTransaction> PrizeTransactions { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -23,7 +26,7 @@ namespace ScavHunt.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<IdentityRole>().HasData(new IdentityRole { Id = "8a3258f3-4a3e-40c8-997e-e04421c1210e", Name = "admin", NormalizedName = "ADMIN".ToUpper() });
+            builder.Entity<IdentityRole>().HasData(new IdentityRole { Id = "8a3258f3-4a3e-40c8-997e-e04421c1210e", ConcurrencyStamp = "f312aca4-e4a9-46fd-bba8-a26916eb5b63", Name = "admin", NormalizedName = "ADMIN".ToUpper() });
 
             builder.Entity<Question>()
                 .Property(q => q.Answers)

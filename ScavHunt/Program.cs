@@ -119,6 +119,8 @@ builder.Services.AddScoped<AlertAdminService>();
 
 builder.Services.AddScoped<UserService>();
 
+builder.Services.AddScoped<PrizeAdminService>();
+
 builder.Services.AddScoped<JSInterop>();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSwaggerGen();
