@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 ScavHunt/appsettings.Development.json
+/ScavHunt/appsettings.Development.json
