@@ -16,7 +16,7 @@
             <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
         </div>
         <div class="col-auto">
-            <input type="text" class="form-control" placeholder="Search"/>
+            <input type="text" class="form-control" placeholder="Search" @bind-value="SearchText"/>
         </div>
         @if (All != null)
         {
@@ -42,7 +42,7 @@
                 @foreach (var player in (
                Direction == SortDirection.Ascending ?
                All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))
-               ).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
+               ).Where(p => string.IsNullOrWhiteSpace(SearchText) || p.User.Email.Contains(SearchText)).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
                 {
                     <tr>
                         <td>@(player.User.EmailConfirmed ? "✔️" : "❌")</td>
@@ -69,6 +69,8 @@
     const int PlayersPerPage = 100;
 
     ScannerModal? scannerModal { get; set; }
+
+    string SearchText { get; set; }
 
     enum SortMode
     {
