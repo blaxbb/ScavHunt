@@ -3,17 +3,14 @@
 @inject JSInterop js;
 @inject NavigationManager nav;
 
-<Modal Id="@Id" Title="@Title" CloseText="@CloseText">
-    <div class="row">
-        <div class="input-group mb-3">
-            <select id="camera-select" class="form-select d-inline-block ms-3">
-                <option>Select a camera</option>
-            </select>
-        </div>
+<Modal Id="@Id" Title="@Title" CloseText="@CloseText" FullScreen=true>
+    <div class="input-group mb-3">
+        <select id="camera-select" class="form-select d-inline-block ms-3">
+            <option>Select a camera</option>
+        </select>
     </div>
-    <div class="row text-center">
-        <video id="scannerVideo" style="max-height:300px">
-
+    <div class="text-center">
+        <video id="scannerVideo">
         </video>
     </div>
 </Modal>

@@ -1,4 +1,8 @@
-﻿.modal-content {
+﻿.modal-fullscreen .modal-content {
+    max-height: 100%;
+}
+
+.modal-content {
     max-height: 80vh;
 }
 
