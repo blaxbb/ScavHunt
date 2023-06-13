@@ -3,9 +3,12 @@
 @using Microsoft.AspNetCore.Identity;
 @using ScavHunt.Data.Models;
 @using ScavHunt.Services;
+@using System.Text.RegularExpressions;
 @inject UserManager<ScavhuntUser> userManager;
 @inject UserService users;
 @inject NavigationManager navManager;
+
+<ScannerModal Id="scannerModal" Title="Scan Badge" Success="ScanSuccess" @ref=scanner />
 
 <div class="container">
     @if (User != null)
@@ -16,6 +19,17 @@
             <div class="mb-3">
                 <label class="form-label">Display Name</label>
                 <input class="form-control mb-3" @bind-value="User.DisplayName" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Badge</label>
+                <div class="row">
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-interactable"><span class="oi oi-camera-slr" @onclick=ShowBadgeScanner></span></button>
+                    </div>
+                    <div class="col">
+                        <input class="form-control mb-3" @bind-value="User.BadgeId" />
+                    </div>
+                </div>
             </div>
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="adminCheckbox">
@@ -40,6 +54,8 @@
 
     ScavhuntUser User;
     bool IsAdmin { get; set; }
+
+    ScannerModal? scanner { get; set; }
 
     IList<string> roles;
 
@@ -70,6 +86,21 @@
         await users.Update(User);
 
         navManager.NavigateTo("/admin/accounts");
+    }
+
+    async Task ShowBadgeScanner()
+    {
+        await scanner.Show();
+    }
+
+    async Task ScanSuccess(string text)
+    {
+        var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
+        if (match.Success)
+        {
+            User.BadgeId = text;
+            await scanner?.Hide();
+        }
     }
 
 }

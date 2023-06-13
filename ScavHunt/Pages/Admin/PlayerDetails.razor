@@ -67,13 +67,20 @@ else
 {
     <div class="container">
         <div class="row card mb-3">
-            <div class="card-header">
-                <h3 class="text-center my-1">Info</h3>
+            <div class="card-header row m-0">
+                <div class="col">
+                    <h3 class="text-center my-1">Info</h3>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-primary" @onclick="@(async () => nav.NavigateTo($"/admin/accounts/{player.User.Id}"))"><span class="oi oi-pencil"></span></button>
+                </div>
             </div>
             <div class="card-body">
                 <dl class="row">
                     <dt class="col-lg-3">Name</dt>
                     <dd class="col-lg-9">@player.User.DisplayName</dd>
+                    <dt class="col-lg-3">Badge</dt>
+                    <dd class="col-lg-9">@player.User.BadgeId</dd>
                     <dt class="col-lg-3">Points</dt>
                     <dd class="col-lg-9">@player.PointTransactions.Sum(p => p.Value)</dd>
                 </dl>

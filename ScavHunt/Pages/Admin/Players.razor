@@ -127,10 +127,10 @@
 
     async Task ScanSuccess(string text)
     {
-        var player = All.FirstOrDefault(p => p.User.Id == text);
+        var player = All.FirstOrDefault(p => p.User.Id == text || p.User.BadgeId == text);
         if(player != null)
         {
-            await js.HideModal("scannerModal");
+            await js?.HideModal("scannerModal");
             nav.NavigateTo($"/admin/players/{player.User.Email}");
         }
     }

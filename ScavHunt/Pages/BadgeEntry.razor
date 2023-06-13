@@ -1,5 +1,6 @@
 ﻿@page "/badge"
 @using System.Text.RegularExpressions;
+@using ScavHunt.Data.Models;
 @inject PlayerService playerService
 @inject NavigationManager nav
 
@@ -53,7 +54,7 @@
             return;
         }
 
-        var match = Regex.Match(text, "^http:\\/\\/rcsreg\\.com\\/(?:.*?\\/){8}$");
+        var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
         if(match.Success)
         {
             await playerService.SetBadgeId(text);

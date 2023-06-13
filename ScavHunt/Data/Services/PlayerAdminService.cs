@@ -43,12 +43,5 @@ namespace ScavHunt.Data.Services
                 await db.SaveChangesAsync();
             }
         }
-
-        public async Task SetBadgeId(ScavhuntUser user, string badgeId)
-        {
-            //not tested
-            user.BadgeId = badgeId;
-            await userManager.UpdateAsync(user);
-        }
     }
 }
