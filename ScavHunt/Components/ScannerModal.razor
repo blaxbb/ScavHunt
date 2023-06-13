@@ -4,12 +4,12 @@
 @inject NavigationManager nav;
 
 <Modal Id="@Id" Title="@Title" CloseText="@CloseText" FullScreen=true>
-    <div class="input-group mb-3">
+    <div class="mb-3">
         <select id="camera-select" class="form-select d-inline-block ms-3">
             <option>Select a camera</option>
         </select>
     </div>
-    <div class="text-center">
+    <div class="text-center flex-grow-1">
         <video id="scannerVideo">
         </video>
     </div>

@@ -5,7 +5,7 @@
                 <h5 class="modal-title" id="exampleModalLabel">@Title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@CloseText"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body d-flex flex-column">
                 @ChildContent
             </div>
             @if (CloseText != null || ConfirmText != null)
