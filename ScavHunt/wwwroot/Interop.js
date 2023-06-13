@@ -47,6 +47,7 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
             result => qrFound(result),
             {
                 highlightScanRegion: true,
+                preferredCamera: localStorage.getItem("defaultCamera")
             },
         );
 
@@ -55,11 +56,24 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
         });
 
         qrScanner.start();
+        
         const cameras = await QrScanner.listCameras(true);
+
         const select = document.getElementById('camera-select');
+
         select.addEventListener("change", () => {
-            qrScanner.setCamera(select.value);
+            if (select.value) {
+                localStorage.setItem("defaultCamera", select.value);
+                qrScanner.setCamera(select.value);
+            }
         });
+
+        select.innerHTML = "";
+
+        var defaultOption = document.createElement('option');
+        defaultOption.innerHTML = "Select a camera";
+        select.appendChild(defaultOption);
+
         for (camera of cameras) {
             var option = document.createElement('option');
             option.value = camera.id;

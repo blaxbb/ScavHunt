@@ -6,17 +6,13 @@
 <Modal Id="@Id" Title="@Title" CloseText="@CloseText">
     <div class="row">
         <div class="input-group mb-3">
-            <div class="d-table">
-                <span class="d-table-cell align-middle">Select Camera</span>
-
-            </div>
             <select id="camera-select" class="form-select d-inline-block ms-3">
                 <option>Select a camera</option>
             </select>
         </div>
     </div>
-    <div class="row">
-        <video id="scannerVideo">
+    <div class="row text-center">
+        <video id="scannerVideo" style="max-height:300px">
 
         </video>
     </div>
