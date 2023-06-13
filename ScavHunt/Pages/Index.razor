@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ScavHunt.Data.Models
 @inject PlayerService players;
+@inject NavigationManager nav
 
 <PageTitle>Scav Hunt</PageTitle>
 
@@ -45,10 +46,16 @@
         {
             Mode = LandingMode.Register;
         }
-
         else
         {
-            Mode = LandingMode.Landing;
+            if(string.IsNullOrWhiteSpace(player.User.BadgeId))
+            {
+                nav.NavigateTo("/badge");
+            }
+            else
+            {
+                Mode = LandingMode.Landing;
+            }
         }
 
         StateHasChanged();

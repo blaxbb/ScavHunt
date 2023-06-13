@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ScavHunt.Data.Models;
 using ScavHunt.Pages.Admin;
@@ -8,12 +9,14 @@ namespace ScavHunt.Data.Services
     public class PlayerService
     {
         protected IDbContextFactory<ApplicationDbContext> dbFactory;
-        private readonly AuthenticationStateProvider authProvider;
+        protected readonly AuthenticationStateProvider authProvider;
+        protected readonly UserManager<ScavhuntUser> userManager;
 
-        public PlayerService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth)
+        public PlayerService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth, UserManager<ScavhuntUser> users)
         {
             dbFactory = factory;
             authProvider = auth;
+            userManager = users;
         }
 
         public virtual Player? GetFromBadge(string badge)
@@ -37,7 +40,7 @@ namespace ScavHunt.Data.Services
             using var db = dbFactory.CreateDbContext();
 
             var existing = GetFromBadge(badge);
-            if(existing != default)
+            if (existing != default)
             {
                 return existing;
             }
@@ -63,6 +66,18 @@ namespace ScavHunt.Data.Services
             }
 
             return default;
+        }
+
+        public async Task SetBadgeId(string badgeId)
+        {
+            var authStatus = await authProvider.GetAuthenticationStateAsync();
+
+            if (authStatus?.User?.Identity?.Name != null && authStatus.User.Identity.IsAuthenticated)
+            {
+                var user = await userManager.FindByNameAsync(authStatus.User.Identity.Name);
+                user.BadgeId = badgeId;
+                await userManager.UpdateAsync(user);
+            }
         }
     }
 }

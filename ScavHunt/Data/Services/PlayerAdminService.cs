@@ -1,12 +1,13 @@
 ﻿using ScavHunt.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ScavHunt.Data.Services
 {
     public class PlayerAdminService : PlayerService
     {
-        public PlayerAdminService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth) : base(factory, auth)
+        public PlayerAdminService(IDbContextFactory<ApplicationDbContext> factory, AuthenticationStateProvider auth, UserManager<ScavhuntUser> users) : base(factory, auth, users)
         {
 
         }
@@ -41,6 +42,13 @@ namespace ScavHunt.Data.Services
                 db.Players.Remove(existing);
                 await db.SaveChangesAsync();
             }
+        }
+
+        public async Task SetBadgeId(ScavhuntUser user, string badgeId)
+        {
+            //not tested
+            user.BadgeId = badgeId;
+            await userManager.UpdateAsync(user);
         }
     }
 }

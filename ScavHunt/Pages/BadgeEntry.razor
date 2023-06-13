@@ -1,0 +1,64 @@
+﻿@page "/badge"
+@using System.Text.RegularExpressions;
+@inject PlayerService playerService
+@inject NavigationManager nav
+
+<ScannerModal Id="scannerModal" Title="Scan your badge" Success="OnScan" @ref=scannerModal/>
+
+<div class="container">
+
+    <div class="position-relative overflow-hidden">
+        <div class="position-absolute line-bg">
+        </div>
+        <div class="row spacer bg-primary p-3">
+            <div class="header col-xl-4 mb-3 z-index-4">
+                <h1>Finalize Registration</h1>
+            </div>
+            <div class="col-xl-8 my-auto z-index-4">
+                <div class="list-group list-group-flush p-3 mb-3 bg-secondary">
+
+                    <p>
+                        To finalize your registration, you must scan the QR Code which is on your conference badge.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row spacer bg-secondary p-3">
+            <div class="col-12 z-index-4 text-center pb-3">
+                <img class="mw-100 mh-100" src="/assets/badgeScan-mspaint.png" />
+            </div>
+            <div class="col-12 text-center z-index-4" @onclick="startScanning">
+                <button class="btn btn-interactable mx-auto">Open camera</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    ScannerModal? scannerModal;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "ReturnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    async Task startScanning()
+    {
+        scannerModal?.Show();
+    }
+
+    async Task OnScan(string text)
+    {
+        if(scannerModal == null)
+        {
+            return;
+        }
+
+        var match = Regex.Match(text, "^http:\\/\\/rcsreg\\.com\\/(?:.*?\\/){8}$");
+        if(match.Success)
+        {
+            await playerService.SetBadgeId(text);
+            await scannerModal.Hide();
+            nav.NavigateTo(ReturnUrl ?? "/");
+        }
+    }
+}

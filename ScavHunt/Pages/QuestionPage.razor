@@ -160,6 +160,11 @@ else if (question != default)
             nav.NavigateTo($"/Identity/Account/Login?returnUrl=/q/{QuestionId}", true);
             return;
         }
+        else if(string.IsNullOrWhiteSpace(player.User.BadgeId))
+        {
+            nav.NavigateTo($"/badge?returnUrl=/q/{QuestionId}");
+            return;
+        }
 
         question = await questions.GetFromShortCode(QuestionId);
 

@@ -34,4 +34,9 @@
 
         await js.SetupScanner(objRef, Id, "scannerVideo");
     }
+
+    public async Task Hide()
+    {
+        await js.HideModal(Id);
+    }
 }
