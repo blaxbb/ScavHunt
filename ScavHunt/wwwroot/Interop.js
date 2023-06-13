@@ -39,13 +39,15 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
         dotNetInstance.invokeMethodAsync("QRResult", result.data);
     }
 
-    import('/js/qr-scanner/qr-scanner.min.js').then((module) => {
+    import('/js/qr-scanner/qr-scanner.min.js').then(async (module) => {
         const QrScanner = module.default;
         // do something with QrScanner
         const qrScanner = new QrScanner(
             document.getElementById(id),
             result => qrFound(result),
-            { /* your options or returnDetailedScanResult: true if you're not specifying any other options */ },
+            {
+                highlightScanRegion: true,
+            },
         );
 
         modalEle.addEventListener("hide.bs.modal", event => {
@@ -53,6 +55,17 @@ window.SetupScanner = function (dotNetInstance, modalId, id) {
         });
 
         qrScanner.start();
+        const cameras = await QrScanner.listCameras(true);
+        const select = document.getElementById('camera-select');
+        select.addEventListener("change", () => {
+            qrScanner.setCamera(select.value);
+        });
+        for (camera of cameras) {
+            var option = document.createElement('option');
+            option.value = camera.id;
+            option.innerHTML = camera.label;
+            select.appendChild(option);
+        }
     });
 }
 
@@ -63,8 +76,7 @@ window.SelectValue = function (id, value) {
 window.InitSortable = function (id) {
     var root = document.getElementById(id);
 
-    if (root == null)
-    {
+    if (root == null) {
         return;
     }
 
@@ -75,10 +87,10 @@ window.InitSortable = function (id) {
     });
     var children = root.querySelectorAll(".list-group");
     [...children].forEach(e => Sortable.create(e, {
-            handle: '.oi-grid-four-up',
-            animation: 150,
-            group: "g"
-        })
+        handle: '.oi-grid-four-up',
+        animation: 150,
+        group: "g"
+    })
     );
 }
 
@@ -92,7 +104,7 @@ _BuildQuestionTree = function (element) {
     if (element == null) {
         return;
     }
-    
+
     var nodes = element.querySelectorAll(":scope > .list-group-item");
     var children = [];
     [...nodes].forEach(n => {
@@ -121,9 +133,10 @@ function triggerFileDownload(fileName, url) {
     anchorElement.remove();
 }
 
-window.CreateQrCode = function(id, text) {
+window.CreateQrCode = function (id, text) {
     new QRCode(document.getElementById(id),
-    {
-        text: text
-    });
+        {
+            text: text
+        }
+    );
 }
