@@ -1,6 +1,7 @@
-﻿@page "/admin/players/{BadgeNumber}"
+﻿@page "/admin/players/{username}"
 @attribute [Authorize(Roles = "admin")]
 
+@using ScavHunt.Components.Admin
 @using ScavHunt.Data.Models
 @inject PlayerAdminService players
 @inject PointAdminService points
@@ -8,16 +9,19 @@
 @inject JSInterop js
 @inject AuthenticationStateProvider auth
 @inject LogAdminService log
+@inject PrizeAdminService prizeService
+
+<AddPrizeModal @ref=prizeModal User=@player?.User Badge=@player?.User?.BadgeId Saved="UpdatePrizes" />
 
 <Modal Id="addPoints" Title="Add Points">
     <form class="px-3" @onsubmit="(async() => await SubmitManualPoints())">
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Points</label>
-            <input class="form-input col-sm-9" type="number" step="1" @bind-value="manualPoints"/>
+            <input class="form-input col-sm-9" type="number" step="1" @bind-value="manualPoints" />
         </div>
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-input col-sm-9" @bind-value="manualPointsMessage"/>
+            <input class="form-input col-sm-9" @bind-value="manualPointsMessage" />
         </div>
         <div class="mb-3 row">
             <button class="btn btn-primary col" type="submit">Submit</button>
@@ -29,7 +33,7 @@
     <form class="px-3" @onsubmit="(async() => await SumbitMessage())">
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-input col-sm-9" @bind-value="logMessage"/>
+            <input class="form-input col-sm-9" @bind-value="logMessage" />
         </div>
         <div class="mb-3 row">
             <button class="btn btn-primary col" type="submit">Submit</button>
@@ -47,7 +51,7 @@
         </div>
         <div class="mb-3 row">
             <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-input col-sm-9" @bind-value="resetMessage"/>
+            <input class="form-input col-sm-9" @bind-value="resetMessage" />
         </div>
         <div class="mb-3 row">
             <button class="btn btn-danger col" type="submit">Reset</button>
@@ -55,7 +59,7 @@
     </form>
 </Modal>
 
-@if(player == default)
+@if (player == default)
 {
     <div class="container">
         <div class="spinner-border text-primary" role="status">
@@ -89,6 +93,41 @@ else
         <div class="row card mb-3">
             <div class="card-header row m-0">
                 <div class="col">
+                    <h3 class="text-center my-1">Prizes</h3>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-primary" @onclick="@(async () => await prizeModal!.Show())">+</button>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (prizes != null)
+                {
+                    <Pagination ItemsPerPage="ItemsPerPage" Page="PrizePage" TotalItems="prizes.Count" PageChanged="p => PrizePage = p" />
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <td>Time</td>
+                                <td>Type</td>
+                                <td>Name</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaction in prizes.Skip(ItemsPerPage * PrizePage).Take(ItemsPerPage))
+                            {
+                                <tr>
+                                    <td>@transaction.Timestamp</td>
+                                    <td>@transaction.Prize.Type</td>
+                                    <td>@transaction.Prize.Name</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+        <div class="row card mb-3">
+            <div class="card-header row m-0">
+                <div class="col">
                     <h3 class="text-center my-1">Points</h3>
                 </div>
                 <div class="col-auto">
@@ -96,7 +135,7 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <Pagination ItemsPerPage="LogItemsPerPage" Page="PointsPage" TotalItems="player.PointTransactions.Count" PageChanged="p => PointsPage = p"/>
+                <Pagination ItemsPerPage="ItemsPerPage" Page="PointsPage" TotalItems="player.PointTransactions.Count" PageChanged="p => PointsPage = p" />
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -108,7 +147,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp).Skip(LogItemsPerPage * PointsPage).Take(LogItemsPerPage))
+                        @foreach (var transaction in player.PointTransactions.OrderByDescending(p => p.Timestamp).Skip(ItemsPerPage * PointsPage).Take(ItemsPerPage))
                         {
                             <tr>
                                 <td>@transaction.Source</td>
@@ -116,13 +155,13 @@ else
                                 <td>@transaction.Value</td>
                                 <td>@transaction.Timestamp</td>
                                 <td>
-                                    @if(transaction.Source == PointTransaction.PointSource.Question && transaction.Question != default)
+                                    @if (transaction.Source == PointTransaction.PointSource.Question && transaction.Question != default)
                                     {
                                         <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(transaction.Question))"><span class="oi oi-trash"></span></button>
                                     }
                                     else
                                     {
-                                        
+
                                     }
                                 </td>
                             </tr>
@@ -141,7 +180,7 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <Pagination ItemsPerPage="LogItemsPerPage" Page="LogPage" TotalItems="player.Responses.Count" PageChanged="p => LogPage = p" />
+                <Pagination ItemsPerPage="ItemsPerPage" Page="LogPage" TotalItems="player.Responses.Count" PageChanged="p => LogPage = p" />
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -153,14 +192,14 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(var log in player.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * LogItemsPerPage).Take(LogItemsPerPage))
+                        @foreach (var log in player.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * ItemsPerPage).Take(ItemsPerPage))
                         {
                             <tr>
                                 <td>@log.Type</td>
                                 <td>@log.Message</td>
                                 <td>@log.Question?.Title</td>
                                 <td>@log.Timestamp</td>
-                                @if(log.Type == LogRecord.RecordType.StartedQuestion && log.Question != default)
+                                @if (log.Type == LogRecord.RecordType.StartedQuestion && log.Question != default)
                                 {
                                     <td>
                                         <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(log.Question))"><span class="oi oi-trash"></span></button>
@@ -183,7 +222,7 @@ else
     Player? player { get; set; }
 
     [Parameter]
-    public string? BadgeNumber { get; set; }
+    public string? username { get; set; }
 
     string? manualPoints { get; set; }
     string? manualPointsMessage { get; set; }
@@ -193,34 +232,39 @@ else
     Question? resetQuestion { get; set; }
     string? resetMessage { get; set; }
 
-    const int LogItemsPerPage = 25;
+    const int ItemsPerPage = 25;
+
     int LogPage { get; set; }
-
     int PointsPage { get; set; }
+    int PrizePage { get; set; }
 
+    AddPrizeModal? prizeModal { get; set; }
+    List<PrizeTransaction>? prizes { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrWhiteSpace(BadgeNumber))
+        if (string.IsNullOrWhiteSpace(username))
         {
             nav.NavigateTo("404");
             return;
         }
 
-        player = players.GetFromBadge(BadgeNumber);
+        player = players.GetFromUsername(username);
 
         if (player == default)
         {
             nav.NavigateTo("404");
             return;
         }
+
+        await UpdatePrizes();
     }
 
     async Task SubmitManualPoints()
     {
         int p = 0;
 
-        if(!int.TryParse(manualPoints, out p))
+        if (!int.TryParse(manualPoints, out p))
         {
             return;
         }
@@ -230,39 +274,39 @@ else
             return;
         }
 
-        if(player == default)
+        if (player == default)
         {
             return;
         }
 
         var account = await auth.GetAuthenticationStateAsync();
         var adminName = account?.User?.Identity?.Name;
-        if(adminName == default)
+        if (adminName == default)
         {
             return;
         }
 
         await points.AddPoints(new PointTransaction()
-        {
-            Player = player,
-            Source = PointTransaction.PointSource.Manual,
-            Timestamp = DateTime.Now,
-            Value = p
-        });
+            {
+                Player = player,
+                Source = PointTransaction.PointSource.Manual,
+                Timestamp = DateTime.Now,
+                Value = p
+            });
 
         await log.Create(
         new LogRecord()
-        {
-            Player = player,
-            Message = $"{adminName} -> {manualPointsMessage}",
-            Timestamp = DateTime.Now,
-            Type = LogRecord.RecordType.PointTransaction
-        });
+            {
+                Player = player,
+                Message = $"{adminName} -> {manualPointsMessage}",
+                Timestamp = DateTime.Now,
+                Type = LogRecord.RecordType.PointTransaction
+            });
 
         manualPoints = "";
         manualPointsMessage = "";
 
-        player = players.GetFromBadge(BadgeNumber);
+        player = players.GetFromUsername(username);
 
         await js.HideModal("addPoints");
     }
@@ -275,12 +319,12 @@ else
         }
 
         await log.Create(new LogRecord()
-        {
-            Type = LogRecord.RecordType.Player,
-            Message = logMessage,
-            Player = player,
-            Timestamp = DateTime.Now
-        });
+            {
+                Type = LogRecord.RecordType.Player,
+                Message = logMessage,
+                Player = player,
+                Timestamp = DateTime.Now
+            });
 
         logMessage = default;
 
@@ -289,7 +333,7 @@ else
 
     async Task ResetQuestion(Question question)
     {
-        if(player == default || question == default)
+        if (player == default || question == default)
         {
             return;
         }
@@ -304,17 +348,22 @@ else
             return;
         }
 
-        if(resetQuestion == default || player == default)
+        if (resetQuestion == default || player == default)
         {
             return;
         }
 
-        if(await points.Reset(player, resetQuestion, resetMessage))
+        if (await points.Reset(player, resetQuestion, resetMessage))
         {
             resetQuestion = default;
-            player = players.GetFromBadge(BadgeNumber);
+            player = players.GetFromUsername(username);
             StateHasChanged();
             await js.HideModal("resetQuestion");
         }
+    }
+
+    async Task UpdatePrizes()
+    {
+        prizes = await prizeService.AllTransactions(player.User);
     }
 }

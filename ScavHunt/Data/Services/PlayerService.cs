@@ -19,7 +19,7 @@ namespace ScavHunt.Data.Services
             userManager = users;
         }
 
-        public virtual Player? GetFromBadge(string badge)
+        public virtual Player? GetFromUsername(string badge)
         {
             using (var db = dbFactory.CreateDbContext())
             {
@@ -39,7 +39,7 @@ namespace ScavHunt.Data.Services
         {
             using var db = dbFactory.CreateDbContext();
 
-            var existing = GetFromBadge(badge);
+            var existing = GetFromUsername(badge);
             if (existing != default)
             {
                 return existing;
@@ -62,7 +62,7 @@ namespace ScavHunt.Data.Services
 
             if (authStatus.User?.Identity?.Name != null)
             {
-                return GetFromBadge(authStatus.User.Identity.Name);
+                return GetFromUsername(authStatus.User.Identity.Name);
             }
 
             return default;

@@ -1,0 +1,70 @@
+﻿@using ScavHunt.Data.Models;
+@inject JSInterop js
+@inject PrizeAdminService prizes
+
+<Modal Id="@Id" Title="Add Prize" CloseText="Cancel" ConfirmText="Submit" Confirmed="SubmitPrize">
+    @if (All != null)
+    {
+        <div class="mb-3 px-3 row">
+            <label class="col-form-label col-sm-3">Prize</label>
+            <select class="form-select" @bind=SelectedPrize>
+                <option>Select a prize</option>
+                @foreach (var prize in All)
+                {
+                    <option value="@prize.Id">@prize.Name</option>
+                }
+            </select>
+        </div>
+    }
+</Modal>
+
+@code {
+    const string Id = "addPrizeModal";
+
+    [Parameter]
+    public ScavhuntUser? User { get; set; }
+
+    [Parameter]
+    public string? Badge { get; set; }
+
+    List<Prize> All { get; set; }
+
+    long? SelectedPrize { get; set; } = null;
+
+    [Parameter]
+    public EventCallback Saved { get; set; }
+
+    public async Task Show()
+    {
+        All = await prizes.All();
+        await js.ShowModal(Id);
+    }
+
+    public async Task Hide()
+    {
+        await js.HideModal(Id);
+    }
+
+    async Task SubmitPrize()
+    {
+        var prize = All.FirstOrDefault(p => p.Id == SelectedPrize);
+        if (prize == default)
+        {
+            return;
+        }
+
+        var transaction = new PrizeTransaction()
+        {
+            User = User,
+            Badge = Badge,
+            Prize = prize
+        };
+
+        await prizes.CreateTransaction(transaction);
+
+        SelectedPrize = null;
+
+        await Hide();
+        await Saved.InvokeAsync();
+    }
+}

@@ -19,7 +19,7 @@ namespace ScavHunt.Data.Services
             return db.Players.Include(p => p.User).Include(p => p.PointTransactions).ToList();
         }
 
-        public override Player? GetFromBadge(string badge)
+        public override Player? GetFromUsername(string username)
         {
             using var db = dbFactory.CreateDbContext();
 
@@ -29,7 +29,7 @@ namespace ScavHunt.Data.Services
                 .Include(p => p.PointTransactions)
                 .ThenInclude(t => t.Question)
                 .Include(p => p.User)
-                .FirstOrDefault(p => p.User.UserName == badge);
+                .FirstOrDefault(p => p.User.UserName == username);
         }
 
         public async Task Delete(Player player)
