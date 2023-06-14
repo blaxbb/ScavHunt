@@ -25,8 +25,18 @@ window.ShowModal = function (id) {
 }
 
 window.HideModal = function (id) {
-    var modal = document.getElementById(id)
-    bootstrap.Modal.getInstance(modal).hide();
+    if (id) {
+        var modal = document.getElementById(id)
+        bootstrap.Modal.getInstance(modal).hide();
+    }
+
+    var elements = document.getElementsByClassName('modal-backdrop');
+    for (let element of elements) {
+        element.parentNode.removeChild(element);
+    }
+
+    document.body.classList.remove("modal-open");
+    document.body.style = "";
 }
 
 window.SetupScanner = function (dotNetInstance, modalId, id) {

@@ -1,8 +1,15 @@
 ﻿@page "/admin/prizes"
-@using ScavHunt.Data.Models;
 @attribute [Authorize(Roles = "admin")]
+@using ScavHunt.Components.Admin;
+@using ScavHunt.Data.Models;
+@using System.Text.RegularExpressions;
 @inject PrizeAdminService prizeService
+@inject PlayerAdminService playerService
 @inject JSInterop js
+
+<ScannerModal Id="scannerModal" Title="Scan a badge" CloseText="Cancel" Success="OnScan" @ref=badgeModal/>
+
+<AddPrizeModal @ref=grantModal User=@scannedUser Badge=@scannedBadge Saved="GetPrizes" />
 
 <Modal Id="@EDIT_ID" Title="@(editPrize?.Id > 0 ? $"Editing {editPrize?.Name}" : "New Prize")">
     @if (editPrize != null)
@@ -40,11 +47,14 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-sm">
+        <div class="col">
             <h3>Prizes</h3>
         </div>
-        <div class="col-sm-auto">
-            <button type="button" class="btn btn-interactable btn-primary" @onclick="NewPrize">Add</button>
+        <div class="col-auto">
+            <button type="button" class="btn btn-interactable btn-primary" @onclick="NewPrize">Create Prize</button>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-interactable btn-primary" @onclick="ScanBadge">Give Prize</button>
         </div>
     </div>
 
@@ -84,18 +94,50 @@
 
 @code {
     const string EDIT_ID = "EditPrizeModal";
+    const string GRANT_ID = "GrantPrizeModal";
+
     List<Prize> All { get; set; }
     Prize? editPrize = null;
 
+    ScannerModal? badgeModal { get; set; }
+    AddPrizeModal? grantModal { get; set; }
+
+    string? scannedBadge { get; set; }
+    ScavhuntUser? scannedUser { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        All = await prizeService.All();
+        await GetPrizes();
     }
 
     async Task NewPrize()
     {
         editPrize = new Prize();
         await js.ShowModal(EDIT_ID);
+    }
+
+    async Task ScanBadge()
+    {
+        scannedBadge = null;
+        scannedUser = null;
+        await badgeModal!.Show();
+    }
+
+    async Task OnScan(string text)
+    {
+        var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
+        if(match.Success)
+        {
+            scannedBadge = text;
+            scannedUser = await prizeService.GetFromBadge(text);
+            await badgeModal!.Hide();
+            await grantModal!.Show();
+        }
+    }
+
+    async Task GetPrizes()
+    {
+        All = await prizeService.All();
     }
 
     async Task SavePrize()

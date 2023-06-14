@@ -73,6 +73,14 @@ namespace ScavHunt.Data.Services
             await db.SaveChangesAsync();
             return updated.Entity;
         }
+
+        public async Task<ScavhuntUser?> GetFromBadge(string badge)
+        {
+            var db = await dbFactory.CreateDbContextAsync();
+
+            return await db.Users.Where(u => u.BadgeId == badge).FirstOrDefaultAsync();
+        }
+
         public async Task<List<PrizeTransaction>> UserPrizes(ScavhuntUser? user, string? badge)
         {
             var db = await dbFactory.CreateDbContextAsync();
