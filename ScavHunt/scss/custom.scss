@@ -7,6 +7,10 @@ $primary: #DEA635;
 $secondary: #F5EDE3;
 $interactable: #E6AF57;
 
+.content {
+    overflow-x: scroll;
+}
+
 .sidebar {
     background-color: $primary;
 }
