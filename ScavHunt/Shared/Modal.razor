@@ -1,4 +1,7 @@
-﻿<div class="modal fade" id="@Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+﻿@inject JSInterop js
+@inject NavigationManager nav
+
+<div class="modal fade" id="@Id" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="@(FullScreen ? "modal-dialog modal-fullscreen" : "modal-dialog modal-dialog-centered modal-xl")">
         <div class="modal-content">
             <div class="modal-header">
@@ -48,7 +51,7 @@
     public string? ConfirmText { get; set; }
     [Parameter]
     public string? FooterText { get; set; }
-    [Parameter] 
+    [Parameter]
     public bool FullScreen { get; set; }
 
     [Parameter]
@@ -57,8 +60,26 @@
     [Parameter]
     public EventCallback Confirmed { get; set; }
 
+    protected override void OnInitialized()
+    {
+        nav.LocationChanged += async (sender, args) =>
+        {
+            await js.HideModal();
+        };
+    }
+
     async Task OnConfirmed()
     {
         await Confirmed.InvokeAsync();
+    }
+
+    public async Task Show()
+    {
+        await js.ShowModal(Id);
+    }
+
+    public async Task Hide()
+    {
+        await js.HideModal(Id);
     }
 }

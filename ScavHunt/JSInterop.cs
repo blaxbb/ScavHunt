@@ -58,7 +58,7 @@ namespace ScavHunt
             await js.InvokeVoidAsync("ShowModal", id);
         }
 
-        public async Task HideModal(string id)
+        public async Task HideModal(string? id = null)
         {
             await js.InvokeVoidAsync("HideModal", id);
         }
