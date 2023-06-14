@@ -5,15 +5,53 @@
 <Modal Id="@Id" Title="Add Prize" CloseText="Cancel" ConfirmText="Submit" Confirmed="SubmitPrize">
     @if (All != null)
     {
-        <div class="mb-3 px-3 row">
-            <label class="col-form-label col-sm-3">Prize</label>
-            <select class="form-select" @bind=SelectedPrize>
-                <option>Select a prize</option>
-                @foreach (var prize in All)
+        <div class="row card mb-3">
+            <div class="card-header row m-0">
+                <div class="col">
+                    <h3 class="text-center my-1">Select Prize</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <select class="form-select" @bind=SelectedPrize>
+                    <option>Select a prize</option>
+                    @foreach (var prize in All)
+                    {
+                        <option value="@prize.Id">@prize.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row card mb-3">
+            <div class="card-header row m-0">
+                <div class="col">
+                    <h3 class="text-center my-1">Past Prizes</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (userPrizes != null)
                 {
-                    <option value="@prize.Id">@prize.Name</option>
+                    <Pagination ItemsPerPage="ItemsPerPage" Page="PrizePage" TotalItems="userPrizes.Count" PageChanged="p => PrizePage = p" />
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <td>Time</td>
+                                <td>Type</td>
+                                <td>Name</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaction in userPrizes.Skip(ItemsPerPage * PrizePage).Take(ItemsPerPage))
+                            {
+                                <tr class="@(SelectedPrizeObj != null && SelectedPrizeObj.Type == transaction.Prize.Type ? "table-warning" : "")">
+                                    <td>@transaction.Timestamp</td>
+                                    <td>@transaction.Prize.Type</td>
+                                    <td>@transaction.Prize.Name</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 }
-            </select>
+            </div>
         </div>
     }
 </Modal>
@@ -30,13 +68,20 @@
     List<Prize> All { get; set; }
 
     long? SelectedPrize { get; set; } = null;
+    Prize? SelectedPrizeObj => All.FirstOrDefault(p => p.Id == SelectedPrize);
+
 
     [Parameter]
     public EventCallback Saved { get; set; }
 
+    const int ItemsPerPage = 5;
+    int PrizePage { get; set; }
+    List<PrizeTransaction>? userPrizes { get; set; }
+
     public async Task Show()
     {
         All = await prizes.All();
+        userPrizes = await prizes.UserPrizes(User, Badge);
         await js.ShowModal(Id);
     }
 

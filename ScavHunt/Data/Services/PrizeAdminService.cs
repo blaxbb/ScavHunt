@@ -73,5 +73,19 @@ namespace ScavHunt.Data.Services
             await db.SaveChangesAsync();
             return updated.Entity;
         }
+        public async Task<List<PrizeTransaction>> UserPrizes(ScavhuntUser? user, string? badge)
+        {
+            var db = await dbFactory.CreateDbContextAsync();
+            if (user != null)
+            {
+                return await db.PrizeTransactions.Include(p => p.Prize).Where(p => p.User == user).OrderByDescending(p => p.Timestamp).ToListAsync();
+            }
+            else if(!string.IsNullOrWhiteSpace(badge))
+            {
+                return await db.PrizeTransactions.Include(p => p.Prize).Where(p => p.Badge == badge).OrderByDescending(p => p.Timestamp).ToListAsync();
+            }
+
+            return new List<PrizeTransaction>();
+        }
     }
 }
