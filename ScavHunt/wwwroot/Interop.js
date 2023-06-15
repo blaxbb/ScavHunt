@@ -30,16 +30,22 @@ window.HideModal = function (id) {
         bootstrap.Modal.getInstance(modal).hide();
     }
 
-    var elements = document.getElementsByClassName('modal-backdrop');
-    for (let element of elements) {
-        element.parentNode.removeChild(element);
-    }
+    removeAllClass('modal-backdrop');
 
     document.body.classList.remove("modal-open");
     document.body.style = "";
 }
 
+removeAllClass = function (className) {
+    var elements = document.getElementsByClassName(className);
+    for (let element of elements) {
+        element.parentNode.removeChild(element);
+    }
+}
+
 window.SetupScanner = function (dotNetInstance, modalId, id) {
+
+    removeAllClass('scan-region-highlight');
 
     var modal = ShowModal(modalId);
 
