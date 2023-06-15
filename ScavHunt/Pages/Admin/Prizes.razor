@@ -6,8 +6,9 @@
 @inject PrizeAdminService prizeService
 @inject PlayerAdminService playerService
 @inject JSInterop js
+@inject NavigationManager nav
 
-<ScannerModal Id="scannerModal" Title="Scan a badge" CloseText="Cancel" Success="OnScan" @ref=badgeModal/>
+<ScannerModal Id="scannerModal" Title="Scan a badge" CloseText="Cancel" Success="OnScan" @ref=badgeModal />
 
 <AddPrizeModal @ref=grantModal User=@scannedUser Badge=@scannedBadge Saved="GetPrizes" />
 
@@ -35,13 +36,49 @@
 
             <div class="mb-3">
                 <label class="form-label">Quantity</label>
-                <InputNumber class="form-control" id="quantity" @bind-Value="editPrize.Quantity" placeholder="Quantity"/>
+                <InputNumber class="form-control" id="quantity" @bind-Value="editPrize.Quantity" placeholder="Quantity" />
             </div>
 
             <div class="mb-3">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </EditForm>
+    }
+</Modal>
+
+<Modal Id="prizeTransactionsModal" Title="@(transactionModalPrize?.Name ?? "Transactions")" @ref=transactionModal>
+    @if (transactionModalPrize != null)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <tr>
+                    <td>Person</td>
+                    <td>Timestamp</td>
+                </tr>
+                <tbody>
+                    @foreach (var transaction in transactionModalPrize.Transactions.Skip(transactionPage * TRANSACTIONS_PER_PAGE).Take(TRANSACTIONS_PER_PAGE))
+                    {
+                        <tr>
+                            <td>
+                                @(transaction.User?.UserName ?? transaction.Badge)
+                            </td>
+                            <td>
+                                @transaction.Timestamp
+                            </td>
+                            <td>
+                                @if (transaction.User != null)
+                                {
+                                    <button class="btn btn-interactable" @onclick=@(async () => nav.NavigateTo($"/admin/players/{transaction.User.UserName}"))>
+                                        <span class="oi oi-external-link"></span>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <Pagination ItemsPerPage="TRANSACTIONS_PER_PAGE" Page="transactionPage" TotalItems="transactionModalPrize.Transactions.Count" />
+        </div>
     }
 </Modal>
 
@@ -65,18 +102,21 @@
                 <tr>
                     <td>Name</td>
                     <td>Type</td>
-                    <td>Quantity</td>
+                    <td class="text-end">Quantity</td>
                     <td></td>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var prize in All)
+                @foreach (var prize in All.OrderByDescending(p => p.Type).ThenBy(p => p.Name))
                 {
                     <tr class="align-middle">
                         <td>@prize.Name</td>
                         <td>@prize.Type</td>
-                        <td>@prize.Quantity</td>
+                        <td class="text-end">@prize.Quantity</td>
                         <td class="text-end">
+                            <button class="btn btn-interactable" @onclick="(async () => await ShowTransactions(prize))">
+                                <span class="oi oi-eye"></span>
+                            </button>
                             <button class="btn btn-interactable">
                                 <span class="oi oi-pencil" @onclick="(async () => await EditPrize(prize))"></span>
                             </button>
@@ -99,11 +139,17 @@
     List<Prize> All { get; set; }
     Prize? editPrize = null;
 
+    Prize? transactionModalPrize { get; set; }
+
     ScannerModal? badgeModal { get; set; }
     AddPrizeModal? grantModal { get; set; }
+    Modal? transactionModal { get; set; }
 
     string? scannedBadge { get; set; }
     ScavhuntUser? scannedUser { get; set; }
+
+    const int TRANSACTIONS_PER_PAGE = 10;
+    int transactionPage { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,7 +172,7 @@
     async Task OnScan(string text)
     {
         var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
-        if(match.Success)
+        if (match.Success)
         {
             scannedBadge = text;
             scannedUser = await prizeService.GetFromBadge(text);
@@ -144,11 +190,12 @@
     {
         await js.HideModal(EDIT_ID);
 
-        if(editPrize == default) {
+        if (editPrize == default)
+        {
             return;
         }
 
-        if(editPrize.Id == -1)
+        if (editPrize.Id == -1)
         {
             editPrize.Id = 0;
             await prizeService.New(editPrize);
@@ -164,13 +211,23 @@
     async Task EditPrize(Prize prize)
     {
         editPrize = new Prize()
-        {
-            Id = prize.Id,
-            Name = prize.Name,
-            Quantity = prize.Quantity,
-            Type = prize.Type
-        };
+            {
+                Id = prize.Id,
+                Name = prize.Name,
+                Quantity = prize.Quantity,
+                Type = prize.Type
+            };
 
         await js.ShowModal(EDIT_ID);
+    }
+
+    async Task ShowTransactions(Prize prize)
+    {
+        transactionPage = 0;
+        transactionModalPrize = await prizeService.WithTransactions(prize);
+        if (transactionModalPrize != null)
+        {
+            await transactionModal!.Show();
+        }
     }
 }

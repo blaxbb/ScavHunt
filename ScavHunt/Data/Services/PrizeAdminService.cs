@@ -95,5 +95,11 @@ namespace ScavHunt.Data.Services
 
             return new List<PrizeTransaction>();
         }
+
+        public async Task<Prize?> WithTransactions(Prize prize)
+        {
+            var db = await dbFactory.CreateDbContextAsync();
+            return await db.Prizes.Include(p => p.Transactions).ThenInclude(t => t.User).FirstOrDefaultAsync(p => p.Id == prize.Id);
+        }
     }
 }

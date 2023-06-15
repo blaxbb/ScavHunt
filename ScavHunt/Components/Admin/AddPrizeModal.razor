@@ -5,53 +5,44 @@
 <Modal Id="@Id" Title="Add Prize" CloseText="Cancel" ConfirmText="Submit" Confirmed="SubmitPrize">
     @if (All != null)
     {
-        <div class="row card mb-3">
-            <div class="card-header row m-0">
-                <div class="col">
-                    <h3 class="text-center my-1">Select Prize</h3>
-                </div>
-            </div>
-            <div class="card-body">
-                <select class="form-select" @bind=SelectedPrize>
-                    <option>Select a prize</option>
-                    @foreach (var prize in All)
-                    {
-                        <option value="@prize.Id">@prize.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-        <div class="row card mb-3">
-            <div class="card-header row m-0">
-                <div class="col">
-                    <h3 class="text-center my-1">Past Prizes</h3>
-                </div>
-            </div>
-            <div class="card-body">
-                @if (userPrizes != null)
+        <div class="row card mb-3 mx-3">
+            <select class="form-select" @bind=SelectedPrize>
+                <option>Select a prize</option>
+                @foreach (var prizeGroups in All.GroupBy(p => p.Type).OrderByDescending(g => g.Key))
                 {
-                    <Pagination ItemsPerPage="ItemsPerPage" Page="PrizePage" TotalItems="userPrizes.Count" PageChanged="p => PrizePage = p" />
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <td>Time</td>
-                                <td>Type</td>
-                                <td>Name</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var transaction in userPrizes.Skip(ItemsPerPage * PrizePage).Take(ItemsPerPage))
-                            {
-                                <tr class="@(SelectedPrizeObj != null && SelectedPrizeObj.Type == transaction.Prize.Type ? "table-warning" : "")">
-                                    <td>@transaction.Timestamp</td>
-                                    <td>@transaction.Prize.Type</td>
-                                    <td>@transaction.Prize.Name</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    <optgroup label="@prizeGroups.Key">
+                        @foreach (var prize in prizeGroups)
+                        {
+                            <option value="@prize.Id">@prize.Quantity - @prize.Name</option>
+                        }
+                    </optgroup>
                 }
-            </div>
+            </select>
+        </div>
+        <div class="row card mb-3 mx-3">
+            @if (userPrizes != null)
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <td>Time</td>
+                            <td>Type</td>
+                            <td>Name</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in userPrizes.Skip(ItemsPerPage * PrizePage).Take(ItemsPerPage))
+                        {
+                            <tr class="@(SelectedPrizeObj != null && SelectedPrizeObj.Type == transaction.Prize.Type ? "table-warning" : "")">
+                                <td>@transaction.Timestamp</td>
+                                <td>@transaction.Prize.Type</td>
+                                <td>@transaction.Prize.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <Pagination ItemsPerPage="ItemsPerPage" Page="PrizePage" TotalItems="userPrizes.Count" PageChanged="p => PrizePage = p" />
+            }
         </div>
     }
 </Modal>
@@ -99,11 +90,11 @@
         }
 
         var transaction = new PrizeTransaction()
-        {
-            User = User,
-            Badge = Badge,
-            Prize = prize
-        };
+            {
+                User = User,
+                Badge = Badge,
+                Prize = prize
+            };
 
         await prizes.CreateTransaction(transaction);
 
