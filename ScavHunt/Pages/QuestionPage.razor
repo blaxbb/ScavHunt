@@ -202,12 +202,12 @@ else if (question != default)
             return;
         }
 
-        if (player.Responses.Any(r => r.Type == LogRecord.RecordType.StartedQuestion && r.Question?.Id == question.Id))
+        if (player.User.Responses.Any(r => r.Type == LogRecord.RecordType.StartedQuestion && r.Question?.Id == question.Id))
         {
             ElapsedTime = TotalTime;
         }
 
-        var incorrectResponses = player.Responses.Where(r => r.Type == LogRecord.RecordType.IncorrectAnswer && r.Question?.Id == question.Id);
+        var incorrectResponses = player.User.Responses.Where(r => r.Type == LogRecord.RecordType.IncorrectAnswer && r.Question?.Id == question.Id);
         incorrectCount = incorrectResponses.Count();
 
         State = QuestionState.LeadIn;

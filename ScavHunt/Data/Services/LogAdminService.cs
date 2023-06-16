@@ -13,7 +13,7 @@ namespace ScavHunt.Data.Services
         public async Task<List<LogRecord>> All()
         {
             using var db = dbFactory.CreateDbContext();
-            return await db.Log.Include(l => l.Player).ThenInclude(p => p.User).Include(l => l.Question).ToListAsync();
+            return await db.Log.Include(l => l.User).Include(l => l.Question).ToListAsync();
         }
     }
 }

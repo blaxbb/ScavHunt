@@ -29,7 +29,7 @@
             {
                 <tr>
                     <td>@entry.Type</td>
-                    <td>@(entry.Player?.User.UserName ?? "")</td>
+                    <td>@(entry.User?.UserName ?? "")</td>
                     <td>@(entry.Question?.Id.ToString() ?? "")</td>
                     <td>@entry.Message</td>
                     <td>@entry.Timestamp</td>
@@ -100,7 +100,7 @@
         return Mode switch
         {
             SortMode.Type => log.Type,
-            SortMode.Player => log.Player?.User.UserName,
+            SortMode.Player => log.User.UserName,
             SortMode.Question => log.Question?.Id,
             SortMode.Timestamp => log.Timestamp,
             _ => ""

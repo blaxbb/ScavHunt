@@ -11,53 +11,6 @@
 @inject LogAdminService log
 @inject PrizeAdminService prizeService
 
-<AddPrizeModal @ref=prizeModal User=@player?.User Badge=@player?.User?.BadgeId Saved="UpdatePrizes" />
-
-<Modal Id="addPoints" Title="Add Points">
-    <form class="px-3" @onsubmit="(async() => await SubmitManualPoints())">
-        <div class="mb-3 row">
-            <label class="col-form-label col-sm-3">Points</label>
-            <input class="form-control col-sm-9" type="number" step="1" @bind-value="manualPoints" />
-        </div>
-        <div class="mb-3 row">
-            <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-control col-sm-9" @bind-value="manualPointsMessage" />
-        </div>
-        <div class="mb-3 row">
-            <button class="btn btn-primary col" type="submit">Submit</button>
-        </div>
-    </form>
-</Modal>
-
-<Modal Id="logMessage" Title="Log Message">
-    <form class="px-3" @onsubmit="(async() => await SumbitMessage())">
-        <div class="mb-3 row">
-            <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-control col-sm-9" @bind-value="logMessage" />
-        </div>
-        <div class="mb-3 row">
-            <button class="btn btn-primary col" type="submit">Submit</button>
-        </div>
-    </form>
-</Modal>
-
-<Modal Id="resetQuestion" Title="Reset Question">
-    <form class="px-3" @onsubmit="(async() => ConfirmResetQuestion())">
-        <div class="mb-3 row">
-            This will reset progress on question @resetQuestion?.ShortCode for player with username @player.User.UserName.
-        </div>
-        <div class="mb-3 row">
-            This should not be done unless deemed necessary due to game malfunction.
-        </div>
-        <div class="mb-3 row">
-            <label class="col-form-label col-sm-3">Message</label>
-            <input class="form-input col-sm-9" @bind-value="resetMessage" />
-        </div>
-        <div class="mb-3 row">
-            <button class="btn btn-danger col" type="submit">Reset</button>
-        </div>
-    </form>
-</Modal>
 
 @if (player == default)
 {
@@ -69,6 +22,54 @@
 }
 else
 {
+    <AddPrizeModal @ref=prizeModal User=@player?.User Badge=@player?.User?.BadgeId Saved="UpdatePrizes" />
+
+    <Modal Id="addPoints" Title="Add Points">
+        <form class="px-3" @onsubmit="(async() => await SubmitManualPoints())">
+            <div class="mb-3 row">
+                <label class="col-form-label col-sm-3">Points</label>
+                <input class="form-control col-sm-9" type="number" step="1" @bind-value="manualPoints" />
+            </div>
+            <div class="mb-3 row">
+                <label class="col-form-label col-sm-3">Message</label>
+                <input class="form-control col-sm-9" @bind-value="manualPointsMessage" />
+            </div>
+            <div class="mb-3 row">
+                <button class="btn btn-primary col" type="submit">Submit</button>
+            </div>
+        </form>
+    </Modal>
+
+    <Modal Id="logMessage" Title="Log Message">
+        <form class="px-3" @onsubmit="(async() => await SumbitMessage())">
+            <div class="mb-3 row">
+                <label class="col-form-label col-sm-3">Message</label>
+                <input class="form-control col-sm-9" @bind-value="logMessage" />
+            </div>
+            <div class="mb-3 row">
+                <button class="btn btn-primary col" type="submit">Submit</button>
+            </div>
+        </form>
+    </Modal>
+
+    <Modal Id="resetQuestion" Title="Reset Question">
+        <form class="px-3" @onsubmit="(async() => ConfirmResetQuestion())">
+            <div class="mb-3 row">
+                This will reset progress on question @resetQuestion?.ShortCode for player with username @player.User.UserName.
+            </div>
+            <div class="mb-3 row">
+                This should not be done unless deemed necessary due to game malfunction.
+            </div>
+            <div class="mb-3 row">
+                <label class="col-form-label col-sm-3">Message</label>
+                <input class="form-input col-sm-9" @bind-value="resetMessage" />
+            </div>
+            <div class="mb-3 row">
+                <button class="btn btn-danger col" type="submit">Reset</button>
+            </div>
+        </form>
+    </Modal>
+
     <div class="container">
         <div class="row card mb-3">
             <div class="card-header row m-0">
@@ -186,7 +187,7 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <Pagination ItemsPerPage="ItemsPerPage" Page="LogPage" TotalItems="player.Responses.Count" PageChanged="p => LogPage = p" />
+                <Pagination ItemsPerPage="ItemsPerPage" Page="LogPage" TotalItems="player.User.Responses.Count" PageChanged="p => LogPage = p" />
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -199,7 +200,7 @@ else
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var log in player.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * ItemsPerPage).Take(ItemsPerPage))
+                            @foreach (var log in player.User.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * ItemsPerPage).Take(ItemsPerPage))
                             {
                                 <tr>
                                     <td>@log.Type</td>
@@ -257,7 +258,7 @@ else
             return;
         }
 
-        player = players.GetFromUsername(username);
+        player = await players.GetFromUsername(username);
 
         if (player == default)
         {
@@ -305,7 +306,7 @@ else
         await log.Create(
         new LogRecord()
             {
-                Player = player,
+                User = player.User,
                 Message = $"{adminName} -> {manualPointsMessage}",
                 Timestamp = DateTime.Now,
                 Type = LogRecord.RecordType.PointTransaction
@@ -314,7 +315,7 @@ else
         manualPoints = "";
         manualPointsMessage = "";
 
-        player = players.GetFromUsername(username);
+        player = await players.GetFromUsername(username);
 
         await js.HideModal("addPoints");
     }
@@ -330,7 +331,7 @@ else
             {
                 Type = LogRecord.RecordType.Player,
                 Message = logMessage,
-                Player = player,
+                User = player?.User,
                 Timestamp = DateTime.Now
             });
 
@@ -364,7 +365,7 @@ else
         if (await points.Reset(player, resetQuestion, resetMessage))
         {
             resetQuestion = default;
-            player = players.GetFromUsername(username);
+            player = await players.GetFromUsername(username);
             StateHasChanged();
             await js.HideModal("resetQuestion");
         }

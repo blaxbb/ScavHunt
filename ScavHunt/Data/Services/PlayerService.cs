@@ -19,19 +19,17 @@ namespace ScavHunt.Data.Services
             userManager = users;
         }
 
-        public virtual Player? GetFromUsername(string badge)
+        public virtual async Task<Player?> GetFromUsername(string badge)
         {
             using (var db = dbFactory.CreateDbContext())
             {
-                var player = db.Players
-                    .Include(p => p.Responses)
-                    .ThenInclude(r => r.Question)
+                return await db.Players
                     .Include(p => p.PointTransactions)
                     .ThenInclude(t => t.Question)
                     .Include(p => p.User)
-                    .FirstOrDefault(p => p.User.UserName == badge);
-
-                return player;
+                    .ThenInclude(p => p.Responses)
+                    .ThenInclude(r => r.Question)
+                    .FirstOrDefaultAsync(p => p.User.UserName == badge);
             }
         }
 
@@ -39,7 +37,7 @@ namespace ScavHunt.Data.Services
         {
             using var db = dbFactory.CreateDbContext();
 
-            var existing = GetFromUsername(badge);
+            var existing = await GetFromUsername(badge);
             if (existing != default)
             {
                 return existing;
@@ -62,7 +60,7 @@ namespace ScavHunt.Data.Services
 
             if (authStatus.User?.Identity?.Name != null)
             {
-                return GetFromUsername(authStatus.User.Identity.Name);
+                return await GetFromUsername(authStatus.User.Identity.Name);
             }
 
             return default;

@@ -53,7 +53,7 @@ namespace ScavHunt.Data.Services
 
                 await log.Create(new LogRecord()
                 {
-                    Player = transaction.Player,
+                    User = transaction.Player.User,
                     Message = $"Awarded {transaction.Value} points for {transaction.Source}",
                     Timestamp = DateTime.Now,
                     Type = LogRecord.RecordType.PointTransaction

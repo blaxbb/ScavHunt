@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScavHunt.Data;
 
@@ -11,9 +12,10 @@ using ScavHunt.Data;
 namespace ScavHunt.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230616025014_Change log from Player to User")]
+    partial class ChangelogfromPlayertoUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,6 +212,9 @@ namespace ScavHunt.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("PlayerId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("QuestionId")
                         .HasColumnType("bigint");
 
@@ -223,6 +228,8 @@ namespace ScavHunt.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
 
                     b.HasIndex("QuestionId");
 
@@ -520,12 +527,16 @@ namespace ScavHunt.Data.Migrations
 
             modelBuilder.Entity("ScavHunt.Data.Models.LogRecord", b =>
                 {
+                    b.HasOne("ScavHunt.Data.Models.Player", null)
+                        .WithMany("Responses")
+                        .HasForeignKey("PlayerId");
+
                     b.HasOne("ScavHunt.Data.Models.Question", "Question")
                         .WithMany("Responses")
                         .HasForeignKey("QuestionId");
 
                     b.HasOne("ScavHunt.Data.Models.ScavhuntUser", "User")
-                        .WithMany("Responses")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("Question");
@@ -594,6 +605,8 @@ namespace ScavHunt.Data.Migrations
             modelBuilder.Entity("ScavHunt.Data.Models.Player", b =>
                 {
                     b.Navigation("PointTransactions");
+
+                    b.Navigation("Responses");
                 });
 
             modelBuilder.Entity("ScavHunt.Data.Models.Prize", b =>
@@ -605,11 +618,6 @@ namespace ScavHunt.Data.Migrations
                 {
                     b.Navigation("PointTransactions");
 
-                    b.Navigation("Responses");
-                });
-
-            modelBuilder.Entity("ScavHunt.Data.Models.ScavhuntUser", b =>
-                {
                     b.Navigation("Responses");
                 });
 #pragma warning restore 612, 618

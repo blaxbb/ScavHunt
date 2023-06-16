@@ -6,9 +6,12 @@ namespace ScavHunt.Data.Services
     public class PrizeAdminService
     {
         protected IDbContextFactory<ApplicationDbContext> dbFactory;
-        public PrizeAdminService(IDbContextFactory<ApplicationDbContext> dbFactory)
+        private readonly LogService logs;
+
+        public PrizeAdminService(IDbContextFactory<ApplicationDbContext> dbFactory, LogService logs)
         {
             this.dbFactory = dbFactory;
+            this.logs = logs;
         }
 
         public async Task<List<Prize>> All()
@@ -50,27 +53,28 @@ namespace ScavHunt.Data.Services
         {
             var db = await dbFactory.CreateDbContextAsync();
 
-
             if(transaction.User != null)
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == transaction.User.Id);
+                var user = await db.Users.FirstAsync(u => u.Id == transaction.User.Id);
                 transaction.User = user;
             }
+
+            var createdBy = await db.Users.FirstAsync(u => u.Id == transaction.CreatedBy.Id);
+            transaction.CreatedBy = createdBy;
 
             var prize = await db.Prizes.FirstOrDefaultAsync(p => p.Id == transaction.Prize.Id);
             if (prize == null)
             {
                 throw new Exception("Prize not found!");
             }
-
             prize.Quantity -= 1;
             transaction.Prize = prize;
-            
-            var updated = db.PrizeTransactions.Add(transaction);
 
+            var updated = db.PrizeTransactions.Add(transaction);
             db.Prizes.Update(prize);
 
             await db.SaveChangesAsync();
+            await logs.Prize(updated.Entity);
             return updated.Entity;
         }
 

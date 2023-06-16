@@ -11,6 +11,7 @@ namespace ScavHunt.Data.Models
         public string? BadgeId { get; set; }
 
         public const string BADGE_REGEX = "^http:\\/\\/rcsreg\\.com\\/(?:.*?\\/){8}$";
+        public List<LogRecord> Responses { get; set; }
 
         public ScavhuntUser() { }
     }

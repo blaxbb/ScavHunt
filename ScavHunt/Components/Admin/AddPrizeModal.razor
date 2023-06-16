@@ -4,6 +4,7 @@
 @inject PrizeAdminService prizes
 @inject AuthenticationStateProvider auth
 @inject UserManager<ScavhuntUser> users
+@inject LogService logs
 
 <Modal Id="@Id" Title="Add Prize" CloseText="Cancel" ConfirmText="Submit" Confirmed="SubmitPrize">
     @if (All != null)
@@ -111,7 +112,7 @@
                 CreatedBy = admin
             };
 
-        await prizes.CreateTransaction(transaction);
+        transaction = await prizes.CreateTransaction(transaction);
 
         SelectedPrize = null;
 

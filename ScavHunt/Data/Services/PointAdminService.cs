@@ -30,7 +30,7 @@ namespace ScavHunt.Data.Services
             var totalPoints = points.Sum(p => p.Value);
             db.PointTransactions.RemoveRange(points);
 
-            var logs = db.Log.Where(l => (l.Type == LogRecord.RecordType.StartedQuestion || l.Type == LogRecord.RecordType.IncorrectAnswer) && l.Player == player && l.Question == question);
+            var logs = db.Log.Where(l => (l.Type == LogRecord.RecordType.StartedQuestion || l.Type == LogRecord.RecordType.IncorrectAnswer) && l.User == player.User && l.Question == question);
             db.Log.RemoveRange(logs);
 
 
@@ -39,7 +39,7 @@ namespace ScavHunt.Data.Services
             await log.Create(new LogRecord()
             {
                 Message = $"Admin {adminName} RESET PROGRESS on question {question.ShortCode} for player {player.User.UserName} removing {totalPoints} points.  {message}",
-                Player = player,
+                User = player.User,
                 Question = question,
                 Type = LogRecord.RecordType.Player,
                 Timestamp = DateTime.Now
