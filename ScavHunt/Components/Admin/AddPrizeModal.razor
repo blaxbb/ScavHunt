@@ -1,6 +1,9 @@
-﻿@using ScavHunt.Data.Models;
+﻿@using Microsoft.AspNetCore.Identity;
+@using ScavHunt.Data.Models;
 @inject JSInterop js
 @inject PrizeAdminService prizes
+@inject AuthenticationStateProvider auth
+@inject UserManager<ScavhuntUser> users
 
 <Modal Id="@Id" Title="Add Prize" CloseText="Cancel" ConfirmText="Submit" Confirmed="SubmitPrize">
     @if (All != null)
@@ -28,6 +31,7 @@
                             <td>Time</td>
                             <td>Type</td>
                             <td>Name</td>
+                            <td>Granted By</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,6 +41,7 @@
                                 <td>@transaction.Timestamp</td>
                                 <td>@transaction.Prize.Type</td>
                                 <td>@transaction.Prize.Name</td>
+                                <td>@transaction.CreatedBy.UserName</td>
                             </tr>
                         }
                     </tbody>
@@ -89,11 +94,21 @@
             return;
         }
 
+        var authState = await auth.GetAuthenticationStateAsync();
+        if (!(authState.User?.Identity?.IsAuthenticated ?? false))
+        {
+            throw new Exception("User not found!");
+        }
+
+        var admin = await users.GetUserAsync(authState.User);
+
+
         var transaction = new PrizeTransaction()
             {
                 User = User,
                 Badge = Badge,
-                Prize = prize
+                Prize = prize,
+                CreatedBy = admin
             };
 
         await prizes.CreateTransaction(transaction);

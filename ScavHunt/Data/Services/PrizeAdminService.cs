@@ -26,7 +26,7 @@ namespace ScavHunt.Data.Services
         public async Task<List<PrizeTransaction>> AllTransactions(ScavhuntUser user)
         {
             var db = await dbFactory.CreateDbContextAsync();
-            return await db.PrizeTransactions.Include(p => p.Prize).Where(p => p.User == user).ToListAsync();
+            return await db.PrizeTransactions.Include(p => p.Prize).Include(p => p.CreatedBy).Where(p => p.User == user).ToListAsync();
         }
 
         public async Task<Prize> New(Prize prize)
@@ -86,11 +86,11 @@ namespace ScavHunt.Data.Services
             var db = await dbFactory.CreateDbContextAsync();
             if (user != null)
             {
-                return await db.PrizeTransactions.Include(p => p.Prize).Where(p => p.User == user).OrderByDescending(p => p.Timestamp).ToListAsync();
+                return await db.PrizeTransactions.Include(p => p.Prize).Include(p => p.CreatedBy).Where(p => p.User == user).OrderByDescending(p => p.Timestamp).ToListAsync();
             }
             else if(!string.IsNullOrWhiteSpace(badge))
             {
-                return await db.PrizeTransactions.Include(p => p.Prize).Where(p => p.Badge == badge).OrderByDescending(p => p.Timestamp).ToListAsync();
+                return await db.PrizeTransactions.Include(p => p.Prize).Include(p => p.CreatedBy).Where(p => p.Badge == badge).OrderByDescending(p => p.Timestamp).ToListAsync();
             }
 
             return new List<PrizeTransaction>();
@@ -99,7 +99,7 @@ namespace ScavHunt.Data.Services
         public async Task<Prize?> WithTransactions(Prize prize)
         {
             var db = await dbFactory.CreateDbContextAsync();
-            return await db.Prizes.Include(p => p.Transactions).ThenInclude(t => t.User).FirstOrDefaultAsync(p => p.Id == prize.Id);
+            return await db.Prizes.Include(p => p.Transactions).ThenInclude(t => t.User).Include(p => p.Transactions).ThenInclude(t => t.CreatedBy).FirstOrDefaultAsync(p => p.Id == prize.Id);
         }
     }
 }

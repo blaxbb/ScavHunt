@@ -46,42 +46,6 @@
     }
 </Modal>
 
-<Modal Id="prizeTransactionsModal" Title="@(transactionModalPrize?.Name ?? "Transactions")" @ref=transactionModal>
-    @if (transactionModalPrize != null)
-    {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <tr>
-                    <td>Person</td>
-                    <td>Timestamp</td>
-                </tr>
-                <tbody>
-                    @foreach (var transaction in transactionModalPrize.Transactions.Skip(transactionPage * TRANSACTIONS_PER_PAGE).Take(TRANSACTIONS_PER_PAGE))
-                    {
-                        <tr>
-                            <td>
-                                @(transaction.User?.UserName ?? transaction.Badge)
-                            </td>
-                            <td>
-                                @transaction.Timestamp
-                            </td>
-                            <td>
-                                @if (transaction.User != null)
-                                {
-                                    <button class="btn btn-interactable" @onclick=@(async () => nav.NavigateTo($"/admin/players/{transaction.User.UserName}"))>
-                                        <span class="oi oi-external-link"></span>
-                                    </button>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            <Pagination ItemsPerPage="TRANSACTIONS_PER_PAGE" Page="transactionPage" TotalItems="transactionModalPrize.Transactions.Count" />
-        </div>
-    }
-</Modal>
-
 <div class="container">
     <div class="row">
         <div class="col">

@@ -107,18 +107,20 @@ else
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <td>Time</td>
                                     <td>Type</td>
+                                    <td>Time</td>
                                     <td>Name</td>
+                                    <td class="text-end">Granted By</td>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var transaction in prizes.Skip(ItemsPerPage * PrizePage).Take(ItemsPerPage))
                                 {
                                     <tr>
-                                        <td>@transaction.Timestamp</td>
                                         <td>@transaction.Prize.Type</td>
+                                        <td>@transaction.Timestamp</td>
                                         <td>@transaction.Prize.Name</td>
+                                        <td class="text-end">@transaction.CreatedBy.UserName</td>
                                     </tr>
                                 }
                             </tbody>

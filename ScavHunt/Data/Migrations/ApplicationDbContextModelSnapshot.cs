@@ -319,6 +319,9 @@ namespace ScavHunt.Data.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<long>("PrizeId")
                         .HasColumnType("bigint");
 
@@ -329,6 +332,8 @@ namespace ScavHunt.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
 
                     b.HasIndex("PrizeId");
 
@@ -556,6 +561,10 @@ namespace ScavHunt.Data.Migrations
 
             modelBuilder.Entity("ScavHunt.Data.Models.PrizeTransaction", b =>
                 {
+                    b.HasOne("ScavHunt.Data.Models.ScavhuntUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
                     b.HasOne("ScavHunt.Data.Models.Prize", "Prize")
                         .WithMany("Transactions")
                         .HasForeignKey("PrizeId")
@@ -565,6 +574,8 @@ namespace ScavHunt.Data.Migrations
                     b.HasOne("ScavHunt.Data.Models.ScavhuntUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("Prize");
 
