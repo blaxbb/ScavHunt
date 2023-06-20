@@ -1,0 +1,35 @@
+﻿@page "/leaderboard"
+
+<div class="container">
+
+    <div class="position-relative overflow-hidden">
+        <div class="position-absolute line-bg">
+        </div>
+        <div class="row spacer bg-primary p-3">
+            <div class="header col-xl-4 mb-3 z-index-4">
+                <h1>Leaderboard</h1>
+            </div>
+            <div class="col-xl-8 my-auto z-index-4">
+                <Leaderboard Count="20" />
+            </div>
+        </div>
+        <div class="row spacer bg-secondary p-3">
+            <div class="header col-xl-4 mb-3 z-index-4">
+                <h1>Prizes</h1>
+            </div>
+            <div class="col-xl-8 my-auto z-index-4 p-3 mb-3 bg-secondary">
+                <div class="list-group list-group-flush ps-3">
+                    <div class="list-group-item bg-transparent">You must be a registered SIGGRAPH 2023 attendee to play the game and win prizes.</div>
+
+                    <div class="list-group-item bg-transparent">You must be present to win! We will have a prize ceremony on Thursday. If you’re not in attendance when your name is called, we’ll move on to the next name on the list. So, check the leaderboard and be there!</div>
+
+                    <div class="list-group-item bg-transparent">Winners may be required to show the game on their mobile device. This is especially important if we cannot tell who you are by your screen name in the leaderboard.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

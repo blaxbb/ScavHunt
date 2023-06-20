@@ -18,12 +18,11 @@ namespace ScavHunt.Data.Services
             var result = db.Players.Include(p => p.PointTransactions).Include(p => p.User).Where(p => p.User.EmailConfirmed).OrderByDescending(p => p.PointTransactions.Sum(p => p.Value)).ThenBy(p => p.PointTransactions.Sum(p => p.Duration));
             if (count > 0)
             {
-                return await result.ToListAsync();
+                return await result.Take(count).ToListAsync();
             }
             else
             {
-                return await result.Take(count).ToListAsync();
-
+                return await result.ToListAsync();
             }
         }
 

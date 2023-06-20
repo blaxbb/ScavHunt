@@ -12,20 +12,13 @@
                     The 50th International Conference & Exhibition on Computer Graphics & Interactive Techniques
                 </div>
             </div>
-            @*<div class="col-xl-8 my-auto">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item bg-secondary">Scan QR Codes</li>
-                    <li class="list-group-item bg-secondary">Answer Trivia</li>
-                    <li class="list-group-item bg-secondary">Win Prizes</li>
-                </ul>
-            </div>*@
         </div>
         <div class="row spacer bg-secondary p-3">
             <div class="header col-xl-4 mb-3">
                 <div class="d-flex flex-column justify-content-evenly h-100">
-                        <a class="btn btn-lg btn-primary btn-interactable mx-auto col-12 col-md-6 mb-3" href="/Identity/Account/Login">Login</a>
-                        <a class="btn btn-lg btn-primary btn-interactable mx-auto col-12 col-md-6" href="/Identity/Account/Register">Register</a>
-                    </div>
+                    <a class="btn btn-lg btn-primary btn-interactable mx-auto col-12 col-md-6 mb-3" href="/Identity/Account/Login">Login</a>
+                    <a class="btn btn-lg btn-primary btn-interactable mx-auto col-12 col-md-6" href="/Identity/Account/Register">Register</a>
+                </div>
             </div>
             <div class="col-xl-8 my-auto">
                 <h1>Basic Info</h1>
@@ -48,9 +41,17 @@
             <div>
                 The top participants will recieve prizes at the end of the conference.
             </div>
+            <div class="mx-auto text-center my-3 d-none d-xl-block">
+                <a href="/leaderboard" class="w-100 btn btn-lg btn-primary btn-interactable">Full leaderboard</a>
+            </div>
         </div>
         <div class="col-xl-9">
             <Leaderboard />
+        </div>
+        <div class="col-12">
+            <div class="mx-auto text-center col-12 col-md-6 my-3 d-block d-xl-none">
+                <a href="/leaderboard" class="w-100 btn btn-lg btn-primary btn-interactable">Full leaderboard</a>
+            </div>
         </div>
     </div>
 </div>

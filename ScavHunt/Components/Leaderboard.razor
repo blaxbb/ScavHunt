@@ -8,7 +8,7 @@
         {
             var index = i;
             var leader = LeaderboardData[index];
-            <tr>
+            <tr class="@(leader.Id == player?.Id ? "fw-bold": "")">
                 <td>@(index + 1)</td>
                 <td>@leader.User.DisplayName</td>
                 <td class="text-right">@pointString(leader)</td>
@@ -39,6 +39,9 @@
 </table>
 
 @code {
+    [Parameter]
+    public int Count { get; set; } = 5;
+
     List<Player>? LeaderboardData { get; set; }
     int PlayerPosition { get; set; } = -1;
 
@@ -47,7 +50,7 @@
     protected override async Task OnInitializedAsync()
     {
         player = await players.GetCurrent();
-        LeaderboardData = await leaders.Leaderboard(5);
+        LeaderboardData = await leaders.Leaderboard(Count);
     }
 
     public string pointString(Player player)
