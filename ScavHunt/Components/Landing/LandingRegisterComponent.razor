@@ -63,6 +63,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Leaderboard = await leaders.ShortLeaderboard();
+        Leaderboard = await leaders.Leaderboard(5);
     }
 }

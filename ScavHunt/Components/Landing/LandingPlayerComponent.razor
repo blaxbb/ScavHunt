@@ -122,7 +122,7 @@
         var lockedQuestions = allActiveQuestions.Where(q => !q.HasAccess(player));
 
         ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
-        Leaderboard = await leaders.ShortLeaderboard();
+        Leaderboard = await leaders.Leaderboard(5);
         PlayerPosition = await leaders.GetPosition(player);
     }
 

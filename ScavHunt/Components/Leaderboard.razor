@@ -11,7 +11,7 @@
             <tr>
                 <td>@(index + 1)</td>
                 <td>@leader.User.DisplayName</td>
-                <td>@leader.PointTransactions.Sum(p => p.Value)</td>
+                <td class="text-right">@pointString(leader)</td>
             </tr>
         }
 
@@ -31,7 +31,7 @@
                             )
                     </td>
                     <td>@player.User.DisplayName</td>
-                    <td>@player.PointTransactions.Sum(p => p.Value)</td>
+                    <td class="text-right">@pointString(player)</td>
                 </tr>
             }
         }
@@ -47,6 +47,20 @@
     protected override async Task OnInitializedAsync()
     {
         player = await players.GetCurrent();
-        LeaderboardData = await leaders.ShortLeaderboard();
+        LeaderboardData = await leaders.Leaderboard(5);
+    }
+
+    public string pointString(Player player)
+    {
+        var points = player.PointTransactions.Sum(p => p.Value);
+        var others = LeaderboardData?.Count(other => other.PointTransactions.Sum(p => p.Value) == points);
+        if(others > 1)
+        {
+            return $"{player.PointTransactions.Sum(p => p.Value)} ({player.PointTransactions.Sum(p => p.Duration).ToString("F2")} seconds)";
+        }
+        else
+        {
+            return player.PointTransactions.Sum(p => p.Value).ToString();
+        }
     }
 }
