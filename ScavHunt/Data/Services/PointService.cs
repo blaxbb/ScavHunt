@@ -15,14 +15,15 @@ namespace ScavHunt.Data.Services
             log = logService;
         }
 
-        public async Task<PointTransaction?> AddPoints(Player player, Question question, int value)
+        public async Task<PointTransaction?> AddPoints(Player player, Question question, int value, double duration)
         {
             var transaction = new PointTransaction()
             {
                 Player = player,
                 Source = PointSource.Question,
                 Value = value,
-                Question = question
+                Question = question,
+                Duration = duration
             };
 
             return await AddPoints(transaction);

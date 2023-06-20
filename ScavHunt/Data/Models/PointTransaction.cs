@@ -17,5 +17,7 @@
             Manual
         }
 
+        public double Duration { get; set; } = 0;
+
     }
 }

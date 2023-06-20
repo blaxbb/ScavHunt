@@ -289,7 +289,7 @@ else if (question != default)
             await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice ?? "NULL"} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
         }
 
-        await points.AddPoints(player, question, Points());
+        await points.AddPoints(player, question, Points(), ElapsedTime);
         StopTimer();
 
         StateHasChanged();

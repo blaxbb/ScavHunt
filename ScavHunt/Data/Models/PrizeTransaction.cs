@@ -8,7 +8,7 @@ namespace ScavHunt.Data.Models
         [StringLength(250)]
         public string? Badge { get; set; } = null;
         public ScavhuntUser? User { get; set; } = null;
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
         public Prize Prize { get; set; } = null!;
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
