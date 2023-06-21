@@ -7,10 +7,10 @@
 @inject QuestionAdminService questions
 @inject JSInterop js
 
-<Modal id="@EditId" Title="@(editQuestion?.ShortCode != default ? $"Editing - {editQuestion.ShortCode}" : "New question")">
+<Modal id="@EditId" Title="@(editQuestion?.ShortCode != default ? $"Editing - {editQuestion.ShortCode}" : "New question")" Confirmed="SaveQuestion" ConfirmText="Save">
     @if (editQuestion != null)
     {
-        <EditForm id="editQuestionForm" Model="@editQuestion" OnValidSubmit="@SaveQuestion">
+        <EditForm id="editQuestionForm" Model="@editQuestion">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -139,9 +139,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="form-check mb-3">
-                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
     
         </EditForm>

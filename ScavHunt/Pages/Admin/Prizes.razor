@@ -12,10 +12,10 @@
 
 <AddPrizeModal @ref=grantModal User=@scannedUser Badge=@scannedBadge Saved="GetPrizes" />
 
-<Modal Id="@EDIT_ID" Title="@(editPrize?.Id > 0 ? $"Editing {editPrize?.Name}" : "New Prize")">
+<Modal Id="@EDIT_ID" Title="@(editPrize?.Id > 0 ? $"Editing {editPrize?.Name}" : "New Prize")" Confirmed="SavePrize" ConfirmText="Save">
     @if (editPrize != null)
     {
-        <EditForm id="editPrizeForm" Model="@editPrize" OnValidSubmit="@SavePrize">
+        <EditForm id="editPrizeForm" Model="@editPrize">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -37,10 +37,6 @@
             <div class="mb-3">
                 <label class="form-label">Quantity</label>
                 <InputNumber class="form-control" id="quantity" @bind-Value="editPrize.Quantity" placeholder="Quantity" />
-            </div>
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </EditForm>
     }

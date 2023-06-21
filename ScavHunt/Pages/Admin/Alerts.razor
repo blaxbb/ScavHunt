@@ -7,10 +7,10 @@
 @inject EmailSender emailSender
 @inject UserService users
 
-<Modal Id="@EDIT_ID" Title="@(editAlert?.Id != 0 ? $"Editing {editAlert?.Title}" : "New Alert")">
+<Modal Id="@EDIT_ID" Title="@(editAlert?.Id != 0 ? $"Editing {editAlert?.Title}" : "New Alert")" ConfirmText="Save" Confirmed="SaveAlert">
     @if (editAlert != null)
     {
-        <EditForm id="editAlertForm" Model="@editAlert" OnValidSubmit="@SaveAlert">
+        <EditForm id="editAlertForm" Model="@editAlert">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -42,18 +42,14 @@
                 <label class="form-label">Lock Time</label>
                 <input type="datetime-local" class="form-control" @bind="editAlert.EndTime" step="1" />
             </div>
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
         </EditForm>
     }
 </Modal>
 
-<Modal Id="@EMAIL_ID" Title="Send Mass Email">
+<Modal Id="@EMAIL_ID" Title="Send Mass Email" Confirmed="SendEmail" ConfirmText="Send">
     @if (emailData != null)
     {
-        <EditForm id="sendEmailForm" Model="@emailData" OnValidSubmit="@SendEmail">
+        <EditForm id="sendEmailForm" Model="@emailData">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -65,9 +61,6 @@
             <div class="mb-3">
                 <label class="form-label">Content</label>
                 <InputTextArea class="form-control" id="text" rows="6" @bind-Value="emailData.Content" placeholder="Content" />
-            </div>
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </EditForm>
     }
