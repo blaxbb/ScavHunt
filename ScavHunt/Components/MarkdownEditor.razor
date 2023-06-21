@@ -1,0 +1,72 @@
+﻿@inject MarkdownService md
+
+<div class="row my-3">
+    <ul class="nav nav-tabs">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+            <li class="nav-item">
+                <span class="nav-link disabled">@Title</span>
+            </li>
+        }
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#mdEdit_@Id">Edit</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#mdPreview_@Id">Preview</a>
+        </li>
+    </ul>
+</div>
+<div class="row tab-content">
+    <div class="tab-pane active" id="mdEdit_@Id">
+        <InputTextArea class="form-control" id="text" rows="6" @bind-Value="MarkdownText" placeholder="@Placeholder" />
+    </div>
+    <div class="tab-pane" id="mdPreview_@Id">
+        <div>
+            @md.Render(MarkdownText)
+        </div>
+    </div>
+</div>
+
+
+@code {
+    int Id { get; set; }
+
+    enum ControlState
+    {
+        Edit,
+        Preview
+    }
+    ControlState Edit { get; set; }
+
+    private string mdText;
+    [Parameter]
+    public string MarkdownText { get => mdText; set
+        {
+            if(mdText == value)
+            {
+                return;
+            }
+
+            mdText = value;
+            MarkdownTextChanged.InvokeAsync(mdText);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> MarkdownTextChanged { get; set; }
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        Id = Random.Shared.Next();
+        base.OnInitialized();
+    }
+
+
+}

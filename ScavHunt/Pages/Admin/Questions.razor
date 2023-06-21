@@ -34,18 +34,15 @@
                     </div>
 
                     <div class="form-check mb-3">
-                        <label class="form-label">Question - Markdown enabled</label>
-                        <InputTextArea class="form-control" id="text" rows="6" @bind-Value="editQuestion.Text" placeholder="Question" />
+                        <MarkdownEditor @bind-MarkdownText="editQuestion.Text" Title="Question" Placeholder="Question" />
                     </div>
 
                     <div class="form-check mb-3">
-                        <label class="form-label">Hint - Markdown enabled</label>
-                        <InputTextArea class="form-control" id="hint" rows="6" @bind-Value="editQuestion.HintText" placeholder="Hint" />
+                        <MarkdownEditor @bind-MarkdownText="editQuestion.HintText" Title="Hint" Placeholder="Hint" />
                     </div>
 
                     <div class="form-check mb-3">
-                        <label class="form-label">Success - Markdown enabled</label>
-                        <InputTextArea class="form-control" id="successText" rows="6" @bind-Value="editQuestion.SuccessText" placeholder="Success Text" />
+                        <MarkdownEditor @bind-MarkdownText="editQuestion.SuccessText" Title="Success Text" Placeholder="Success"/>
                     </div>
                 </div>
             </div>
