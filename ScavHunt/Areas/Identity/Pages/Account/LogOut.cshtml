@@ -3,12 +3,16 @@
 @using ScavHunt.Data.Models;
 @attribute [IgnoreAntiforgeryToken]
 @inject SignInManager<ScavhuntUser> SignInManager
+@inject UserManager<ScavhuntUser> UserManager
+
 @functions {
     public async Task<IActionResult> OnPost()
     {
         if (SignInManager.IsSignedIn(User))
         {
             await SignInManager.SignOutAsync();
+            var identity = await UserManager.FindByNameAsync(User.Identity.Name);
+            await UserManager.UpdateSecurityStampAsync(identity);
         }
 
         return Redirect("~/");
