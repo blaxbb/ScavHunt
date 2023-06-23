@@ -9,19 +9,21 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-auto">
+        <div class="col-12 col-md-auto mb-1">
             <h3>Players</h3>
         </div>
-        <div class="col-auto">
-            <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
-        </div>
-        <div class="col-auto">
-            <input type="text" class="form-control" placeholder="Search" @bind-value="SearchText"/>
+        <div class="col-12 col-md-auto row mb-3">
+            <div class="col-auto">
+                <button type="button" class="btn btn-lg btn-interactable" @onclick="@(async () => await scannerModal.Show())"><span class="oi oi-camera-slr"></span></button>
+            </div>
+            <div class="col">
+                <input type="text" class="form-control form-control-lg" placeholder="Search" @bind-value="SearchText" />
+            </div>
         </div>
         @if (All != null)
         {
-            <div class="col-auto ms-auto">
-                <Pagination ItemsPerPage="PlayersPerPage" Page="Page" TotalItems="All.Count" PageChanged="p => Page = p" />
+            <div class="col-12 col-md-auto ms-auto">
+                <Pagination ItemsPerPage="PlayersPerPage" Page="Page" TotalItems="FilteredPlayers.Count()" PageChanged="p => Page = p" />
             </div>
         }
     </div>
@@ -41,8 +43,8 @@
             {
                 @foreach (var player in (
                Direction == SortDirection.Ascending ?
-               All.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p))
-               ).Where(p => string.IsNullOrWhiteSpace(SearchText) || p.User.Email.Contains(SearchText)).Skip(PlayersPerPage * Page).Take(PlayersPerPage))
+               FilteredPlayers.OrderBy(p => PlayerSort(p)) : All.OrderByDescending(p => PlayerSort(p)))
+               .Skip(PlayersPerPage * Page).Take(PlayersPerPage))
                 {
                     <tr>
                         <td>@(player.User.EmailConfirmed ? "✔️" : "❌")</td>
@@ -61,16 +63,26 @@
 @code {
 
     List<Player> All { get; set; }
+    IEnumerable<Player> FilteredPlayers => All.Where(p => string.IsNullOrWhiteSpace(SearchText) || p.User.Email.Contains(SearchText));
 
     SortMode Mode { get; set; }
     SortDirection Direction { get; set; }
 
     int Page { get; set; }
-    const int PlayersPerPage = 100;
+    const int PlayersPerPage = 3;
 
     ScannerModal? scannerModal { get; set; }
 
-    string SearchText { get; set; }
+    private string searchText;
+    string SearchText
+    {
+        get => searchText;
+        set
+        {
+            Page = 0;
+            searchText = value;
+        }
+    }
 
     enum SortMode
     {
@@ -128,7 +140,7 @@
     async Task ScanSuccess(string text)
     {
         var player = All.FirstOrDefault(p => p.User.Id == text || p.User.BadgeId == text);
-        if(player != null)
+        if (player != null)
         {
             await js?.HideModal("scannerModal");
             nav.NavigateTo($"/admin/players/{player.User.Email}");
