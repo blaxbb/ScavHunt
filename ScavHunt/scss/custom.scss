@@ -20,6 +20,10 @@ $interactable: #E6AF57;
     border: black solid 1px;
 }
 
+.disabled .btn.btn-interactable {
+    border: none;
+}
+
 .text-interactable {
     color: $interactable !important;
 }

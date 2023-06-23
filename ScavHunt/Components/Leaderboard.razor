@@ -4,7 +4,7 @@
 
 <table class="table table-striped table-primary table-hover h-100">
     <tbody>
-        @for (int i = 0; i < LeaderboardData?.Count; i++)
+        @for (int i = PaginationLowPosition; i < LeaderboardData?.Count && i < PaginationHighPosition; i++)
         {
             var index = i;
             var leader = LeaderboardData[index];
@@ -15,28 +15,32 @@
             </tr>
         }
 
-        @if (player != null)
+        @if (PlayerPosition != -1 && (PlayerPosition < PaginationLowPosition || PlayerPosition >= PaginationHighPosition))
         {
-            @if (!LeaderboardData?.Any(p => p.Id == player?.Id) ?? false)
-            {
-                <tr>
-                    <td>&#x200b;</td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>
-                        @(
-                            PlayerPosition == -1 ? "" : PlayerPosition
-                            )
-                    </td>
-                    <td>@player.User.DisplayName</td>
-                    <td class="text-right">@pointString(player)</td>
-                </tr>
-            }
+            <tr>
+                <td>&#x200b;</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    @(
+                        PlayerPosition == -1 ? "" : PlayerPosition + 1
+                        )
+                </td>
+                <td>@player.User.DisplayName</td>
+                <td class="text-right">@pointString(player)</td>
+            </tr>
+
         }
     </tbody>
 </table>
+@if (Count == 0 && LeaderboardData != null)
+{
+    <div class="row">
+        <Pagination ItemsPerPage="ItemsPerPage" Page="Page" TotalItems="LeaderboardData.Count" PageChanged="(p) => Page = p" />
+    </div>
+}
 
 @code {
     [Parameter]
@@ -47,17 +51,27 @@
 
     Player? player { get; set; }
 
+    int ItemsPerPage { get; set; } = 20;
+    int Page { get; set; }
+
+    int PaginationLowPosition => Page * ItemsPerPage;
+    int PaginationHighPosition => PaginationLowPosition + ItemsPerPage;
+
     protected override async Task OnInitializedAsync()
     {
         player = await players.GetCurrent();
         LeaderboardData = await leaders.Leaderboard(Count);
+        if (player != null && LeaderboardData != null)
+        {
+            PlayerPosition = LeaderboardData.FindIndex(p => p.Id == player.Id);
+        }
     }
 
     public string pointString(Player player)
     {
         var points = player.PointTransactions.Sum(p => p.Value);
         var others = LeaderboardData?.Count(other => other.PointTransactions.Sum(p => p.Value) == points);
-        if(others > 1)
+        if (others > 1)
         {
             return $"{player.PointTransactions.Sum(p => p.Value)} ({player.PointTransactions.Sum(p => p.Duration).ToString("F2")} seconds)";
         }

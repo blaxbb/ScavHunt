@@ -1,25 +1,25 @@
 ﻿<nav class="" aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-evenly">
         
-        <li class="page-item @(Page == 0 ? "disabled" : "")"><btn class="btn page-link" @onclick="async (_) => SetPage(0)">First</btn></li>
+        <li class="page-item @(Page == 0 ? "disabled" : "")"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(0)">First</button></li>
         @if(Page == LastPage && Page - 2 >= 0)
         {
-            <li class="page-item"><btn class="btn page-link" @onclick="async (_) => SetPage(Page - 2)">@(Page - 2 + 1)</btn></li>
+            <li class="page-item"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(Page - 2)">@(Page - 2 + 1)</button></li>
         }
         @if (Page != 0)
         {
-            <li class="page-item"><btn class="btn page-link" @onclick="async (_) => SetPage(Page - 1)">@(Page - 1 + 1)</btn></li>
+            <li class="page-item"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(Page - 1)">@(Page - 1 + 1)</button></li>
         }
-        <li class="page-item active"><btn class="btn page-link">@(Page + 1)</btn></li>
+        <li class="page-item active"><button class="btn btn-lg btn-interactable">@(Page + 1)</button></li>
         @if (Page != LastPage)
         {
-            <li class="page-item"><btn class="btn page-link" @onclick="async (_) => SetPage(Page + 1)">@(Page + 1 + 1)</btn></li>
+            <li class="page-item"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(Page + 1)">@(Page + 1 + 1)</button></li>
         }
         @if(Page == 0 && Page + 2 < LastPage)
         {
-            <li class="page-item"><btn class="btn page-link" @onclick="async (_) => SetPage(Page + 2)">@(Page + 2 + 1)</btn></li>
+            <li class="page-item"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(Page + 2)">@(Page + 2 + 1)</button></li>
         }
-        <li class="page-item @(Page == LastPage ? "disabled" : "")"><btn class="btn page-link" @onclick="async (_) => SetPage(LastPage)">Last</btn></li>
+        <li class="page-item @(Page == LastPage ? "disabled" : "")"><button class="btn btn-lg btn-interactable" @onclick="async (_) => SetPage(LastPage)">Last</button></li>
     </ul>
 </nav>
 
