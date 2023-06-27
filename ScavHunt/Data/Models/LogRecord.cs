@@ -19,6 +19,7 @@ namespace ScavHunt.Data.Models
         public RecordType Type { get; set; }
 
         public Question? Question { get; set; }
+        public int? ResponseIndex { get; set; }
         public ScavhuntUser? User { get; set; }
 
         public DateTime Timestamp { get; set; }
@@ -30,13 +31,14 @@ namespace ScavHunt.Data.Models
 
         }
 
-        public static LogRecord QuestionLog(Question question, ScavhuntUser user, RecordType type, string message) => new LogRecord()
+        public static LogRecord QuestionLog(Question question, ScavhuntUser user, RecordType type, string message, int? responseIndex = null) => new LogRecord()
         {
             Type = type,
             Question = question,
             User = user,
             Message = message,
             Timestamp = DateTime.Now,
+            ResponseIndex = responseIndex
         };
 
         public static LogRecord MessageLog(RecordType type, string message) => new LogRecord()

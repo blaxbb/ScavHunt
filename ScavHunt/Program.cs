@@ -128,6 +128,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient<EmailSender>();
 builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGrid"));
+builder.Services.AddTransient<StatsAdminService>();
 
 var app = builder.Build();
 

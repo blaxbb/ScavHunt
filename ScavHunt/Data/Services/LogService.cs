@@ -13,9 +13,9 @@ namespace ScavHunt.Data.Services
             dbFactory = factory;
         }
 
-        public async Task Question(Player player, Question question, RecordType type, string message)
+        public async Task Question(Player player, Question question, RecordType type, string message, int? responseIndex = null)
         {
-            var record = QuestionLog(question, player.User, type, message);
+            var record = QuestionLog(question, player.User, type, message, responseIndex);
             await Create(record);
         }
 

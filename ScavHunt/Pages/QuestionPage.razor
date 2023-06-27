@@ -268,8 +268,7 @@ else if (question != default)
         }
         if (index > 0 && index < Attempted.Count && !Attempted[displayIndex])
         {
-
-            await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.");
+            await log.Question(player, question, LogRecord.RecordType.IncorrectAnswer, $"Answered with {choice} instead of {question.Answers.FirstOrDefault()}.", index);
 
             incorrectCount++;
 
@@ -286,7 +285,7 @@ else if (question != default)
         }
         else
         {
-            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice ?? "NULL"} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.");
+            await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Answered with {choice ?? "NULL"} in {ElapsedTime.ToString("N2")} seconds  for {Points()} points.", 0);
         }
 
         await points.AddPoints(player, question, Points(), ElapsedTime);
