@@ -37,6 +37,12 @@
                     Is Administrator
                 </label>
             </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" @bind="IsPrizeAdmin" id="prizeCheckbox">
+                <label class="form-check-label" for="prizeCheckbox">
+                    Is Prize Admin
+                </label>
+            </div>
 @*            <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="Is" id="lockCheckbox">
                 <label class="form-check-label" for="lockCheckbox">
@@ -54,6 +60,7 @@
 
     ScavhuntUser User;
     bool IsAdmin { get; set; }
+    bool IsPrizeAdmin { get; set; }
 
     ScannerModal? scanner { get; set; }
 
@@ -66,6 +73,10 @@
         if (roles.Contains("admin"))
         {
             IsAdmin = true;
+        }
+        if(roles.Contains("prize"))
+        {
+            IsPrizeAdmin = true;
         }
 
         await base.OnInitializedAsync();
@@ -81,6 +92,15 @@
         if (!IsAdmin && roles.Contains("admin"))
         {
             users.RemoveFromRole(User, "admin");
+        }
+
+        if(IsPrizeAdmin && !roles.Contains("prize"))
+        {
+            users.AddToRole(User, "prize");
+        }
+        if(!IsPrizeAdmin && roles.Contains("prize"))
+        {
+            users.AddToRole(User, "prize");
         }
 
         await users.Update(User);

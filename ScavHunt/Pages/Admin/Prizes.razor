@@ -1,5 +1,5 @@
 ﻿@page "/admin/prizes"
-@attribute [Authorize(Roles = "admin")]
+@attribute [Authorize(Roles = "admin,prize")]
 @using ScavHunt.Components.Admin;
 @using ScavHunt.Data.Models;
 @using System.Text.RegularExpressions;
@@ -10,7 +10,11 @@
 
 <ScannerModal Id="scannerModal" Title="Scan a badge" CloseText="Cancel" Success="OnScan" @ref=badgeModal />
 
-<AddPrizeModal @ref=grantModal User=@scannedUser Badge=@scannedBadge Saved="GetPrizes" />
+<AuthorizeView Roles="admin">
+    <Authorized>
+        <AddPrizeModal @ref=grantModal User=@scannedUser Badge=@scannedBadge Saved="GetPrizes" />
+    </Authorized>
+</AuthorizeView>
 
 <Modal Id="@EDIT_ID" Title="@(editPrize?.Id > 0 ? $"Editing {editPrize?.Name}" : "New Prize")" Confirmed="SavePrize" ConfirmText="Save">
     @if (editPrize != null)
@@ -47,9 +51,13 @@
         <div class="col">
             <h3>Prizes</h3>
         </div>
-        <div class="col-auto">
-            <button type="button" class="btn btn-interactable btn-primary" @onclick="NewPrize">Create Prize</button>
-        </div>
+        <AuthorizeView Roles="admin">
+            <Authorized>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-interactable btn-primary" @onclick="NewPrize">Create Prize</button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
         <div class="col-auto">
             <button type="button" class="btn btn-interactable btn-primary" @onclick="ScanBadge">Give Prize</button>
         </div>
@@ -63,7 +71,11 @@
                     <td>Name</td>
                     <td>Type</td>
                     <td class="text-end">Quantity</td>
-                    <td></td>
+                    <AuthorizeView Roles="admin">
+                        <Authorized>
+                            <td></td>
+                        </Authorized>
+                    </AuthorizeView>
                 </tr>
             </thead>
             <tbody>
@@ -73,14 +85,18 @@
                         <td>@prize.Name</td>
                         <td>@prize.Type</td>
                         <td class="text-end">@prize.Quantity</td>
-                        <td class="text-end">
-                            <button class="btn btn-interactable" @onclick="(async () => await ShowTransactions(prize))">
-                                <span class="oi oi-eye"></span>
-                            </button>
-                            <button class="btn btn-interactable">
-                                <span class="oi oi-pencil" @onclick="(async () => await EditPrize(prize))"></span>
-                            </button>
-                        </td>
+                        <AuthorizeView Roles="admin">
+                            <Authorized>
+                                <td class="text-end">
+                                    <button class="btn btn-interactable" @onclick="(async () => await ShowTransactions(prize))">
+                                        <span class="oi oi-eye"></span>
+                                    </button>
+                                    <button class="btn btn-interactable">
+                                        <span class="oi oi-pencil" @onclick="(async () => await EditPrize(prize))"></span>
+                                    </button>
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
                     </tr>
                 }
             </tbody>

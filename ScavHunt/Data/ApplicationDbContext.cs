@@ -27,6 +27,7 @@ namespace ScavHunt.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<IdentityRole>().HasData(new IdentityRole { Id = "8a3258f3-4a3e-40c8-997e-e04421c1210e", ConcurrencyStamp = "f312aca4-e4a9-46fd-bba8-a26916eb5b63", Name = "admin", NormalizedName = "ADMIN".ToUpper() });
+            builder.Entity<IdentityRole>().HasData(new IdentityRole { Id = "4e8d9538-ac48-4fe3-98e9-ed7d8fed9e6b", ConcurrencyStamp = "a2e4c2bc-8954-4f38-a817-e5cb5e27b01a", Name = "prize", NormalizedName = "prize".ToUpper() });
 
             builder.Entity<Question>()
                 .Property(q => q.Answers)
