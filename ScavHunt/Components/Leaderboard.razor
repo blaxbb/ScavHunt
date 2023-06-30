@@ -11,7 +11,7 @@
             <tr class="@(leader.Id == player?.Id ? "fw-bold": "")">
                 <td>@(index + 1)</td>
                 <td>@leader.User.DisplayName</td>
-                <td class="text-right">@pointString(leader)</td>
+                <td class="text-right">@leaders.PointString(LeaderboardData, leader)</td>
             </tr>
         }
 
@@ -29,7 +29,7 @@
                         )
                 </td>
                 <td>@player.User.DisplayName</td>
-                <td class="text-right">@pointString(player)</td>
+                <td class="text-right">@leaders.PointString(LeaderboardData, player)</td>
             </tr>
 
         }
@@ -64,20 +64,6 @@
         if (player != null && LeaderboardData != null)
         {
             PlayerPosition = LeaderboardData.FindIndex(p => p.Id == player.Id);
-        }
-    }
-
-    public string pointString(Player player)
-    {
-        var points = player.PointTransactions.Sum(p => p.Value);
-        var others = LeaderboardData?.Count(other => other.PointTransactions.Sum(p => p.Value) == points);
-        if (others > 1)
-        {
-            return $"{player.PointTransactions.Sum(p => p.Value)} ({player.PointTransactions.Sum(p => p.Duration).ToString("F2")} seconds)";
-        }
-        else
-        {
-            return player.PointTransactions.Sum(p => p.Value).ToString();
         }
     }
 }

@@ -6,6 +6,7 @@
 @inject JSInterop js
 @inject EmailSender emailSender
 @inject UserService users
+@inject LeaderboardService leaderboard;
 
 <Modal Id="@EDIT_ID" Title="@(editAlert?.Id != 0 ? $"Editing {editAlert?.Title}" : "New Alert")" ConfirmText="Save" Confirmed="SaveAlert">
     @if (editAlert != null)
@@ -20,7 +21,7 @@
             </div>
 
             <div class="mb-3">
-                <MarkdownEditor @bind-MarkdownText="editAlert.Message" Title="Message" Placeholder="Message"/>
+                <MarkdownEditor @bind-MarkdownText="editAlert.Message" Title="Message" Placeholder="Message" />
             </div>
             <div class="mb-3">
                 <label class="form-label">Type</label>
@@ -61,6 +62,37 @@
                 <label class="form-label">Content</label>
                 <InputTextArea class="form-control" id="text" rows="6" @bind-Value="emailData.Content" placeholder="Content" />
             </div>
+            <div class="mb-3">
+                @if (leaders != null && emailData.IsLeaderEmail)
+                {
+                    @foreach (var leader in leaders.Skip(LeadersPerPage * LeaderPage).Take(LeadersPerPage))
+                    {
+                        var email = leader.User.Email;
+
+                        <div class="row py-1 border-bottom mx-3">
+                            <div class="col-auto">
+                                <input type="checkbox" class="form-check" style="min-width:25px; height: 100%" @onchange=@(() => ToggleLeaderEmail(email))>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    @leader.User.DisplayName
+                                </div>
+                                <div>
+                                    @leader.User.UserName
+                                </div>
+                            </div>
+                            <div class="col">
+                            </div>
+                            <div class="col">
+                                @leaderboard.PointString(leaders, leader)
+                            </div>
+                        </div>
+                    }
+                    <div class="row mt-3">
+                        <Pagination ItemsPerPage="LeadersPerPage" Page="LeaderPage" TotalItems="leaders.Count" PageChanged="(p) => LeaderPage = p" />
+                    </div>
+                }
+            </div>
         </EditForm>
     }
 </Modal>
@@ -70,11 +102,14 @@
         <div class="col-sm">
             <h3>Alerts</h3>
         </div>
-        <div class="col-sm-auto">
-            <button type="button" class="btn btn-interactable btn-primary" @onclick="NewAlert">New</button>
+        <div class="col-12 col-sm-auto mb-1">
+            <button type="button" class="w-100 btn btn-interactable btn-primary" @onclick="NewAlert">New Banner</button>
         </div>
-        <div class="col-sm-auto">
-            <button type="button" class="btn btn-interactable btn-primary" @onclick="ShowEmailModal">Send Email</button>
+        <div class="col-12 col-sm-auto mb-1">
+            <button type="button" class="w-100 btn btn-interactable btn-primary" @onclick="ShowLeaderEmailModal">Send Leader Email</button>
+        </div>
+        <div class="col-12 col-sm-auto mb-1">
+            <button type="button" class="w-100 btn btn-interactable btn-primary" @onclick="ShowEmailModal">Send Email</button>
         </div>
     </div>
 
@@ -128,15 +163,23 @@
     Alert? editAlert;
 
     EmailData? emailData;
+
+    List<Player> leaders { get; set; } = new List<Player>();
+    public int LeaderPage { get; set; }
+    public int LeadersPerPage => 10;
+
     public class EmailData
     {
         public string Subject;
         public string Content;
+        public bool IsLeaderEmail { get; set; } = false;
+        public List<string> Receipients { get; set; } = new List<string>();
     }
 
     protected override async Task OnInitializedAsync()
     {
         Active = await alerts.All();
+        leaders = await leaderboard.Leaderboard();
     }
 
     async Task NewAlert()
@@ -153,6 +196,16 @@
     async Task ShowEmailModal()
     {
         emailData = new EmailData();
+
+        await js.ShowModal(EMAIL_ID);
+    }
+
+    async Task ShowLeaderEmailModal()
+    {
+        emailData = new EmailData()
+        {
+             IsLeaderEmail = true
+        };
 
         await js.ShowModal(EMAIL_ID);
     }
@@ -196,7 +249,7 @@
 
     async Task SendEmail()
     {
-        if(string.IsNullOrWhiteSpace(emailData?.Subject))
+        if (string.IsNullOrWhiteSpace(emailData?.Subject))
         {
             return;
         }
@@ -208,9 +261,32 @@
 
         await js.HideModal(EMAIL_ID);
 
-        var emails = users.Users.Where(u => u.EmailConfirmed).Select(u => u.Email).ToList();
+        List<string> emails;
+        if (emailData.IsLeaderEmail)
+        {
+            emails = emailData.Receipients;
+        }
+        else
+        {
+            emails = users.Users.Where(u => u.EmailConfirmed).Select(u => u.Email).ToList();
+        }
 
 
         await emailSender.SendEmailAsync(emails, emailData.Subject, emailData.Content.Replace("\n", "<br />"));
+    }
+
+    void ToggleLeaderEmail(string email)
+    {
+        if(emailData?.Receipients != null)
+        {
+            if (emailData.Receipients.Contains(email))
+            {
+                emailData.Receipients.Remove(email);
+            }
+            else
+            {
+                emailData.Receipients.Add(email);
+            }
+        }
     }
 }
