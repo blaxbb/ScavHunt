@@ -30,34 +30,35 @@
 <body>
     <header>
         <div id="nav" class="mb-3">
-        <nav class="navbar navbar-dark">
-            <div class="row w-100">
-                <a class="navbar-brand col me-auto overflow-hidden" href="/">
-                    <img src="/assets/logo.png" width="30" height="30" class="d-inline-block me-3" alt="">
-                    <span>
-                        Scavenger Hunt - SIGGRAPH 2023
-                    </span>
-                </a>
-                <button type="button" class="btn btn-interactable col-auto" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="oi oi-menu"></span>
-                </button>
-            </div>
-        </nav>
+            <nav class="navbar navbar-dark">
+                <div class="row w-100">
+                    <a class="navbar-brand col me-auto overflow-hidden" href="/">
+                        <img src="/assets/logo.png" width="30" height="30" class="d-inline-block me-3" alt="">
+                        <span>
+                            Scavenger Hunt - SIGGRAPH 2023
+                        </span>
+                    </a>
+                    <button type="button" class="btn btn-interactable col-auto" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-controls="navCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="oi oi-menu"></span>
+                    </button>
+                </div>
+            </nav>
 
-        <div class="collapse" id="navCollapse">
-            @{
-                var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
-            }
-            @if (result.Success)
-            {
-                await Html.RenderPartialAsync("_LoginPartial");
-            }
-            else
-            {
-                throw new InvalidOperationException("The default Identity UI layout requires a partial view '_LoginPartial' " +
+            <div class="collapse" id="navCollapse">
+                @{
+                    var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
+                }
+                @if (result.Success)
+                {
+                    await Html.RenderPartialAsync("_LoginPartial");
+                }
+                else
+                {
+                    throw new InvalidOperationException("The default Identity UI layout requires a partial view '_LoginPartial' " +
                     "usually located at '/Pages/_LoginPartial' or at '/Views/Shared/_LoginPartial' to work. Based on your configuration " +
                     $"we have looked at it in the following locations: {System.Environment.NewLine}{string.Join(System.Environment.NewLine, result.SearchedLocations)}.");
-            }
+                }
+            </div>
         </div>
     </header>
 
@@ -69,7 +70,7 @@
     </div>
     <footer class="footer border-top pl-3 text-muted">
         <div class="container">
-        &copy; 2023 - ScavHunt
+            &copy; 2023 SIGGRAPH. ALL RIGHTS RESERVED
             @{
                 var foundPrivacy = Url.Page("/Privacy", new { area = "" });
             }
