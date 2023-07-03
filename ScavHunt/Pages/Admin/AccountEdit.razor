@@ -1,12 +1,14 @@
 ﻿@page "/admin/accounts/{id}"
 @attribute [Authorize(Roles = "admin")]
 @using Microsoft.AspNetCore.Identity;
+@using Microsoft.Extensions.Options;
 @using ScavHunt.Data.Models;
 @using ScavHunt.Services;
 @using System.Text.RegularExpressions;
 @inject UserManager<ScavhuntUser> userManager;
 @inject UserService users;
 @inject NavigationManager navManager;
+@inject IOptions<BadgeOptions> badgeOptions;
 
 <ScannerModal Id="scannerModal" Title="Scan Badge" Success="ScanSuccess" @ref=scanner />
 
@@ -127,7 +129,7 @@
 
     async Task ScanSuccess(string text)
     {
-        var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
+        var match = Regex.Match(text, badgeOptions.Value.Regex);
         if (match.Success)
         {
             User.BadgeId = text;

@@ -1,5 +1,6 @@
 ﻿@page "/admin/prizes"
 @attribute [Authorize(Roles = "admin,prize")]
+@using Microsoft.Extensions.Options;
 @using ScavHunt.Components.Admin;
 @using ScavHunt.Data.Models;
 @using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@
 @inject PlayerAdminService playerService
 @inject JSInterop js
 @inject NavigationManager nav
+@inject IOptions<BadgeOptions> badgeOptions
 
 <ScannerModal Id="scannerModal" Title="Scan a badge" CloseText="Cancel" Success="OnScan" @ref=badgeModal />
 
@@ -178,7 +180,7 @@
 
     async Task OnScan(string text)
     {
-        var match = Regex.Match(text, ScavhuntUser.BADGE_REGEX);
+        var match = Regex.Match(text, badgeOptions.Value.Regex);
         if (match.Success)
         {
             scannedBadge = text;
