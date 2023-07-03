@@ -170,6 +170,7 @@ else if (question != default)
 
         if (question == default)
         {
+            await log.NotFound($"/q/{QuestionId}", player.User);
             nav.NavigateTo("404");
             return;
         }

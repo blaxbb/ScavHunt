@@ -15,5 +15,11 @@ namespace ScavHunt.Data.Services
             using var db = dbFactory.CreateDbContext();
             return await db.Log.Include(l => l.User).Include(l => l.Question).ToListAsync();
         }
+
+        public async Task<List<LogRecord>> NotFoundLogs()
+        {
+            using var db =dbFactory.CreateDbContext();
+            return await db.Log.Include(l => l.User).Where(l => l.Type == LogRecord.RecordType.NotFound).ToListAsync();
+        }
     }
 }

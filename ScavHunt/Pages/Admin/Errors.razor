@@ -1,0 +1,88 @@
+﻿@page "/admin/errors"
+@attribute [Authorize(Roles = "admin")]
+@using ScavHunt.Data.Models;
+@inject LogAdminService logs
+
+<div class="container">
+
+    <h3>Errors</h3>
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="paths-tab" data-bs-toggle="tab" data-bs-target="#paths" type="button" role="tab" aria-controls="paths" aria-selected="true">Paths</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">Users</button>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="paths" role="tabpanel" aria-labelledby="paths-tab">
+            @if (all != null)
+            {
+                <table class="table table-responsive table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <td>Path</td>
+                            <td>Count</td>
+                            <td>Most Recent</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in all.GroupBy(l => l.Message))
+                        {
+                            <tr>
+                                <td>@log.Key</td>
+                                <td>@log.Count()</td>
+                                <td>@log.Select(l => l.Timestamp).Max().ToString("G")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+            @if(all != null)
+            {
+                <table class="table table-responsive table-hover table-striped">
+                    <thead>
+
+                    </thead>
+                    <tbody>
+                        @foreach(var user in all.Where(l => l.User != null).GroupBy(l => l.User.UserName).OrderByDescending(u => u.Count()))
+                        {
+                            <tr>
+                                <td>@user.Key</td>
+                                <td>@user.Count()</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <table class="table">
+                                        <tbody>
+                                            @foreach(var log in user)
+                                            {
+                                                <tr>
+                                                    <td>@log.Message</td>
+                                                    <td>@log.Timestamp.ToString("G")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+
+    
+</div>
+
+@code {
+    List<LogRecord> all { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        all = await logs.NotFoundLogs();
+    }
+}

@@ -14,7 +14,8 @@ namespace ScavHunt.Data.Models
             IncorrectAnswer = 3,
             PointTransaction = 4,
             Prize = 5,
-            Account = 6
+            Account = 6,
+            NotFound = 7,
         }
         public RecordType Type { get; set; }
 
@@ -53,6 +54,14 @@ namespace ScavHunt.Data.Models
             User = transaction.User ?? transaction.CreatedBy,
             Message = $"{transaction.Prize.Type} prize {transaction.Prize.Name} was granted by {transaction.CreatedBy.UserName}{(transaction.User == null ? $" to badge {transaction.Badge}" : "" )}.",
             Timestamp = DateTime.Now,
+        };
+
+        public static LogRecord NotFoundLog(string path, ScavhuntUser user) => new LogRecord()
+        {
+            Type = RecordType.NotFound,
+            Message = path,
+            User = user,
+            Timestamp = DateTime.Now
         };
             
     }

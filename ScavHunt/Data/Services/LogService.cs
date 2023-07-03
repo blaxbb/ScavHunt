@@ -31,6 +31,12 @@ namespace ScavHunt.Data.Services
             await Create(record);
         }
 
+        public async Task NotFound(string path, ScavhuntUser user)
+        {
+            var record = NotFoundLog(path, user);
+            await Create(record);
+        }
+
         public async Task<LogRecord> Create(LogRecord record)
         {
             using var db = dbFactory.CreateDbContext();
