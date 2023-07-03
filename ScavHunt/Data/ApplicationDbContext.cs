@@ -36,6 +36,9 @@ namespace ScavHunt.Data
                     v => JsonConvert.DeserializeObject<List<string>>(v) ?? new List<string>()
                 );
 
+            builder.Entity<ScavhuntUser>()
+                .HasIndex(u => u.Id).IncludeProperties(p => new { p.BadgeId });
+
             builder.Entity<Question>()
                 .HasIndex(q => q.ShortCode)
                 .IsUnique();
