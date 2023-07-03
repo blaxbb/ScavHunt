@@ -32,6 +32,12 @@
                 </div>
             </div>
             <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" @bind="User.EmailConfirmed" id="emailConfirmedCheckbox">
+                <label class="form-check-label" for="emailConfirmedCheckbox">
+                    Email Confirmed
+                </label>
+            </div>
+            <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="IsAdmin" id="adminCheckbox">
                 <label class="form-check-label" for="adminCheckbox">
                     Is Administrator
@@ -100,12 +106,18 @@
         }
         if(!IsPrizeAdmin && roles.Contains("prize"))
         {
-            users.AddToRole(User, "prize");
+            users.RemoveFromRole(User, "prize");
         }
 
         await users.Update(User);
+        await RefreshToken(User);
 
         navManager.NavigateTo("/admin/accounts");
+    }
+
+    async Task RefreshToken(ScavhuntUser user)
+    {
+        await userManager.UpdateSecurityStampAsync(user);
     }
 
     async Task ShowBadgeScanner()
