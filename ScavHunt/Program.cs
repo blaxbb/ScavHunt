@@ -130,7 +130,10 @@ builder.Services.AddTransient<EmailSender>();
 builder.Services.Configure<SendGridOptions>(builder.Configuration.GetSection("SendGrid"));
 builder.Services.AddTransient<StatsAdminService>();
 
-builder.Services.AddSignalR().AddAzureSignalR();
+if (builder.Configuration.GetSection("Azure").GetSection("SignalR").GetValue<string>("ConnectionString") != null)
+{
+    builder.Services.AddSignalR().AddAzureSignalR();
+}
 
 var app = builder.Build();
 
