@@ -52,7 +52,7 @@ namespace ScavHunt.Data.Models
         {
             Type = RecordType.Prize,
             User = transaction.User ?? transaction.CreatedBy,
-            Message = $"{transaction.Prize.Type} prize {transaction.Prize.Name} was granted by {transaction.CreatedBy.UserName}{(transaction.User == null ? $" to badge {transaction.Badge}" : "" )}.",
+            Message = $"{transaction.Prize.Type} prize {transaction.Prize.Name} was granted by {transaction.CreatedBy.DisplayName}{(transaction.User == null ? $" to badge {transaction.Badge}" : "" )}.",
             Timestamp = DateTime.Now,
         };
 
