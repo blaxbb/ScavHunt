@@ -57,7 +57,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || true)
             {
                 return Page();
             }

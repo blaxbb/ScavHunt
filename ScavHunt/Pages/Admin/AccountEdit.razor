@@ -74,9 +74,12 @@
 
     IList<string> roles;
 
+    bool accountCurrentlyEmailConfirmed;
+
     protected override async Task OnInitializedAsync()
     {
         User = await userManager.FindByIdAsync(id);
+        accountCurrentlyEmailConfirmed = User.EmailConfirmed;
         roles = users.GetRolesById(id).ToList();
         if (roles.Contains("admin"))
         {
@@ -113,6 +116,11 @@
 
         await users.Update(User);
         await RefreshToken(User);
+
+        if(!User.EmailConfirmed && accountCurrentlyEmailConfirmed)
+        {
+            await userManager.GenerateEmailConfirmationTokenAsync(User);
+        }
 
         navManager.NavigateTo("/admin/accounts");
     }
