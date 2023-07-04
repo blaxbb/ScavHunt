@@ -106,5 +106,10 @@ namespace ScavHunt
         {
             await js.InvokeVoidAsync("CreateQrCode", id, text);
         }
+
+        public async Task CreateTooltips(string selector)
+        {
+            await js.InvokeVoidAsync("CreateTooltips", selector);
+        }
     }
 }

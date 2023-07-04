@@ -170,3 +170,8 @@ window.CreateQrCode = function (id, text) {
         }
     );
 }
+
+window.CreateTooltips = function (selector) {
+    const tooltips = document.querySelectorAll(selector);
+    tooltips.forEach(t => bootstrap.Tooltip.getOrCreateInstance(t));
+}
