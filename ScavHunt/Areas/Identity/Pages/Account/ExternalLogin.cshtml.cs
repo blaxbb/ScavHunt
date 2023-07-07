@@ -83,12 +83,12 @@ namespace ScavHunt.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
+            ///// <summary>
+            /////     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+            /////     directly from your code. This API may change or be removed in future releases.
+            ///// </summary>
+            //[Required]
+            //[EmailAddress]
             public string Email { get; set; }
 
             [Required]
@@ -197,7 +197,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
                         //    values: new { area = "Identity", userId = userId, code = code },
                         //    protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Scavenger Hunt SIGGRAPH 2023 Account Created",
+                        await _emailSender.SendEmailAsync(email, "Scavenger Hunt SIGGRAPH 2023 Account Created",
                             $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023 using the external login provider {info.ProviderDisplayName}.<br /><br />Contact hunt@acmsiggraph.org for more info.");
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
