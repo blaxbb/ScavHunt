@@ -149,7 +149,7 @@
 
     async Task QrSuccess(string text)
     {
-        var regex = new Regex("https:\\/\\/hunt\\.siggraph\\.org\\/q\\/(?<id>.+)");
+        var regex = new Regex("https?:\\/\\/hunt\\.siggraph\\.org\\/q\\/(?<id>.+)");
         var match = regex.Match(text);
         if(match.Success)
         {
