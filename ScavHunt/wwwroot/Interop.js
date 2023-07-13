@@ -27,7 +27,10 @@ window.ShowModal = function (id) {
 window.HideModal = function (id) {
     if (id) {
         var modal = document.getElementById(id)
-        bootstrap.Modal.getInstance(modal).hide();
+        var instance = bootstrap.Modal.getInstance(modal);
+        if (instance) {
+            instance.hide();
+        }
     }
 
     removeAllClass('modal-backdrop');
