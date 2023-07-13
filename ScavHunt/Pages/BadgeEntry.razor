@@ -1,4 +1,5 @@
 ﻿@page "/badge"
+@attribute [Authorize]
 @using System.Text.RegularExpressions;
 @using Microsoft.Extensions.Options;
 @using ScavHunt.Data.Models;
@@ -30,8 +31,14 @@
             <div class="col-12 z-index-4 text-center pb-3">
                 <img class="mw-100" style="max-height:350px" src="/assets/badgeScan.png" />
             </div>
-            <div class="col-12 text-center z-index-4" @onclick="startScanning">
-                <button class="btn btn-lg btn-interactable mx-auto">Open camera</button>
+            <div class="col-12 text-center z-index-4">
+                @if (DuplicateBadgeError)
+                {
+                    <div class="alert alert-danger">
+                        There is already a registered player with that badge.  Please try again or contact <a class="alert-link" href="/info/support">Support</a> for help.
+                    </div>
+                }
+                <button type="button" class="btn btn-lg btn-interactable mx-auto" @onclick="startScanning">Open camera</button>
             </div>
         </div>
     </div>
@@ -39,6 +46,8 @@
 
 @code {
     ScannerModal? scannerModal;
+
+    public bool DuplicateBadgeError { get; set; }
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "ReturnUrl")]
@@ -59,9 +68,17 @@
         var match = Regex.Match(text, badgeOptions.Value.Regex);
         if(match.Success)
         {
-            await playerService.SetBadgeId(text);
             await scannerModal.Hide();
-            nav.NavigateTo(ReturnUrl ?? "/");
+
+            if (playerService.GetFromBadge(text) != null)
+            {
+                DuplicateBadgeError = true;
+            }
+            else
+            {
+                await playerService.SetBadgeId(text);
+                nav.NavigateTo(ReturnUrl ?? "/");
+            }
         }
     }
 }

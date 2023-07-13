@@ -19,7 +19,7 @@ namespace ScavHunt.Data.Services
             userManager = users;
         }
 
-        public virtual async Task<Player?> GetFromUsername(string badge)
+        public virtual async Task<Player?> GetFromUsername(string username)
         {
             using (var db = dbFactory.CreateDbContext())
             {
@@ -29,29 +29,22 @@ namespace ScavHunt.Data.Services
                     .Include(p => p.User)
                     .ThenInclude(p => p.Responses)
                     .ThenInclude(r => r.Question)
-                    .FirstOrDefaultAsync(p => p.User.UserName == badge);
+                    .FirstOrDefaultAsync(p => p.User.UserName == username);
             }
         }
 
-        public async Task<Player> CreateOrExisting(string badge)
+        public virtual async Task<Player?> GetFromBadge(string badge)
         {
-            using var db = dbFactory.CreateDbContext();
-
-            var existing = await GetFromUsername(badge);
-            if (existing != default)
+            using (var db = dbFactory.CreateDbContext())
             {
-                return existing;
+                return await db.Players
+                    .Include(p => p.PointTransactions)
+                    .ThenInclude(t => t.Question)
+                    .Include(p => p.User)
+                    .ThenInclude(p => p.Responses)
+                    .ThenInclude(r => r.Question)
+                    .FirstOrDefaultAsync(p => p.User.BadgeId == badge);
             }
-
-            var player = new Player()
-            {
-                Created = DateTime.Now,
-            };
-
-            //db.Players.Add(player);
-            //await db.SaveChangesAsync();
-
-            return player;
         }
 
         public async Task<Player?> GetCurrent()
