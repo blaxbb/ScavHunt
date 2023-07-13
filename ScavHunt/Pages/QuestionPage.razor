@@ -19,101 +19,141 @@
 else if (question != default)
 {
     <div class="container">
-        <div class="row py-3 spacer">
-            <div class="col-md-4 text-center my-auto text-primary">
-                <h3>
-                    @question.Title
-                </h3>
+        <div class="position-relative overflow-hidden">
+            <div class="position-absolute line-bg">
+            </div>
+            <div class="row p-3 mx-0 spacer bg-primary text-center question">
+                <div class="col-md-4 text-center my-auto z-index-4">
+                    <h1>
+                        @question.Title
+                    </h1>
 
-                @if (incorrectCount > 0)
+                    @if (incorrectCount > 0)
+                    {
+                        <h3>@incorrectCount Incorrect Answers</h3>
+                    }
+                    @if (ElapsedTime >= TotalTime)
+                    {
+                        <h3>@ElapsedTime.ToString("0.0+ sec")</h3>
+                    }
+                    else if (!IsBonus)
+                    {
+                        <h3>@ElapsedTime.ToString("0.0 sec")</h3>
+                    }
+                </div>
+                @if (!IsBonus)
                 {
-                    <h5>@incorrectCount Incorrect Answers</h5>
-                }
-                @if (ElapsedTime >= TotalTime)
-                {
-                    <h5>@ElapsedTime.ToString("0.0+ sec")</h5>
-                }
-                else if (!IsBonus)
-                {
-                    <h5>@ElapsedTime.ToString("0.0 sec")</h5>
+                    <div class="col-md p-3 bg-secondary z-index-4">
+                        <h5 class="">@md.Render(question.Text)</h5>
+                    </div>
                 }
             </div>
-            @if (!IsBonus)
-            {
-                <div class="col-md">
-                    <h5 class="">@md.Render(question.Text)</h5>
-                </div>
-            }
+            <div class="row spacer bg-secondary p-3">
+                @if (State == QuestionState.LeadIn)
+                {
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <div class="row bg-secondary choice py-3 my-0 z-index-4 @(i < 3 ? "spacer" : "")">
+                            <div class="col justify-content-center d-flex">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (State == QuestionState.Active)
+                {
+                    @for (int i = 0; i < DisplayChoices.Count; i++)
+                    {
+                        var index = i; // required for invoking ChoiceSelected properly
+
+                        var choice = DisplayChoices[index];
+                        var attempted = Attempted[index];
+
+                        <div class="row @(attempted ? "bg-danger" : "bg-secondary") z-index-4 cursor-pointer choice py-3 my-0 @(i < DisplayChoices.Count - 1 ? "spacer" : "")" @onclick="@(() => ChoiceSelected(index))">
+                            <div class="col text-center my-auto">@choice</div>
+                            <div class="col-auto arrow-bg mx-3 @(attempted ? "invisible" : "")">
+                                <div class="arrow my-auto mx-auto">
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    var displayedProgress = Math.Max(ProgressPercent(), 20);
+                }
+                @if (State == QuestionState.Success)
+                {
+                    var answer = question.Answers.FirstOrDefault();
+                    var points = Points();
+                    @if (answer != null)
+                    {
+                        <div class="row bg-success choice py-3 my-0 spacer z-index-4">
+                            <div class="col text-center my-auto fw-bold">@answer</div>
+                        </div>
+                    }
+                    <div class="row my-3 z-index-4">
+                        <h3 class="text-center">
+                            You have earned @points points!
+                        </h3>
+                    </div>
+                    <div class="row my-3 text-center z-index-4 success">
+                        @md.Render(question.SuccessText)
+                    </div>
+                    <div class="row my-3 mx-0 z-index-4">
+                        <h1>Current Hints</h1>
+                        @for (int i = 0; i < ActiveQuestions.Count; i++)
+                        {
+                            var question = ActiveQuestions[i];
+                            var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
+
+                            <div class="list-item p-3 w-100 spacer cursor-pointer z-index-4" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
+                                <div class="row">
+                                    <div class="col">
+                                        @question.Title
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="oi oi-plus btn btn-interactable"></button>
+                                    </div>
+                                </div>
+                                <div class="collapse mt-3" id="collapseExample-@i">
+                                    <div class="card card-body bg-transparent text-start">
+                                        @md.Render(question.HintText)
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="row my-3 z-index-4">
+                        <div class="mx-auto col-12 col-md-6 col-xl-4 text-center">
+                            <a href="/" class="w-100 btn btn-lg btn-primary btn-interactable">Back home</a>
+                        </div>
+                    </div>
+                }
+                @if (State == QuestionState.EarlyLocked)
+                {
+                    <div class="row bg-primary text-white choice py-3 my-0 spacer z-index-4">
+                        <div class="col text-center my-auto">@($"You are {(question.UnlockTime - DateTime.Now).Humanize()} early!")</div>
+                    </div>
+                    <div class="row my-3 z-index-4">
+                        <div class="mx-auto col-12 col-md-6 col-xl-4 text-center">
+                            <a href="/" class="w-100 btn btn-lg btn-primary btn-interactable">Back home</a>
+                        </div>
+                    </div>
+                }
+                @if (State == QuestionState.LateLocked)
+                {
+                    <div class="row bg-primary text-white choice py-3 my-0 spacer z-index-4">
+                        <div class="col text-center my-auto">@($"This question has expired, you are {(DateTime.Now - question.LockTime).Humanize()} late.")</div>
+                    </div>
+                    <div class="row my-3 z-index-4">
+                        <div class="mx-auto col-12 col-md-6 col-xl-4 text-center">
+                            <a href="/" class="w-100 btn btn-lg btn-primary btn-interactable">Back home</a>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-        @if (State == QuestionState.LeadIn)
-        {
-            @for (int i = 0; i < 4; i++)
-            {
-                <div class="row bg-secondary choice py-3 my-0 @(i < 3 ? "spacer" : "")">
-                    <div class="col justify-content-center d-flex">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        @if (State == QuestionState.Active)
-        {
-            @for (int i = 0; i < DisplayChoices.Count; i++)
-            {
-                var index = i; // required for invoking ChoiceSelected properly
-
-                var choice = DisplayChoices[index];
-                var attempted = Attempted[index];
-
-                <div class="row @(attempted ? "bg-danger" : "bg-secondary") cursor-pointer choice py-3 my-0 @(i < DisplayChoices.Count - 1 ? "spacer" : "")" @onclick="@(() => ChoiceSelected(index))">
-                    <div class="col text-center my-auto">@choice</div>
-                    <div class="col-auto arrow-bg mx-3 @(attempted ? "invisible" : "")">
-                        <div class="arrow my-auto mx-auto">
-                        </div>
-                    </div>
-                </div>
-            }
-
-            var displayedProgress = Math.Max(ProgressPercent(), 20);
-        }
-        @if (State == QuestionState.Success)
-        {
-            var answer = question.Answers.FirstOrDefault();
-            var points = Points();
-            @if (answer != null)
-            {
-                <div class="row bg-success choice py-3 my-0 spacer">
-                    <div class="col text-center my-auto">@answer</div>
-                </div>
-            }
-            <div class="row my-3">
-                <h5 class="text-center">
-                    You have earned @points points!
-                </h5>
-            </div>
-            <div class="row my-3">
-                @md.Render(question.SuccessText)
-            </div>
-            <div class="row my-3">
-                <div class="mx-auto col-12 col-md-6 col-xl-4 text-center">
-                    <a href="/" class="w-100 btn btn-lg btn-primary btn-interactable">Back home</a>
-                </div>
-            </div>
-        }
-        @if (State == QuestionState.EarlyLocked)
-        {
-            <div class="row bg-primary text-white choice py-3 my-0 spacer">
-                <div class="col text-center my-auto">@($"You are {(question.UnlockTime - DateTime.Now).Humanize()} early!")</div>
-            </div>
-        }
-        @if (State == QuestionState.LateLocked)
-        {
-            <div class="row bg-primary text-white choice py-3 my-0 spacer">
-                <div class="col text-center my-auto">@($"This question has expired, you are {(DateTime.Now - question.LockTime).Humanize()} late.")</div>
-            </div>
-        }
     </div>
 }
 
@@ -150,6 +190,8 @@ else if (question != default)
 
     bool IsBonus => question?.Answers.Count == 0;
 
+    List<Question> ActiveQuestions { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool first)
     {
         if (!first)
@@ -165,7 +207,7 @@ else if (question != default)
             nav.NavigateTo($"/Identity/Account/Login?returnUrl=/q/{QuestionId}", true);
             return;
         }
-        else if(string.IsNullOrWhiteSpace(player.User.BadgeId))
+        else if (string.IsNullOrWhiteSpace(player.User.BadgeId))
         {
             nav.NavigateTo($"/badge?returnUrl=/q/{QuestionId}");
             return;
@@ -184,6 +226,7 @@ else if (question != default)
         if (succeededResponse != default)
         {
             State = QuestionState.Success;
+            await SetActiveQuestions();
             StateHasChanged();
             return;
         }
@@ -308,6 +351,8 @@ else if (question != default)
         await points.AddPoints(player, question, Points(), ElapsedTime);
         StopTimer();
 
+        await SetActiveQuestions();
+
         StateHasChanged();
     }
 
@@ -332,6 +377,12 @@ else if (question != default)
             _ => 0
 
         };
+    }
+
+    async Task SetActiveQuestions()
+    {
+        var allActiveQuestions = await questions.Active();
+        ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
     }
 
 

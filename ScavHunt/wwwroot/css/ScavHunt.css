@@ -1,3 +1,7 @@
 ﻿.cursor-pointer {
     cursor: pointer;
 }
+
+.question img, .success img {
+    max-height: 300px;
+}

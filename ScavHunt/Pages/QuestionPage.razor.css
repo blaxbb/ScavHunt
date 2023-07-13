@@ -33,3 +33,8 @@
 .choice.bg-success .arrow, .choice.bg-success .arrow-bg {
     width: 0px;
 }
+
+.list-item {
+    background-color: #f8edd7;
+    border-color: #dea635;
+}
