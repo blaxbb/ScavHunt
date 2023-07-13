@@ -52,12 +52,13 @@ else if (State == LoginState.Info && player != null)
                     <h3 class="text-center my-1">You have @player.PointTransactions.Sum(p => p.Value) points</h3>
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover" style="table-layout: fixed;">
                         <thead>
                             <tr>
                                 <td>Question</td>
-                                <td>Value</td>
-                                <td>Timestamp</td>
+                                <td class="text-center">Value</td>
+                                <td class="text-center">Duration</td>
+                                <td class="text-end">Timestamp</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,8 +70,9 @@ else if (State == LoginState.Info && player != null)
                                             transaction.Source == PointTransaction.PointSource.Question ? (transaction.Question?.Title ?? "") : transaction.Source
                                             )
                                     </td>
-                                    <td>@transaction.Value</td>
-                                    <td>@transaction.Timestamp</td>
+                                    <td class="text-center">@transaction.Value</td>
+                                    <td class="text-center">@transaction.Duration.ToString("N2")</td>
+                                    <td class="text-end">@transaction.Timestamp</td>
                                 </tr>
                             }
                         </tbody>

@@ -31,6 +31,10 @@ else
                 <input class="form-control col-sm-9" type="number" step="1" @bind-value="manualPoints" />
             </div>
             <div class="mb-3 row">
+                <label class="col-form-label col-sm-3">Duration</label>
+                <input class="form-control col-sm-9" type="number" step="1" @bind-value="manualPointsDuration" />
+            </div>
+            <div class="mb-3 row">
                 <label class="col-form-label col-sm-3">Message</label>
                 <input class="form-control col-sm-9" @bind-value="manualPointsMessage" />
             </div>
@@ -139,8 +143,9 @@ else
                                 <td>Source</td>
                                 <td>Question</td>
                                 <td>Value</td>
-                                <td>Timestamp</td>
-                                <td></td>
+                                <td>Duration</td>
+                                <td class="text-end">Timestamp</td>
+                                <td class="text-end"></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,8 +155,9 @@ else
                                     <td>@transaction.Source</td>
                                     <td>@(transaction.Question?.ShortCode ?? "")</td>
                                     <td>@transaction.Value</td>
-                                    <td>@transaction.Timestamp</td>
-                                    <td>
+                                    <td>@transaction.Duration.ToString("N2")</td>
+                                    <td class="text-end">@transaction.Timestamp</td>
+                                    <td class="text-end">
                                         @if (transaction.Source == PointTransaction.PointSource.Question && transaction.Question != default)
                                         {
                                             <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(transaction.Question))"><span class="oi oi-trash"></span></button>
@@ -224,7 +230,8 @@ else
     [Parameter]
     public string? username { get; set; }
 
-    string? manualPoints { get; set; }
+    string? manualPoints { get; set; } = "0";
+    string? manualPointsDuration { get; set; } = "0";
     string? manualPointsMessage { get; set; }
 
     string? logMessage { get; set; }
@@ -263,8 +270,14 @@ else
     async Task SubmitManualPoints()
     {
         int p = 0;
+        int duration = 0;
 
         if (!int.TryParse(manualPoints, out p))
+        {
+            return;
+        }
+
+        if(!int.TryParse(manualPointsDuration, out duration))
         {
             return;
         }
@@ -291,7 +304,8 @@ else
                 Player = player,
                 Source = PointTransaction.PointSource.Manual,
                 Timestamp = DateTime.Now,
-                Value = p
+                Value = p,
+                Duration = duration
             });
 
         await log.Create(
@@ -304,6 +318,7 @@ else
             });
 
         manualPoints = "";
+        manualPointsDuration = "";
         manualPointsMessage = "";
 
         player = await players.GetFromUsername(username);
