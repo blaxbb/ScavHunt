@@ -285,6 +285,17 @@ else if (question != default)
     async Task Success(string? choice = null)
     {
         State = QuestionState.Success;
+        var currentPlayerState = await players.GetCurrent();
+        var existingResponse = currentPlayerState?.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);
+        if (existingResponse != null)
+        {
+            // the player has already submitted a response to this question...
+            await log.Message(LogRecord.RecordType.Player, player.User, $"Player submitted responses to question {question.Title} multiple times.  Not including this submission in point calculations.  Player was already awarded {existingResponse.Value} with a time of {existingResponse.Duration}");
+            StopTimer();
+            StateHasChanged();
+            return;
+        }
+
         if (IsBonus)
         {
             await log.Question(player, question, LogRecord.RecordType.CompletedQuestion, $"Completed bonus worth {Points()} points.");

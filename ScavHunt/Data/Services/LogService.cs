@@ -19,9 +19,9 @@ namespace ScavHunt.Data.Services
             await Create(record);
         }
 
-        public async Task Message(RecordType type, string message)
+        public async Task Message(RecordType type, ScavhuntUser user, string message)
         {
-            var record = MessageLog(type, message);
+            var record = MessageLog(type, user, message);
             await Create(record);
         }
 

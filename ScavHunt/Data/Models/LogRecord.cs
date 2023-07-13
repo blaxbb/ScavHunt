@@ -42,10 +42,12 @@ namespace ScavHunt.Data.Models
             ResponseIndex = responseIndex
         };
 
-        public static LogRecord MessageLog(RecordType type, string message) => new LogRecord()
+        public static LogRecord MessageLog(RecordType type, ScavhuntUser user, string message) => new LogRecord()
         {
             Type = type,
             Timestamp = DateTime.Now,
+            User = user,
+            Message = message
         };
 
         public static LogRecord PrizeLog(PrizeTransaction transaction) => new LogRecord()
