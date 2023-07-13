@@ -59,6 +59,11 @@ namespace ScavHunt.Services
             }
         }
 
+        public void ClearTracking()
+        {
+            db.ChangeTracker.Clear();
+        }
+
         public async Task Update(ScavhuntUser user)
         {
             db.Update(user);

@@ -7,6 +7,7 @@
 @using System.Text.RegularExpressions;
 @inject UserManager<ScavhuntUser> userManager;
 @inject UserService users;
+@inject PlayerAdminService players;
 @inject NavigationManager navManager;
 @inject IOptions<BadgeOptions> badgeOptions;
 
@@ -32,6 +33,14 @@
                         <input class="form-control mb-3" @bind-value="User.BadgeId" />
                     </div>
                 </div>
+                @if (SameBadgeUser != null)
+                {
+                    <div class="row">
+                        <div class="alert alert-danger">
+                            This badge is assigned to another player. <a href="/admin/accounts/@SameBadgeUser.Id">@SameBadgeUser?.DisplayName</a>
+                        </div>
+                    </div>
+                }
             </div>
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" @bind="User.EmailConfirmed" id="emailConfirmedCheckbox">
@@ -51,12 +60,6 @@
                     Is Prize Admin
                 </label>
             </div>
-@*            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" @bind="Is" id="lockCheckbox">
-                <label class="form-check-label" for="lockCheckbox">
-                    Is Locked
-                </label>
-            </div>*@
             <button class="btn btn-primary" type="submit">Save</button>
         </form>
     }
@@ -76,25 +79,42 @@
 
     bool accountCurrentlyEmailConfirmed;
 
+    ScavhuntUser SameBadgeUser { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        users.ClearTracking();
         User = await userManager.FindByIdAsync(id);
         accountCurrentlyEmailConfirmed = User.EmailConfirmed;
         roles = users.GetRolesById(id).ToList();
+
+        IsAdmin = false;
+        IsPrizeAdmin = false;
+        SameBadgeUser = null;
+
         if (roles.Contains("admin"))
         {
             IsAdmin = true;
         }
-        if(roles.Contains("prize"))
+        if (roles.Contains("prize"))
         {
             IsPrizeAdmin = true;
         }
-
-        await base.OnInitializedAsync();
     }
 
     async Task saveAccount()
     {
+        if(await IsDuplicateBadge(User?.BadgeId))
+        {
+            StateHasChanged();
+            return;
+        }
+
         if (IsAdmin && !roles.Contains("admin"))
         {
             users.AddToRole(User, "admin");
@@ -141,8 +161,21 @@
         if (match.Success)
         {
             User.BadgeId = text;
+            await IsDuplicateBadge(text);
             await scanner?.Hide();
         }
+    }
+
+    async Task<bool> IsDuplicateBadge(string badge)
+    {
+        var existingBadge = await players.GetFromBadge(badge);
+        if (existingBadge != null && existingBadge?.User.Id != User.Id)
+        {
+            SameBadgeUser = existingBadge.User;
+            return true;
+        }
+
+        return false;
     }
 
 }
