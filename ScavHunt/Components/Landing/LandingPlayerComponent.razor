@@ -41,12 +41,6 @@
             <div class="mb-3">
                 Here are some hints for the currently active questions.
             </div>
-            @if (CompletedQuestions != null && CompletedQuestions.Count > 0)
-            {
-                <div class="mb-3">
-                    You have completed @CompletedQuestions.Count question today.
-                </div>
-            }
         </div>
         <div class="col-xl-9 my-auto">
             @if (ActiveQuestions != default)
