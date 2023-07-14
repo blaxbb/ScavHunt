@@ -102,26 +102,29 @@ else if (question != default)
                     </div>
                     <div class="row my-3 mx-0 z-index-4">
                         <h1>Current Hints</h1>
-                        @for (int i = 0; i < ActiveQuestions.Count; i++)
+                        @if (ActiveQuestions != null)
                         {
-                            var question = ActiveQuestions[i];
-                            var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
+                            @for (int i = 0; i < ActiveQuestions.Count; i++)
+                            {
+                                var question = ActiveQuestions[i];
+                                var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
 
-                            <div class="list-item p-3 w-100 spacer cursor-pointer z-index-4" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
-                                <div class="row">
-                                    <div class="col">
-                                        @question.Title
+                                <div class="list-item p-3 w-100 spacer cursor-pointer z-index-4" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
+                                    <div class="row">
+                                        <div class="col">
+                                            @question.Title
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="oi oi-plus btn btn-interactable"></button>
+                                        </div>
                                     </div>
-                                    <div class="col-auto">
-                                        <button type="button" class="oi oi-plus btn btn-interactable"></button>
+                                    <div class="collapse mt-3" id="collapseExample-@i">
+                                        <div class="card card-body bg-transparent text-start">
+                                            @md.Render(question.HintText)
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="collapse mt-3" id="collapseExample-@i">
-                                    <div class="card card-body bg-transparent text-start">
-                                        @md.Render(question.HintText)
-                                    </div>
-                                </div>
-                            </div>
+                            }
                         }
                     </div>
                     <div class="row my-3 z-index-4">
