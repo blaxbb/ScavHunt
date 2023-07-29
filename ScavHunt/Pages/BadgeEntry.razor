@@ -70,7 +70,7 @@
         {
             await scannerModal.Hide();
 
-            if (playerService.GetFromBadge(text) != null)
+            if (await playerService.GetFromBadge(text) != null)
             {
                 DuplicateBadgeError = true;
             }
