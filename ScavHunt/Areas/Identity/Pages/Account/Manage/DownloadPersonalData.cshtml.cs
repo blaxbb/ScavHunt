@@ -46,7 +46,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var player = await playerService.GetFromUsernameFull(user.UserName);
+            var player = await playerService.GetFromUsernameWithPointTransactions(user.UserName);
+            var responses = await playerService.GetResponses(user.Id);
 
             _logger.LogInformation("User with ID '{UserId}' asked for their personal data.", _userManager.GetUserId(User));
 
@@ -67,7 +68,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account.Manage
 
             personalData.Add($"Authenticator Key", await _userManager.GetAuthenticatorKeyAsync(user));
 
-            personalData.Add("Logs", player.User.Responses.Select(log => new { message = log.Message, time = log.Timestamp }));
+            personalData.Add("Logs", responses.Select(log => new { message = log.Message, time = log.Timestamp }));
             personalData.Add("Points", player.PointTransactions.Select(transaction => new { value = transaction.Value, time = transaction.Timestamp, type = Enum.GetName(transaction.Source), duration = transaction.Duration, question = transaction.Question?.Id ?? -1 }));
 
             Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");

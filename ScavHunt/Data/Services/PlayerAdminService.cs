@@ -19,19 +19,6 @@ namespace ScavHunt.Data.Services
             return db.Players.Include(p => p.User).Include(p => p.PointTransactions).ToList();
         }
 
-        public override async Task<Player?> GetFromUsernameFull(string username)
-        {
-            using var db = dbFactory.CreateDbContext();
-
-            return await db.Players
-                .Include(p => p.PointTransactions)
-                .ThenInclude(t => t.Question)
-                .Include(p => p.User)
-                .ThenInclude(u => u.Responses)
-                .ThenInclude(l => l.Question)
-                .FirstOrDefaultAsync(p => p.User.UserName == username);
-        }
-
         public async Task Delete(Player player)
         {
             using var db = await dbFactory.CreateDbContextAsync();

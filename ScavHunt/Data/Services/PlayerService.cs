@@ -19,20 +19,6 @@ namespace ScavHunt.Data.Services
             userManager = users;
         }
 
-        public virtual async Task<Player?> GetFromUsernameFull(string username)
-        {
-            using (var db = dbFactory.CreateDbContext())
-            {
-                return await db.Players
-                    .Include(p => p.PointTransactions)
-                    .ThenInclude(t => t.Question)
-                    .Include(p => p.User)
-                    .ThenInclude(p => p.Responses)
-                    .ThenInclude(r => r.Question)
-                    .FirstOrDefaultAsync(p => p.User.UserName == username);
-            }
-        }
-
         public virtual async Task<Player?> GetFromUsernameQuestionDetails(string username, long questionId)
         {
             using (var db = dbFactory.CreateDbContext())
@@ -82,16 +68,11 @@ namespace ScavHunt.Data.Services
             }
         }
 
-        public async Task<Player?> GetCurrentFull()
+        public async Task<List<LogRecord>> GetResponses(string userId)
         {
-            var authStatus = await authProvider.GetAuthenticationStateAsync();
+            using var db = await dbFactory.CreateDbContextAsync();
 
-            if (authStatus.User?.Identity?.Name != null)
-            {
-                return await GetFromUsernameFull(authStatus.User.Identity.Name);
-            }
-
-            return default;
+            return await db.Log.Where(l => l.User != null && l.User.Id == userId).Include(l => l.Question).ToListAsync();
         }
 
         public async Task<Player?> GetCurrentWithPointTransactions()

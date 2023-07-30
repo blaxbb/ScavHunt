@@ -184,41 +184,44 @@ else
                 </div>
             </div>
             <div class="card-body">
-                <Pagination ItemsPerPage="ItemsPerPage" Page="LogPage" TotalItems="player.User.Responses.Count" PageChanged="p => LogPage = p" />
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <td>Type</td>
-                                <td>Message</td>
-                                <td>Question</td>
-                                <td>Timestamp</td>
-                                <td></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var log in player.User.Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * ItemsPerPage).Take(ItemsPerPage))
-                            {
+                @if (Responses != null)
+                {
+                    <Pagination ItemsPerPage="ItemsPerPage" Page="LogPage" TotalItems="Responses.Count" PageChanged="p => LogPage = p" />
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
                                 <tr>
-                                    <td>@log.Type</td>
-                                    <td>@log.Message</td>
-                                    <td>@log.Question?.Title</td>
-                                    <td>@log.Timestamp</td>
-                                    @if (log.Type == LogRecord.RecordType.StartedQuestion && log.Question != default)
-                                    {
-                                        <td>
-                                            <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(log.Question))"><span class="oi oi-trash"></span></button>
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        <td></td>
-                                    }
+                                    <td>Type</td>
+                                    <td>Message</td>
+                                    <td>Question</td>
+                                    <td>Timestamp</td>
+                                    <td></td>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach (var log in Responses.OrderByDescending(l => l.Timestamp).Skip(LogPage * ItemsPerPage).Take(ItemsPerPage))
+                                {
+                                    <tr>
+                                        <td>@log.Type</td>
+                                        <td>@log.Message</td>
+                                        <td>@log.Question?.Title</td>
+                                        <td>@log.Timestamp</td>
+                                        @if (log.Type == LogRecord.RecordType.StartedQuestion && log.Question != default)
+                                        {
+                                            <td>
+                                                <button type="button" class="btn btn-primary" @onclick="(async () => await ResetQuestion(log.Question))"><span class="oi oi-trash"></span></button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -247,6 +250,7 @@ else
 
     AddPrizeModal? prizeModal { get; set; }
     List<PrizeTransaction>? prizes { get; set; }
+    List<LogRecord> Responses { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -256,13 +260,16 @@ else
             return;
         }
 
-        player = await players.GetFromUsernameFull(username);
+        player = await players.GetFromUsernameWithPointTransactions(username);
+
 
         if (player == default)
         {
             nav.NavigateTo("404");
             return;
         }
+
+        Responses = await players.GetResponses(player.User.Id);
 
         await UpdatePrizes();
     }
@@ -321,7 +328,8 @@ else
         manualPointsDuration = "";
         manualPointsMessage = "";
 
-        player = await players.GetFromUsernameFull(username);
+        player = await players.GetFromUsernameWithPointTransactions(username);
+        Responses = await players.GetResponses(player.User.Id);
 
         await js.HideModal("addPoints");
     }
@@ -342,6 +350,8 @@ else
             });
 
         logMessage = default;
+
+        Responses = await players.GetResponses(player.User.Id);
 
         await js.HideModal("logMessage");
     }
@@ -371,7 +381,8 @@ else
         if (await points.Reset(player, resetQuestion, resetMessage))
         {
             resetQuestion = default;
-            player = await players.GetFromUsernameFull(username);
+            player = await players.GetFromUsernameWithPointTransactions(username);
+            Responses = await players.GetResponses(player.User.Id);
             StateHasChanged();
             await js.HideModal("resetQuestion");
         }
@@ -380,5 +391,6 @@ else
     async Task UpdatePrizes()
     {
         prizes = await prizeService.AllTransactions(player.User);
+        prizes = prizes.OrderByDescending(p => p.Timestamp).ToList();
     }
 }
