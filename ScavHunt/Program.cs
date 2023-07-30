@@ -67,32 +67,17 @@ if (builder.Configuration["Authentication:Twitter:ConsumerKey"] != null)
 
 if (builder.Configuration["Authentication:Apple:ClientId"] != null)
 {
-
-    authBuilder.AddOpenIdConnect("apple", "Apple", options =>
-    {
-        options.Authority = "https://appleid.apple.com"; // disco doc: https://appleid.apple.com/.well-known/openid-configuration
-
-        options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
-        options.CallbackPath = "/signin-apple"; // corresponding to your redirect URI
-
-        options.ResponseType = "code id_token"; // hybrid flow due to lack of PKCE support
-        options.ResponseMode = "form_post"; // form post due to prevent PII in the URL
-        options.DisableTelemetry = true;
-
-        options.Scope.Clear(); // apple does not support the profile scope
-        options.Scope.Add("openid");
-        options.Scope.Add("email");
-        options.Scope.Add("name");
-
-        // custom client secret generation - secret can be re-used for up to 6 months
-        options.Events.OnAuthorizationCodeReceived = context =>
+    authBuilder
+        .AddApple(options =>
         {
-            context.TokenEndpointRequest.ClientSecret = TokenGenerator.CreateNewToken(builder.Configuration);
-            return Task.CompletedTask;
-        };
-
-        options.UsePkce = false; // apple does not currently support PKCE (April 2021)
-    });
+            options.ClientId = builder.Configuration["Authentication:Apple:ClientId"];
+            options.KeyId = builder.Configuration["Authentication:Apple:KeyId"];
+            options.TeamId = builder.Configuration["Authentication:Apple:TeamId"];
+            options.PrivateKey = (keyId, _) =>
+            {
+                return Task.FromResult(builder.Configuration[$"Authentication:Apple:PrivateKey"].AsMemory());
+            };
+        });
 }
 
 builder.Services.AddRazorPages();
