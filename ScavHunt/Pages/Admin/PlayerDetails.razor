@@ -256,7 +256,7 @@ else
             return;
         }
 
-        player = await players.GetFromUsername(username);
+        player = await players.GetFromUsernameFull(username);
 
         if (player == default)
         {
@@ -321,7 +321,7 @@ else
         manualPointsDuration = "";
         manualPointsMessage = "";
 
-        player = await players.GetFromUsername(username);
+        player = await players.GetFromUsernameFull(username);
 
         await js.HideModal("addPoints");
     }
@@ -371,7 +371,7 @@ else
         if (await points.Reset(player, resetQuestion, resetMessage))
         {
             resetQuestion = default;
-            player = await players.GetFromUsername(username);
+            player = await players.GetFromUsernameFull(username);
             StateHasChanged();
             await js.HideModal("resetQuestion");
         }

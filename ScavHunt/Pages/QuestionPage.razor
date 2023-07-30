@@ -203,7 +203,7 @@ else if (question != default)
         }
         ElapsedTime = 0;
 
-        player = await players.GetCurrent();
+        player = await players.GetCurrentFull();
 
         if (player == default)
         {
@@ -331,7 +331,7 @@ else if (question != default)
     async Task Success(string? choice = null)
     {
         State = QuestionState.Success;
-        var currentPlayerState = await players.GetCurrent();
+        var currentPlayerState = await players.GetCurrentFull();
         var existingResponse = currentPlayerState?.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);
         if (existingResponse != null)
         {

@@ -1,5 +1,6 @@
 ﻿@using ScavHunt.Data.Models
 @using System.Text.RegularExpressions
+@using System.Diagnostics;
 @inject NavigationManager nav;
 @inject QuestionService questions;
 @inject MarkdownService md;
@@ -48,7 +49,6 @@
                 @for (int i = 0; i < ActiveQuestions.Count; i++)
                 {
                     var question = ActiveQuestions[i];
-                    var complete = player?.PointTransactions.Any(p => p.Question?.Id == question.Id) ?? false;
 
                     <div class="list-item p-3 w-100 spacer cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseExample-@i" aria-expanded="false" aria-controls="collapseExample-@i" role="alert">
                         <div class="row">
@@ -98,7 +98,7 @@
     ScannerModal? scannerModal { get; set; }
 
     List<Question>? ActiveQuestions { get; set; }
-    List<Question>? CompletedQuestions { get; set; }
+    // List<Question>? CompletedQuestions { get; set; }
 
     string ManualQuestionCode { get; set; }
 
@@ -108,7 +108,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        player = await players.GetCurrent();
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        player = await players.GetCurrentWithPointTransactions();
         if (player == null)
         {
             Console.WriteLine("ERROR: Player null on landing component!");
@@ -117,15 +119,17 @@
 
         var allActiveQuestions = await questions.Active();
 
-        var totalCount = allActiveQuestions.Count;
+        // var totalCount = allActiveQuestions.Count;
 
-        CompletedQuestions = allActiveQuestions.Where(q => q.IsCompleted(player)).ToList();
+        var CompletedQuestions = allActiveQuestions.Where(q => q.IsCompleted(player)).ToList();
 
         var lockedQuestions = allActiveQuestions.Where(q => !q.HasAccess(player));
 
         ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
-        Leaderboard = await leaders.Leaderboard(5);
-        PlayerPosition = await leaders.GetPosition(player);
+        // Leaderboard = await leaders.Leaderboard(5);
+        // PlayerPosition = await leaders.GetPosition(player);
+        sw.Stop();
+        Console.WriteLine(sw.ElapsedMilliseconds);
     }
 
     async Task SubmitQuestionCode(string code)

@@ -46,7 +46,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            var player = await playerService.GetFromUsername(user.UserName);
+            var player = await playerService.GetFromUsernameFull(user.UserName);
 
             _logger.LogInformation("User with ID '{UserId}' asked for their personal data.", _userManager.GetUserId(User));
 

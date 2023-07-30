@@ -81,7 +81,7 @@
         {
             return;
         }
-        loggedIn = await players.GetCurrent();
+        loggedIn = await players.GetCurrentFull();
         StateHasChanged();
     }
 }

@@ -99,7 +99,7 @@ else if (State == LoginState.Info && player != null)
     {
         if (first)
         {
-            player = await players.GetCurrent();
+            player = await players.GetCurrentFull();
             var state = await auth.GetAuthenticationStateAsync();
             user = await users.FindByNameAsync(state.User.Identity.Name);
             State = LoginState.Info;

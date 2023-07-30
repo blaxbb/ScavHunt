@@ -19,7 +19,7 @@ namespace ScavHunt.Data.Services
             userManager = users;
         }
 
-        public virtual async Task<Player?> GetFromUsername(string username)
+        public virtual async Task<Player?> GetFromUsernameFull(string username)
         {
             using (var db = dbFactory.CreateDbContext())
             {
@@ -29,6 +29,17 @@ namespace ScavHunt.Data.Services
                     .Include(p => p.User)
                     .ThenInclude(p => p.Responses)
                     .ThenInclude(r => r.Question)
+                    .FirstOrDefaultAsync(p => p.User.UserName == username);
+            }
+        }
+
+        public virtual async Task<Player?> GetFromUsernameWithPointTransactions(string username)
+        {
+            using (var db = dbFactory.CreateDbContext())
+            {
+                return await db.Players
+                    .Include(p => p.PointTransactions)
+                    .ThenInclude(t => t.Question)
                     .FirstOrDefaultAsync(p => p.User.UserName == username);
             }
         }
@@ -47,13 +58,25 @@ namespace ScavHunt.Data.Services
             }
         }
 
-        public async Task<Player?> GetCurrent()
+        public async Task<Player?> GetCurrentFull()
         {
             var authStatus = await authProvider.GetAuthenticationStateAsync();
 
             if (authStatus.User?.Identity?.Name != null)
             {
-                return await GetFromUsername(authStatus.User.Identity.Name);
+                return await GetFromUsernameFull(authStatus.User.Identity.Name);
+            }
+
+            return default;
+        }
+
+        public async Task<Player?> GetCurrentWithPointTransactions()
+        {
+            var authStatus = await authProvider.GetAuthenticationStateAsync();
+
+            if (authStatus.User?.Identity?.Name != null)
+            {
+                return await GetFromUsernameWithPointTransactions(authStatus.User.Identity.Name);
             }
 
             return default;

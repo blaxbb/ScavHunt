@@ -59,7 +59,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        player = await players.GetCurrent();
+        player = await players.GetCurrentFull();
         LeaderboardData = await leaders.Leaderboard(Count);
         if (player != null && LeaderboardData != null)
         {
