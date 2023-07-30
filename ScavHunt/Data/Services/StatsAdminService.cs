@@ -44,6 +44,7 @@ namespace ScavHunt.Data.Services
                 if (question.Answers == null || question.Answers.Count == 0)
                 {
                     result.Add(new QuestionStats(question, q.Count(), new(), new(0, 0)));
+                    continue;
                 }
 
                 var resp = q.ToList();
