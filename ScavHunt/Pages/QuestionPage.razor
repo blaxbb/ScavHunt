@@ -384,8 +384,12 @@ else if (question != default)
 
     async Task SetActiveQuestions()
     {
+        var currentPlayerState = await players.GetCurrentWithPointTransactions();
         var allActiveQuestions = await questions.Active();
-        ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
+        if (currentPlayerState != null)
+        {
+            ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(currentPlayerState) && q.HasAccess(currentPlayerState)).ToList();
+        }
     }
 
 
