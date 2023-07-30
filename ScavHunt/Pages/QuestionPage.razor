@@ -202,8 +202,9 @@ else if (question != default)
             return;
         }
         ElapsedTime = 0;
+        question = await questions.GetFromShortCode(QuestionId);
 
-        player = await players.GetCurrentFull();
+        player = await players.GetCurrentQuestionDetails(question?.Id ?? -1);
 
         if (player == default)
         {
@@ -216,7 +217,6 @@ else if (question != default)
             return;
         }
 
-        question = await questions.GetFromShortCode(QuestionId);
 
         if (question == default)
         {
@@ -331,7 +331,7 @@ else if (question != default)
     async Task Success(string? choice = null)
     {
         State = QuestionState.Success;
-        var currentPlayerState = await players.GetCurrentFull();
+        var currentPlayerState = await players.GetCurrentWithPointTransactions();
         var existingResponse = currentPlayerState?.PointTransactions.FirstOrDefault(p => p.Question?.Id == question.Id);
         if (existingResponse != null)
         {

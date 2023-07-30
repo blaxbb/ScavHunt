@@ -33,13 +33,37 @@ namespace ScavHunt.Data.Services
             }
         }
 
+        public virtual async Task<Player?> GetFromUsernameQuestionDetails(string username, long questionId)
+        {
+            using (var db = dbFactory.CreateDbContext())
+            {
+                return await db.Players
+                    .Include(p => p.PointTransactions.Where(transaction => transaction.Question != null && transaction.Question.Id == questionId))
+                    .ThenInclude(t => t.Question)
+                    .Include(p => p.User)
+                    .ThenInclude(p => p.Responses)
+                    .FirstOrDefaultAsync(p => p.User.UserName == username);
+            }
+        }
+
         public virtual async Task<Player?> GetFromUsernameWithPointTransactions(string username)
         {
             using (var db = dbFactory.CreateDbContext())
             {
                 return await db.Players
+                    .Include(p => p.User)
                     .Include(p => p.PointTransactions)
                     .ThenInclude(t => t.Question)
+                    .FirstOrDefaultAsync(p => p.User.UserName == username);
+            }
+        }
+
+        public virtual async Task<Player?> GetFromUsername(string username)
+        {
+            using (var db = dbFactory.CreateDbContext())
+            {
+                return await db.Players
+                    .Include(p => p.User)
                     .FirstOrDefaultAsync(p => p.User.UserName == username);
             }
         }
@@ -77,6 +101,30 @@ namespace ScavHunt.Data.Services
             if (authStatus.User?.Identity?.Name != null)
             {
                 return await GetFromUsernameWithPointTransactions(authStatus.User.Identity.Name);
+            }
+
+            return default;
+        }
+
+        public async Task<Player?> GetCurrentQuestionDetails(long questionId)
+        {
+            var authStatus = await authProvider.GetAuthenticationStateAsync();
+
+            if (authStatus.User?.Identity?.Name != null)
+            {
+                return await GetFromUsernameQuestionDetails(authStatus.User.Identity.Name, questionId);
+            }
+
+            return default;
+        }
+
+        public async Task<Player?> GetCurrent()
+        {
+            var authStatus = await authProvider.GetAuthenticationStateAsync();
+
+            if (authStatus.User?.Identity?.Name != null)
+            {
+                return await GetFromUsername(authStatus.User.Identity.Name);
             }
 
             return default;

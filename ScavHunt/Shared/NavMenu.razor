@@ -71,17 +71,3 @@
         </nav>
     </div>
 </div>
-
-@code {
-    Player? loggedIn { get; set; }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-        {
-            return;
-        }
-        loggedIn = await players.GetCurrentFull();
-        StateHasChanged();
-    }
-}
