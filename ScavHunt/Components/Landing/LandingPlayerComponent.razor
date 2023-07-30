@@ -102,14 +102,9 @@
 
     string ManualQuestionCode { get; set; }
 
-    List<Player>? Leaderboard { get; set; }
-    int PlayerPosition { get; set; } = -1;
-
 
     protected override async Task OnInitializedAsync()
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
         player = await players.GetCurrentWithPointTransactions();
         if (player == null)
         {
@@ -126,10 +121,6 @@
         var lockedQuestions = allActiveQuestions.Where(q => !q.HasAccess(player));
 
         ActiveQuestions = allActiveQuestions.Where(q => !q.IsCompleted(player) && q.HasAccess(player)).ToList();
-        // Leaderboard = await leaders.Leaderboard(5);
-        // PlayerPosition = await leaders.GetPosition(player);
-        sw.Stop();
-        Console.WriteLine(sw.ElapsedMilliseconds);
     }
 
     async Task SubmitQuestionCode(string code)
