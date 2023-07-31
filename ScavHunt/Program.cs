@@ -76,7 +76,9 @@ if (builder.Configuration["Authentication:Apple:ClientId"] != null)
             options.GenerateClientSecret = true;
             options.PrivateKey = (keyId, _) =>
             {
-                return Task.FromResult(builder.Configuration[$"Authentication:Apple:PrivateKey"].AsMemory());
+                var appleKeySecret = builder.Configuration[$"Authentication:Apple:PrivateKey"];
+                var withPem = string.Format("-----BEGIN PRIVATE KEY-----\n{0}\n-----END PRIVATE KEY-----", appleKeySecret);
+                return Task.FromResult(withPem.AsMemory());
             };
         });
 }
