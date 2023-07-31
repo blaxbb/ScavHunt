@@ -349,7 +349,7 @@
     }
 
     private async Task ImportJson(string text) {
-        Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text) ?? new(null, null);
+        Importing = JsonConvert.DeserializeObject<QuestionTreeNode>(text, new JsonSerializerSettings(){ MaxDepth = 256 }) ?? new(null, null);
 
         var impAll = Importing.Flatten();
         await Import(impAll, true, false);
