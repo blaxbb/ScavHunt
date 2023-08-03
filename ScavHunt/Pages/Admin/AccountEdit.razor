@@ -168,6 +168,10 @@
 
     async Task<bool> IsDuplicateBadge(string badge)
     {
+        if(string.IsNullOrWhiteSpace(badge))
+        {
+            return false;
+        }
         var existingBadge = await players.GetFromBadge(badge);
         if (existingBadge != null && existingBadge?.User.Id != User.Id)
         {
