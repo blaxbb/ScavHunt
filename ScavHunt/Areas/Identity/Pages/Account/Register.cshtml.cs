@@ -128,6 +128,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailConfirmedAsync(user, true, CancellationToken.None);
 
                 user.DisplayName = HttpUtility.HtmlEncode(Input.DisplayName);
 
@@ -140,7 +141,7 @@ namespace ScavHunt.Areas.Identity.Pages.Account
                     _db.Players.Add(new Data.Models.Player()
                     {
                         User = user,
-                        Created = DateTime.Now
+                        Created = DateTime.Now,
                     });
 
                     await _db.SaveChangesAsync();
@@ -156,8 +157,8 @@ namespace ScavHunt.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(
                         Input.Email,
-                        "Confirm your email for SIGGRAPH 2023 Scavenger Hunt",
-                        $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023.<br /><br />To finish registration, confirm your email address by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br /><br />If you did not create this account, you can safely ignore this email.<br /><br />Contact hunt@acmsiggraph.org for more info.");
+                        "Account created for Scavenger Hunt",
+                        $"An account has been created for the Scavenger Hunt during SIGGRAPH 2023.<br /><br />If you did not create this account, you can safely ignore this email.<br /><br />Contact hunt@acmsiggraph.org for more info.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
