@@ -34,11 +34,15 @@ namespace ScavHunt.Data.Services
 
         public string PointString(List<Player> LeaderboardData, Player player)
         {
-            var points = player.PointTransactions.Sum(p => p.Value);
+            var transactions = player?.PointTransactions;
+            var points = transactions == null ? 0 : transactions.Sum(p => p.Value);
+            if(points == 0)
+            {
+                return "0";
+            }
             var others = LeaderboardData?.Count(other => other.PointTransactions.Sum(p => p.Value) == points);
             if (others > 1 && points > 0)
             {
-                var transactions = player?.PointTransactions;
                 return $"{points} ({(transactions == null ? 0 : transactions.Sum(p => p?.Duration ?? 0)).ToString("F2")} seconds)";
             }
             else
